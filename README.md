@@ -7,5 +7,7 @@ A spigot land plugin that allows you to build communities and work together to s
   - Display the land that you have claimed
   - Edit Roles and make your governance unique
   - and much more!
-- Show borders whenever you walk over land.
-- 
+- Border Visualisation
+- JSON Message Handling for invitations etc
+
+!!! Current version does not function on spigot server.
