@@ -1,9 +1,10 @@
 package com.huskydreaming.settlements.inventories.lands;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
-import com.huskydreaming.settlements.inventories.InventorySupplier;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.lands.Land;
+import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.*;
@@ -13,9 +14,12 @@ import org.bukkit.inventory.ItemStack;
 
 public class LandsInventory extends InventoryPageProvider<Land> {
 
+    @Inject
+    private InventoryService inventoryService;
+
     public LandsInventory(Settlement settlement, int rows) {
         super(settlement, rows, settlement.getLands().toArray(new Land[0]));
-        this.smartInventory = InventorySupplier.getSettlementInventory(settlement);
+        this.smartInventory = inventoryService.getSettlementInventory(settlement);
     }
 
     @Override
@@ -50,7 +54,7 @@ public class LandsInventory extends InventoryPageProvider<Land> {
                     player.sendMessage("You have teleported to: " + x + ", " + z);
                 }
             } else if(event.isRightClick()) {
-                InventorySupplier.getLandsOwnerInventory(settlement, land).open(player);
+                inventoryService.getLandsOwnerInventory(settlement, land).open(player);
             }
         }
     }

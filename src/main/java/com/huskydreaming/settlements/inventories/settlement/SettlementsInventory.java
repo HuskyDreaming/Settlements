@@ -1,6 +1,5 @@
 package com.huskydreaming.settlements.inventories.settlement;
 
-import com.huskydreaming.settlements.Settlements;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
@@ -12,8 +11,8 @@ import org.bukkit.inventory.ItemStack;
 
 public class SettlementsInventory extends InventoryPageProvider<Settlement> {
 
-    public SettlementsInventory(int rows, Settlements settlements) {
-        super(null, rows, settlements.getSettlementManager().getSettlements().toArray(new Settlement[0]));
+    public SettlementsInventory(int rows, Settlement[] settlements) {
+        super(null, rows, settlements);
     }
 
     @Override

@@ -1,22 +1,29 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.settlements.Settlements;
-import com.huskydreaming.settlements.commands.CommandBase;
-import com.huskydreaming.settlements.managers.SettlementManager;
+import com.google.inject.Inject;
+import com.huskydreaming.settlements.commands.Command;
+import com.huskydreaming.settlements.commands.CommandInterface;
+import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.services.InvitationService;
+import com.huskydreaming.settlements.services.SettlementService;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-public class InviteCommand extends CommandBase {
+@Command(label = CommandLabel.INVITE)
+public class InviteCommand implements CommandInterface {
 
-    public InviteCommand() {
-        super("invite");
-    }
+    @Inject
+    private InvitationService invitationService;
+
+    @Inject
+    private SettlementService settlementService;
+
 
     @Override
-    public void run(Settlements settlements, Player player, String[] strings) {
+    public void run(Player player, String[] strings) {
         if (strings.length == 2) {
             Player target = Bukkit.getPlayer(strings[1]);
             if (target == null) {
@@ -24,18 +31,17 @@ public class InviteCommand extends CommandBase {
                 return;
             }
 
-            SettlementManager settlementManager = settlements.getSettlementManager();
-            if (!settlementManager.hasSettlement(player)) {
+            if (!settlementService.hasSettlement(player)) {
                 player.sendMessage("You do not seem to belong to a settlement.");
                 return;
             }
 
-            if (settlementManager.hasSettlement(target)) {
+            if (settlementService.hasSettlement(target)) {
                 player.sendMessage("The player " + target.getName() + " already has a settlement.");
                 return;
             }
 
-            Settlement settlement = settlementManager.getSettlement(player);
+            Settlement settlement = settlementService.getSettlement(player);
             Role role = settlement.getRole(player);
 
             if (!(role.hasPermission(RolePermission.CITIZEN_INVITE) || settlement.isOwner(player))) {
@@ -43,7 +49,7 @@ public class InviteCommand extends CommandBase {
                 return;
             }
 
-            settlements.getInvitationManager().sendInvitation(target, settlement);
+            invitationService.sendInvitation(target, settlement);
             player.sendMessage("You have sent an invitation to " + target.getName() + ".");
         }
 

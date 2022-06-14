@@ -1,9 +1,10 @@
 package com.huskydreaming.settlements.inventories.lands;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
-import com.huskydreaming.settlements.inventories.InventorySupplier;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.lands.Land;
+import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.ChatColor;
@@ -16,11 +17,14 @@ import java.util.UUID;
 
 public class LandsOwnerInventory extends InventoryPageProvider<OfflinePlayer> {
 
+    @Inject
+    private InventoryService inventoryService;
+
     private final Land land;
 
     public LandsOwnerInventory(Settlement settlement, int rows, Land land) {
         super(settlement, rows, settlement.getCitizens());
-        this.smartInventory = InventorySupplier.getLandsInventory(settlement);
+        this.smartInventory = inventoryService.getLandsInventory(settlement);
         this.land = land;
     }
 

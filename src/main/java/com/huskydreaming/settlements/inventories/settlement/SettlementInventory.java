@@ -1,21 +1,28 @@
 package com.huskydreaming.settlements.inventories.settlement;
 
-import com.huskydreaming.settlements.Settlements;
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryItem;
-import com.huskydreaming.settlements.inventories.InventorySettlementProvider;
-import com.huskydreaming.settlements.inventories.InventorySupplier;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.services.InventoryService;
+import com.huskydreaming.settlements.services.SettlementService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
+import fr.minuskube.inv.content.InventoryProvider;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public class SettlementInventory extends InventorySettlementProvider {
+public class SettlementInventory implements InventoryProvider {
+
+    @Inject
+    private InventoryService inventoryService;
+
+    @Inject
+    private SettlementService settlementService;
 
     private final Settlement settlement;
 
@@ -48,7 +55,7 @@ public class SettlementInventory extends InventorySettlementProvider {
 
         boolean permission = role.hasPermission(RolePermission.EDIT_CITIZENS) || settlement.isOwner(player);
         return InventoryItem.of(permission, itemStack, e->
-                InventorySupplier.getCitizensInventory(settlement).open(player)
+                inventoryService.getCitizensInventory(settlement).open(player)
         );
     }
 
@@ -62,7 +69,7 @@ public class SettlementInventory extends InventorySettlementProvider {
 
         boolean permission = role.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player);
         return InventoryItem.of(permission, itemStack, e->
-                InventorySupplier.getRolesInventory(settlement).open(player)
+                inventoryService.getRolesInventory(settlement).open(player)
         );
     }
 
@@ -76,7 +83,7 @@ public class SettlementInventory extends InventorySettlementProvider {
 
         boolean permission = role.hasPermission(RolePermission.EDIT_LAND) || settlement.isOwner(player);
         return InventoryItem.of(permission, itemStack, e->
-                InventorySupplier.getLandsInventory(settlement).open(player)
+                inventoryService.getLandsInventory(settlement).open(player)
         );
     }
 
@@ -103,7 +110,7 @@ public class SettlementInventory extends InventorySettlementProvider {
 
         return InventoryItem.of(settlement.isOwner(player), itemStack, e -> {
             player.sendMessage("You have disbanded your settlement.");
-            settlementManager.disband(settlement);
+            settlementService.disbandSettlement(settlement);
             contents.inventory().close(player);
         });
     }

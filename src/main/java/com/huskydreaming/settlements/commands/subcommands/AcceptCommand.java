@@ -1,34 +1,39 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.settlements.Settlements;
-import com.huskydreaming.settlements.commands.CommandBase;
-import com.huskydreaming.settlements.managers.InvitationManager;
+import com.google.inject.Inject;
+import com.huskydreaming.settlements.commands.Command;
+import com.huskydreaming.settlements.commands.CommandInterface;
+import com.huskydreaming.settlements.commands.CommandLabel;
+import com.huskydreaming.settlements.services.InvitationService;
 import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.services.SettlementService;
 import org.bukkit.entity.Player;
 
-public class AcceptCommand extends CommandBase {
+@Command(label = CommandLabel.ACCEPT)
+public class AcceptCommand implements CommandInterface {
 
-    public AcceptCommand() {
-        super("accept");
-    }
+    @Inject
+    private InvitationService invitationService;
+
+    @Inject
+    private SettlementService settlementService;
 
     @Override
-    public void run(Settlements settlements, Player player, String[] strings) {
+    public void run(Player player, String[] strings) {
         if (strings.length == 2) {
-            InvitationManager invitationManager = settlements.getInvitationManager();
-            if (!invitationManager.hasInvitation(player, strings[1])) {
+            if (!invitationService.hasNoInvitation(player, strings[1])) {
                 player.sendMessage("You do not have an invitation for " + strings[1] + ".");
                 return;
             }
 
-            Settlement settlement = settlements.getSettlementManager().getSettlement(strings[1]);
+            Settlement settlement = settlementService.getSettlement(strings[1]);
             if (settlement == null) {
                 player.sendMessage("The settlement " + strings[1] + " does not seem to exist.");
                 return;
             }
 
             player.sendMessage("You have joined the settlement.");
-            invitationManager.removeInvitation(player, strings[0]);
+            invitationService.removeInvitation(player, strings[0]);
             settlement.add(player);
         }
     }

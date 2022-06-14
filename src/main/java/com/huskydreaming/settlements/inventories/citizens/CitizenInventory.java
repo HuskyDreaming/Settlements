@@ -1,14 +1,15 @@
 package com.huskydreaming.settlements.inventories.citizens;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryItem;
-import com.huskydreaming.settlements.inventories.InventorySettlementProvider;
-import com.huskydreaming.settlements.inventories.InventorySupplier;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
+import fr.minuskube.inv.content.InventoryProvider;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -17,7 +18,10 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CitizenInventory extends InventorySettlementProvider {
+public class CitizenInventory implements InventoryProvider {
+
+    @Inject
+    private InventoryService inventoryService;
 
     private final Settlement settlement;
     private final OfflinePlayer offlinePlayer;
@@ -33,7 +37,7 @@ public class CitizenInventory extends InventorySettlementProvider {
     @Override
     public void init(Player player, InventoryContents contents) {
         contents.fillBorders(InventoryItem.border());
-        contents.set(0, 0, InventoryItem.back(player, InventorySupplier.getCitizensInventory(settlement)));
+        contents.set(0, 0, InventoryItem.back(player, inventoryService.getCitizensInventory(settlement)));
         contents.set(1, 3, setOwner(player, contents));
         contents.set(1, 4, roleItem(player, contents));
         contents.set(1, 5, kickItem(player, contents));

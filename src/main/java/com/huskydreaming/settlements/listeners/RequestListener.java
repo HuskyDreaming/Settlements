@@ -1,9 +1,11 @@
 package com.huskydreaming.settlements.listeners;
 
-import com.huskydreaming.settlements.Settlements;
-import com.huskydreaming.settlements.inventories.InventorySupplier;
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.persistence.Request;
 import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.services.InventoryService;
+import com.huskydreaming.settlements.services.RequestService;
+import com.huskydreaming.settlements.services.SettlementService;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -11,32 +13,39 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.plugin.Plugin;
 
 public class RequestListener implements Listener {
 
-    private final Settlements settlements;
+    @Inject
+    private Plugin plugin;
 
-    public RequestListener(Settlements settlements) {
-        this.settlements = settlements;
-    }
+    @Inject
+    private InventoryService inventoryService;
+
+    @Inject
+    private RequestService requestService;
+
+    @Inject
+    private SettlementService settlementService;
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
-        settlements.getRequestManager().remove(event.getPlayer());
+        requestService.removeRequest(event.getPlayer());
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        settlements.getRequestManager().remove(event.getPlayer());
+        requestService.removeRequest(event.getPlayer());
     }
 
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
-        if (settlements.getRequestManager().hasRequest(player)) {
-            Settlement settlement = settlements.getSettlementManager().getSettlement(player);
+        if (requestService.hasRequest(player)) {
+            Settlement settlement = settlementService.getSettlement(player);
             if (settlement != null) {
-                Request request = settlements.getRequestManager().getRequest(player);
+                Request request = requestService.getRequest(player);
                 Request.Response response = request.response(player, settlement, event.getMessage());
                 Request.Response processedResponse = request.process(settlement, response);
 
@@ -45,13 +54,13 @@ public class RequestListener implements Listener {
                     case CANCEL:
                         switch (request.getType()) {
                             case ROLE_CREATE:
-                                Bukkit.getScheduler().runTask(settlements, () ->
-                                        InventorySupplier.getRolesInventory(settlement).open(player)
+                                Bukkit.getScheduler().runTask(plugin, () ->
+                                        inventoryService.getRolesInventory(settlement).open(player)
                                 );
                                 break;
                         }
 
-                        settlements.getRequestManager().remove(player);
+                        requestService.removeRequest(player);
                         break;
                 }
             }

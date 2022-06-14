@@ -1,11 +1,12 @@
 package com.huskydreaming.settlements.inventories.role;
 
-import com.huskydreaming.settlements.Settlements;
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
-import com.huskydreaming.settlements.inventories.InventorySupplier;
 import com.huskydreaming.settlements.persistence.Request;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
+import com.huskydreaming.settlements.services.InventoryService;
+import com.huskydreaming.settlements.services.RequestService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
@@ -17,9 +18,15 @@ import org.bukkit.inventory.ItemStack;
 
 public class RolesInventory extends InventoryPageProvider<Role> {
 
+    @Inject
+    private InventoryService inventoryService;
+
+    @Inject
+    private RequestService requestService;
+
     public RolesInventory(Settlement settlement, int rows) {
         super(settlement, rows, settlement.getRoles().toArray(new Role[0]));
-        this.smartInventory = InventorySupplier.getSettlementInventory(settlement);
+        this.smartInventory = inventoryService.getSettlementInventory(settlement);
     }
 
     @Override
@@ -51,7 +58,7 @@ public class RolesInventory extends InventoryPageProvider<Role> {
     public void run(InventoryClickEvent event, Role role, InventoryContents contents) {
         if (event.getWhoClicked() instanceof Player) {
             Player player = (Player) event.getWhoClicked();
-            InventorySupplier.getRoleInventory(settlement, role).open(player);
+            inventoryService.getRoleInventory(settlement, role).open(player);
         }
     }
 
@@ -62,7 +69,7 @@ public class RolesInventory extends InventoryPageProvider<Role> {
                 .setMaterial(Material.WRITABLE_BOOK)
                 .build(), e-> {
             contents.inventory().close(player);
-            Settlements.getInstance().getRequestManager().create(player, Request.Type.ROLE_CREATE);
+            requestService.createRequest(player, Request.Type.ROLE_CREATE);
         });
     }
 }

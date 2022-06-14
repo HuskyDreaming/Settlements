@@ -1,5 +1,7 @@
-package com.huskydreaming.settlements.inventories;
+package com.huskydreaming.settlements.services;
 
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 import com.huskydreaming.settlements.Settlements;
 import com.huskydreaming.settlements.inventories.citizens.CitizenInventory;
 import com.huskydreaming.settlements.inventories.citizens.CitizensInventory;
@@ -13,17 +15,37 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.lands.Land;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.SmartInventory;
+import fr.minuskube.inv.content.InventoryProvider;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.plugin.java.JavaPlugin;
 
-public class InventorySupplier {
+@Singleton
+public class InventoryServiceImpl implements InventoryService {
 
-    public static SmartInventory getSettlementsInventory() {
-        Settlements settlements = Settlements.getInstance();
-        int rows = (int) Math.ceil((double) settlements.getSettlementManager().getSettlements().size() / 9);
+    @Inject
+    private SettlementService settlementService;
+
+    private final InventoryManager inventoryManager;
+
+    public InventoryServiceImpl(JavaPlugin plugin) {
+        this.inventoryManager = new InventoryManager(plugin);
+        this.inventoryManager.init();
+    }
+
+    @Override
+    public SmartInventory openInventory(InventoryProvider inventoryProvider) {
+        return null;
+    }
+
+    @Override
+    public SmartInventory getSettlementsInventory() {
+        Settlement[] settlements = settlementService.getSettlements().toArray(new Settlement[0]);
+        int rows = (int) Math.ceil((double) settlements.length / 9);
         SettlementsInventory settlementsInventory = new SettlementsInventory(rows, settlements);
         return SmartInventory.builder()
-                .manager(settlements.getInventoryManager())
+                .manager(inventoryManager)
                 .id("settlementsInventory")
                 .size(Math.min(rows + 2, 5), 9)
                 .provider(settlementsInventory)
@@ -31,11 +53,12 @@ public class InventorySupplier {
                 .build();
     }
 
-    public static SmartInventory getRoleInventory(Settlement settlement, Role role) {
+    @Override
+    public SmartInventory getRoleInventory(Settlement settlement, Role role) {
         int rows = (int) Math.ceil((double) RolePermission.values().length / 9);
         RoleInventory roleInventory = new RoleInventory(settlement, rows, role);
         return SmartInventory.builder()
-                .manager(Settlements.getInstance().getInventoryManager())
+                .manager(inventoryManager)
                 .id("roleInventory")
                 .size(Math.min(rows + 2, 5), 9)
                 .provider(roleInventory)
@@ -43,10 +66,11 @@ public class InventorySupplier {
                 .build();
     }
 
-    public static SmartInventory getSettlementInventory(Settlement settlement) {
+    @Override
+    public SmartInventory getSettlementInventory(Settlement settlement) {
         SettlementInventory settlementInventory = new SettlementInventory(settlement);
         return SmartInventory.builder()
-                .manager(Settlements.getInstance().getInventoryManager())
+                .manager(inventoryManager)
                 .id("settlementInventory")
                 .size(3, 9)
                 .provider(settlementInventory)
@@ -54,11 +78,12 @@ public class InventorySupplier {
                 .build();
     }
 
-    public static SmartInventory getRolesInventory(Settlement settlement) {
+    @Override
+    public SmartInventory getRolesInventory(Settlement settlement) {
         int rows = (int) Math.ceil((double) settlement.getRoles().size() / 9);
         RolesInventory rolesInventory = new RolesInventory(settlement, rows);
         return SmartInventory.builder()
-                .manager(Settlements.getInstance().getInventoryManager())
+                .manager(inventoryManager)
                 .id("rolesInventory")
                 .size(Math.min(rows + 2, 5), 9)
                 .provider(rolesInventory)
@@ -66,11 +91,12 @@ public class InventorySupplier {
                 .build();
     }
 
-    public static SmartInventory getLandsInventory(Settlement settlement) {
+    @Override
+    public SmartInventory getLandsInventory(Settlement settlement) {
         int rows = (int) Math.ceil((double) settlement.getLands().size() / 9);
         LandsInventory landsInventory = new LandsInventory(settlement, rows);
         return SmartInventory.builder()
-                .manager(Settlements.getInstance().getInventoryManager())
+                .manager(inventoryManager)
                 .id("landsInventory")
                 .size(Math.min(rows + 2, 5), 9)
                 .provider(landsInventory)
@@ -78,11 +104,12 @@ public class InventorySupplier {
                 .build();
     }
 
-    public static SmartInventory getLandsOwnerInventory(Settlement settlement, Land land) {
+    @Override
+    public SmartInventory getLandsOwnerInventory(Settlement settlement, Land land) {
         int rows = (int) Math.ceil((double) settlement.getCitizens().length / 9);
         LandsOwnerInventory landsOwnerInventory = new LandsOwnerInventory(settlement, rows, land);
         return SmartInventory.builder()
-                .manager(Settlements.getInstance().getInventoryManager())
+                .manager(inventoryManager)
                 .id("landsOwnerInventory")
                 .size(Math.min(rows + 2, 5), 9)
                 .provider(landsOwnerInventory)
@@ -90,11 +117,12 @@ public class InventorySupplier {
                 .build();
     }
 
-    public static SmartInventory getCitizensInventory(Settlement settlement) {
+    @Override
+    public SmartInventory getCitizensInventory(Settlement settlement) {
         int rows = (int) Math.ceil((double) settlement.getCitizens().length / 9);
         CitizensInventory citizensInventory = new CitizensInventory(settlement, rows);
         return SmartInventory.builder()
-                .manager(Settlements.getInstance().getInventoryManager())
+                .manager(inventoryManager)
                 .id("citizensInventory")
                 .size(Math.min(rows + 2, 5), 9)
                 .provider(citizensInventory)
@@ -102,10 +130,11 @@ public class InventorySupplier {
                 .build();
     }
 
-    public static SmartInventory getCitizenInventory(Settlement settlement, OfflinePlayer offlinePlayer) {
+    @Override
+    public SmartInventory getCitizenInventory(Settlement settlement, OfflinePlayer offlinePlayer) {
         CitizenInventory citizenInventory = new CitizenInventory(settlement, offlinePlayer);
         return SmartInventory.builder()
-                .manager(Settlements.getInstance().getInventoryManager())
+                .manager(inventoryManager)
                 .id("citizenInventory")
                 .size(3, 9)
                 .provider(citizenInventory)

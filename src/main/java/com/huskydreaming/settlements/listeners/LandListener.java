@@ -1,10 +1,10 @@
 package com.huskydreaming.settlements.listeners;
 
-import com.huskydreaming.settlements.Settlements;
-import com.huskydreaming.settlements.managers.SettlementManager;
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.services.SettlementService;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.block.Block;
@@ -20,21 +20,17 @@ import java.util.Objects;
 
 public class LandListener implements Listener {
 
-    private final Settlements settlements;
-
-    public LandListener(Settlements settlements) {
-        this.settlements = settlements;
-    }
+    @Inject
+    private SettlementService settlementService;
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         if(Objects.requireNonNull(event.getTo()).getChunk() != event.getFrom().getChunk()) {
-            SettlementManager settlementManager = settlements.getSettlementManager();
             Chunk from = event.getFrom().getChunk();
             Chunk to = event.getTo().getChunk();
 
-            Settlement fromSettlement = settlementManager.getSettlement(from);
-            Settlement toSettlement = settlementManager.getSettlement(to);
+            Settlement fromSettlement = settlementService.getSettlement(from);
+            Settlement toSettlement = settlementService.getSettlement(to);
 
             Player player = event.getPlayer();
             if (fromSettlement == null && toSettlement != null) {
@@ -89,9 +85,9 @@ public class LandListener implements Listener {
     }
 
     private boolean isCancelled(Chunk chunk, Player player, RolePermission rolePermission) {
-        if (!settlements.getSettlementManager().isClaimed(chunk)) return false;
+        if (!settlementService.isSettlement(chunk)) return false;
 
-        Settlement settlement = settlements.getSettlementManager().getSettlement(chunk);
+        Settlement settlement = settlementService.getSettlement(chunk);
         if (settlement == null) return false;
 
         boolean cancel = true;

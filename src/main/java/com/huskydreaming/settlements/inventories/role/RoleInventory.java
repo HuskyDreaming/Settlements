@@ -1,11 +1,11 @@
 package com.huskydreaming.settlements.inventories.role;
 
-import com.huskydreaming.settlements.inventories.InventoryItem;
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
-import com.huskydreaming.settlements.inventories.InventorySupplier;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
@@ -20,13 +20,16 @@ import java.util.stream.Collectors;
 
 public class RoleInventory extends InventoryPageProvider<RolePermission> {
 
+    @Inject
+    private InventoryService inventoryService;
+
     private int index = 0;
     private final Settlement settlement;
     private final Role role;
 
     public RoleInventory(Settlement settlement, int rows, Role role) {
         super(settlement, rows, RolePermission.values());
-        this.smartInventory = InventorySupplier.getRolesInventory(settlement);
+        this.smartInventory = inventoryService.getRolesInventory(settlement);
         this.settlement = settlement;
         this.role = role;
     }
@@ -113,7 +116,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 .setMaterial(Material.TNT_MINECART)
                 .build(), e -> {
             settlement.remove(role);
-            InventorySupplier.getRolesInventory(settlement).open(player);
+            inventoryService.getRolesInventory(settlement).open(player);
         });
     }
 
@@ -124,7 +127,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 .setMaterial(Material.DIAMOND)
                 .build(), e-> {
             settlement.setDefaultRole(role.getName());
-            InventorySupplier.getRolesInventory(settlement).open(player);
+            inventoryService.getRolesInventory(settlement).open(player);
         });
     }
 }

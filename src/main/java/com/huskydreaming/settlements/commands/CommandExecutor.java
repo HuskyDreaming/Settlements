@@ -1,11 +1,10 @@
 package com.huskydreaming.settlements.commands;
 
-import com.huskydreaming.settlements.Settlements;
-import com.huskydreaming.settlements.inventories.InventorySupplier;
-import com.huskydreaming.settlements.managers.SettlementManager;
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.services.InventoryService;
+import com.huskydreaming.settlements.services.SettlementService;
 import org.bukkit.Server;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -17,21 +16,25 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class CommandExecutor extends Command {
+public class CommandExecutor extends org.bukkit.command.Command {
 
-    private final Settlements settlements;
-    protected final Set<CommandBase> subCommands;
+    @Inject
+    private InventoryService inventoryService;
 
-    protected CommandExecutor(Settlements settlements, CommandBase... commandBases) {
-        super("settlement");
-        this.settlements = settlements;
-        setAliases(Arrays.asList("s", "settlements"));
-        this.subCommands = new HashSet<>(Arrays.asList(commandBases));
+    @Inject
+    private SettlementService settlementService;
+
+    protected final Set<CommandInterface> subCommands;
+
+    protected CommandExecutor(CommandInterface... commandInterfaces) {
+        super(CommandLabel.SETTLEMENTS.name().toLowerCase());
+        this.subCommands = new HashSet<>(Arrays.asList(commandInterfaces));
     }
 
-    public static CommandExecutor create(Settlements settlements, CommandBase... commandBases) {
-        return new CommandExecutor(settlements, commandBases);
+    public static CommandExecutor create(CommandInterface... commandInterfaces) {
+        return new CommandExecutor(commandInterfaces);
     }
 
     public void register(Plugin plugin) {
@@ -52,17 +55,24 @@ public class CommandExecutor extends Command {
         if(commandSender instanceof Player) {
             Player player = ((Player) commandSender).getPlayer();
             if(player != null) {
-                SettlementManager settlementManager = settlements.getSettlementManager();
                 if (strings.length > 0) {
-                    Optional<CommandBase> commandBase = subCommands.stream()
-                            .filter(c -> c.name.equalsIgnoreCase(strings[0]))
-                            .findFirst();
+                    Optional<CommandInterface> commandBase = subCommands.stream()
+                            .filter(c -> {
+                                String name = c.getLabel().name();
+                                Set<String> aliases = Arrays.stream(c.getAliases())
+                                        .map(String::toLowerCase)
+                                        .collect(Collectors.toSet());
 
-                    commandBase.ifPresent(c -> c.run(settlements, player, strings));
+                                return name.equalsIgnoreCase(strings[0]) || aliases.contains(strings[0]);
+                            }).findFirst();
+
+                    commandBase.ifPresentOrElse(c -> c.run(player, strings), ()->
+                            commandSender.sendMessage("Unknown Alias: Type /" + getName() + " for help.")
+                    );
                 } else {
-                    Settlement settlement = settlementManager.getSettlement(player);
+                    Settlement settlement = settlementService.getSettlement(player);
                     if(settlement != null) {
-                        InventorySupplier.getSettlementInventory(settlement).open(player);
+                        inventoryService.getSettlementsInventory().open(player);
                     } else {
                         player.sendMessage("You do not seem to belong to a settlement.");
                     }

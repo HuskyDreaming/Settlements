@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.huskydreaming</groupId>
   <artifactId>Settlements</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>0.1.0</version>
   <build>
     <plugins>
       <plugin>
@@ -38,7 +38,7 @@
     </dependency>
   </dependencies>
   <properties>
-    <maven.compiler.source>8</maven.compiler.source>
     <maven.compiler.target>8</maven.compiler.target>
+    <maven.compiler.source>8</maven.compiler.source>
   </properties>
 </project>

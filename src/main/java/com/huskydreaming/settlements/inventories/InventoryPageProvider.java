@@ -1,11 +1,10 @@
 package com.huskydreaming.settlements.inventories;
 
-import com.huskydreaming.settlements.Settlements;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;
 import fr.minuskube.inv.content.InventoryContents;
+import fr.minuskube.inv.content.InventoryProvider;
 import fr.minuskube.inv.content.Pagination;
 import fr.minuskube.inv.content.SlotIterator;
 import org.bukkit.entity.Player;
@@ -15,7 +14,7 @@ import org.bukkit.inventory.ItemStack;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
-public abstract class InventoryPageProvider<E> extends InventorySettlementProvider {
+public abstract class InventoryPageProvider<E> implements InventoryProvider {
 
     protected SmartInventory smartInventory;
     protected final Settlement settlement;
