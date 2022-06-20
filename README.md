@@ -1,4 +1,4 @@
-# Settlements
+# <img src="https://i.imgur.com/LJw2BfF.png" height="30" /> Settlements
 A spigot land plugin that allows you to build communities and work together to settle into your beautiful kingdom. 
 
 ## Features
@@ -9,5 +9,3 @@ A spigot land plugin that allows you to build communities and work together to s
   - and much more!
 - Border Visualisation
 - JSON Message Handling for invitations etc
-
-!!! Current version does not function on spigot server.
