@@ -1,11 +1,12 @@
-package com.huskydreaming.settlements.inventories.citizens;
+package com.huskydreaming.settlements.inventories.providers;
 
-import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryItem;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.InventoryService;
+import com.huskydreaming.settlements.services.base.ServiceRegistry;
+import com.huskydreaming.settlements.services.base.ServiceType;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
@@ -20,12 +21,8 @@ import java.util.List;
 
 public class CitizenInventory implements InventoryProvider {
 
-    @Inject
-    private InventoryService inventoryService;
-
     private final Settlement settlement;
     private final OfflinePlayer offlinePlayer;
-
     private int index = 0;
 
     public CitizenInventory(Settlement settlement, OfflinePlayer offlinePlayer) {
@@ -36,6 +33,8 @@ public class CitizenInventory implements InventoryProvider {
 
     @Override
     public void init(Player player, InventoryContents contents) {
+        InventoryService inventoryService = (InventoryService) ServiceRegistry.getService(ServiceType.INVENTORY);
+
         contents.fillBorders(InventoryItem.border());
         contents.set(0, 0, InventoryItem.back(player, inventoryService.getCitizensInventory(settlement)));
         contents.set(1, 3, setOwner(player, contents));

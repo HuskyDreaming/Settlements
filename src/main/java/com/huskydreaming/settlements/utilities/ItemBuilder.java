@@ -19,10 +19,6 @@ public class ItemBuilder {
     private Material material = Material.STONE;
     private int amount = 1;
 
-    public ItemBuilder() {
-
-    }
-
     public static ItemBuilder create() {
         return new ItemBuilder();
     }
@@ -39,11 +35,6 @@ public class ItemBuilder {
 
     public ItemBuilder setEnchanted(boolean enchanted) {
         this.enchanted = enchanted;
-        return this;
-    }
-
-    public ItemBuilder setLore(List<String> lore) {
-        this.lore = lore;
         return this;
     }
 

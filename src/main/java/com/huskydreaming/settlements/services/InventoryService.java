@@ -3,15 +3,16 @@ package com.huskydreaming.settlements.services;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.lands.Land;
 import com.huskydreaming.settlements.persistence.roles.Role;
+import com.huskydreaming.settlements.services.base.Service;
+import com.huskydreaming.settlements.services.base.ServiceInterface;
+import com.huskydreaming.settlements.services.base.ServiceType;
 import fr.minuskube.inv.SmartInventory;
-import fr.minuskube.inv.content.InventoryProvider;
 import org.bukkit.OfflinePlayer;
 
-public interface InventoryService {
+@Service(type = ServiceType.INVENTORY)
+public interface InventoryService extends ServiceInterface {
 
-    SmartInventory openInventory(InventoryProvider inventoryProvider);
-
-    SmartInventory getSettlementsInventory();
+    SmartInventory getSettlementsInventory(Settlement[] settlements);
 
     SmartInventory getRoleInventory(Settlement settlement, Role role);
 

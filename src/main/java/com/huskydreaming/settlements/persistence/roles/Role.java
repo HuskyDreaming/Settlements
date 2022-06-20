@@ -3,9 +3,10 @@ package com.huskydreaming.settlements.persistence.roles;
 import com.huskydreaming.settlements.persistence.Settlement;
 import org.apache.commons.lang.WordUtils;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class Role {
 

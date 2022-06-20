@@ -1,10 +1,11 @@
-package com.huskydreaming.settlements.inventories.lands;
+package com.huskydreaming.settlements.inventories.providers;
 
-import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.lands.Land;
 import com.huskydreaming.settlements.services.InventoryService;
+import com.huskydreaming.settlements.services.base.ServiceRegistry;
+import com.huskydreaming.settlements.services.base.ServiceType;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.*;
@@ -14,11 +15,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class LandsInventory extends InventoryPageProvider<Land> {
 
-    @Inject
-    private InventoryService inventoryService;
+    private final InventoryService inventoryService;
 
     public LandsInventory(Settlement settlement, int rows) {
         super(settlement, rows, settlement.getLands().toArray(new Land[0]));
+        inventoryService = (InventoryService) ServiceRegistry.getService(ServiceType.INVENTORY);
         this.smartInventory = inventoryService.getSettlementInventory(settlement);
     }
 
@@ -36,8 +37,7 @@ public class LandsInventory extends InventoryPageProvider<Land> {
 
     @Override
     public void run(InventoryClickEvent event, Land land, InventoryContents contents) {
-        if(event.getWhoClicked() instanceof Player) {
-            Player player = (Player) event.getWhoClicked();
+        if(event.getWhoClicked() instanceof Player player) {
 
             if(event.isLeftClick()) {
 

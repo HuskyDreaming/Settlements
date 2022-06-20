@@ -1,39 +1,40 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.google.inject.Inject;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.SettlementService;
+import com.huskydreaming.settlements.services.base.ServiceRegistry;
+import com.huskydreaming.settlements.services.base.ServiceType;
+import com.huskydreaming.settlements.utilities.Chat;
+import com.huskydreaming.settlements.utilities.Locale;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.CREATE)
 public class CreateCommand implements CommandInterface {
 
-    @Inject
-    private SettlementService settlementService;
-
     @Override
     public void run(Player player, String[] strings) {
         if (strings.length == 2) {
-            String string = strings[1];
+            SettlementService settlementService = (SettlementService) ServiceRegistry.getService(ServiceType.SETTLEMENT);
 
-            if (settlementService.isSettlement(string)) {
-                player.sendMessage("A settlement with that name already exists.");
+            String string = strings[1];
+            if (settlementService.hasSettlement(player)) {
+                player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_PLAYER_EXISTS));
                 return;
             }
 
-            if (settlementService.hasSettlement(player)) {
-                player.sendMessage("You are already part of a settlement.");
+            if (settlementService.isSettlement(string)) {
+                player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_EXIST));
                 return;
             }
 
             if (settlementService.isSettlement(player.getLocation().getChunk())) {
-                player.sendMessage("A settlement is already established here...");
+                player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_ESTABLISHED));
                 return;
             }
 
-            player.sendMessage("You have created a new settlement called " + string + ".");
+            player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_CREATED, string));
             settlementService.createSettlement(player, string);
         }
     }

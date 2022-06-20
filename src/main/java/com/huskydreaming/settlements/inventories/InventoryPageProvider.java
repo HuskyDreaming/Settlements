@@ -18,8 +18,8 @@ public abstract class InventoryPageProvider<E> implements InventoryProvider {
 
     protected SmartInventory smartInventory;
     protected final Settlement settlement;
-    private final int rows;
-    private final E[] array;
+    protected final int rows;
+    protected final E[] array;
 
     public InventoryPageProvider(Settlement settlement, int rows, E[] array) {
         this.settlement = settlement;

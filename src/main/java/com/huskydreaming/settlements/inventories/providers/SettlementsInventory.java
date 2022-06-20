@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.inventories.settlement;
+package com.huskydreaming.settlements.inventories.providers;
 
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Settlement;

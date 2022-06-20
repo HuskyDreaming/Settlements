@@ -1,18 +1,16 @@
 package com.huskydreaming.settlements.services;
 
 import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.services.base.Service;
+import com.huskydreaming.settlements.services.base.ServiceInterface;
+import com.huskydreaming.settlements.services.base.ServiceType;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Set;
 
-public interface SettlementService {
-
-    void serialize(Plugin plugin);
-
-    void deserialize(JavaPlugin plugin);
+@Service(type = ServiceType.SETTLEMENT)
+public interface SettlementService extends ServiceInterface {
 
     void createSettlement(Player player, String name);
 

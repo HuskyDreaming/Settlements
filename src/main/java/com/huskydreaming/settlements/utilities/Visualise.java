@@ -1,6 +1,5 @@
 package com.huskydreaming.settlements.utilities;
 
-import com.huskydreaming.settlements.persistence.Settlement;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.HeightMap;
@@ -9,24 +8,7 @@ import org.bukkit.entity.Player;
 
 public class Visualise {
 
-    public static void render(Player player, Settlement settlement) {
-        Color color;
-        Chunk chunk = player.getLocation().getChunk();
-
-        if(settlement != null) {
-            if(settlement.isCitizen(player)) {
-                color = Color.AQUA;
-            } else {
-                color = Color.FUCHSIA;
-            }
-        } else {
-            color = Color.LIME;
-        }
-
-        render(player, chunk, color);
-    }
-
-    private static void render(Player player, Chunk chunk, Color color)
+    public static void render(Player player, Chunk chunk, Color color)
     {
         int minX = chunk.getX() * 16;
         int minZ = chunk.getZ() * 16;

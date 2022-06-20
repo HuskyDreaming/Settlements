@@ -1,9 +1,10 @@
-package com.huskydreaming.settlements.inventories.citizens;
+package com.huskydreaming.settlements.inventories.providers;
 
-import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.InventoryService;
+import com.huskydreaming.settlements.services.base.ServiceRegistry;
+import com.huskydreaming.settlements.services.base.ServiceType;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.ChatColor;
@@ -14,11 +15,11 @@ import org.bukkit.inventory.ItemStack;
 
 public class CitizensInventory extends InventoryPageProvider<OfflinePlayer> {
 
-    @Inject
-    private InventoryService inventoryService;
+    private final InventoryService inventoryService;
 
     public CitizensInventory(Settlement settlement, int rows) {
         super(settlement, rows, settlement.getCitizens());
+        inventoryService = (InventoryService) ServiceRegistry.getService(ServiceType.INVENTORY);
         this.smartInventory = inventoryService.getSettlementInventory(settlement);
     }
 
@@ -37,6 +38,8 @@ public class CitizensInventory extends InventoryPageProvider<OfflinePlayer> {
 
     @Override
     public void run(InventoryClickEvent event, OfflinePlayer offlinePlayer, InventoryContents contents) {
-        inventoryService.getCitizenInventory(settlement, offlinePlayer).open((Player) event.getWhoClicked());
+        if(event.getWhoClicked() instanceof Player player) {
+            inventoryService.getCitizenInventory(settlement, offlinePlayer).open(player);
+        }
     }
 }

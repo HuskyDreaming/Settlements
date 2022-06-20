@@ -1,11 +1,12 @@
-package com.huskydreaming.settlements.inventories.role;
+package com.huskydreaming.settlements.inventories.providers;
 
-import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.InventoryService;
+import com.huskydreaming.settlements.services.base.ServiceRegistry;
+import com.huskydreaming.settlements.services.base.ServiceType;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
@@ -14,21 +15,23 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+import org.checkerframework.checker.units.qual.A;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class RoleInventory extends InventoryPageProvider<RolePermission> {
 
-    @Inject
-    private InventoryService inventoryService;
-
+    private final InventoryService inventoryService;
     private int index = 0;
     private final Settlement settlement;
     private final Role role;
 
     public RoleInventory(Settlement settlement, int rows, Role role) {
         super(settlement, rows, RolePermission.values());
+        inventoryService = (InventoryService) ServiceRegistry.getService(ServiceType.INVENTORY);
+
         this.smartInventory = inventoryService.getRolesInventory(settlement);
         this.settlement = settlement;
         this.role = role;
@@ -80,7 +83,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
     }
 
     private ClickableItem parentItem(Player player, InventoryContents contents) {
-        List<String> child = role.getChildren(settlement);
+        List<String> child = new ArrayList<>();
         boolean isChild = child.isEmpty();
 
         String lore = isChild ? "This role is a parent for " + child : "Click to set parent: " + role.getParent();

@@ -1,47 +1,29 @@
-package com.huskydreaming.settlements.services;
+package com.huskydreaming.settlements.services.implementations;
 
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.huskydreaming.settlements.Settlements;
-import com.huskydreaming.settlements.inventories.citizens.CitizenInventory;
-import com.huskydreaming.settlements.inventories.citizens.CitizensInventory;
-import com.huskydreaming.settlements.inventories.lands.LandsInventory;
-import com.huskydreaming.settlements.inventories.lands.LandsOwnerInventory;
-import com.huskydreaming.settlements.inventories.role.RoleInventory;
-import com.huskydreaming.settlements.inventories.role.RolesInventory;
-import com.huskydreaming.settlements.inventories.settlement.SettlementInventory;
-import com.huskydreaming.settlements.inventories.settlement.SettlementsInventory;
+import com.huskydreaming.settlements.SettlementPlugin;
+import com.huskydreaming.settlements.inventories.providers.CitizenInventory;
+import com.huskydreaming.settlements.inventories.providers.CitizensInventory;
+import com.huskydreaming.settlements.inventories.providers.LandsInventory;
+import com.huskydreaming.settlements.inventories.providers.LandsOwnerInventory;
+import com.huskydreaming.settlements.inventories.providers.RoleInventory;
+import com.huskydreaming.settlements.inventories.providers.RolesInventory;
+import com.huskydreaming.settlements.inventories.providers.SettlementInventory;
+import com.huskydreaming.settlements.inventories.providers.SettlementsInventory;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.lands.Land;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.services.InventoryService;
 import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.SmartInventory;
-import fr.minuskube.inv.content.InventoryProvider;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.plugin.java.JavaPlugin;
 
-@Singleton
 public class InventoryServiceImpl implements InventoryService {
 
-    @Inject
-    private SettlementService settlementService;
-
-    private final InventoryManager inventoryManager;
-
-    public InventoryServiceImpl(JavaPlugin plugin) {
-        this.inventoryManager = new InventoryManager(plugin);
-        this.inventoryManager.init();
-    }
+    private InventoryManager inventoryManager;
 
     @Override
-    public SmartInventory openInventory(InventoryProvider inventoryProvider) {
-        return null;
-    }
-
-    @Override
-    public SmartInventory getSettlementsInventory() {
-        Settlement[] settlements = settlementService.getSettlements().toArray(new Settlement[0]);
+    public SmartInventory getSettlementsInventory(Settlement[] settlements) {
         int rows = (int) Math.ceil((double) settlements.length / 9);
         SettlementsInventory settlementsInventory = new SettlementsInventory(rows, settlements);
         return SmartInventory.builder()
@@ -140,5 +122,16 @@ public class InventoryServiceImpl implements InventoryService {
                 .provider(citizenInventory)
                 .title("Editing: " + offlinePlayer.getName())
                 .build();
+    }
+
+    @Override
+    public void serialize(SettlementPlugin plugin) {
+
+    }
+
+    @Override
+    public void deserialize(SettlementPlugin plugin) {
+        inventoryManager = new InventoryManager(plugin);
+        inventoryManager.init();
     }
 }

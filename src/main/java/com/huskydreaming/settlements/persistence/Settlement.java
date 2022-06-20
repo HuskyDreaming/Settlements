@@ -133,14 +133,11 @@ public class Settlement {
     }
 
     public Role getRole(OfflinePlayer offlinePlayer) {
-        AtomicReference<String> atomicReference = new AtomicReference<>(citizens.get(offlinePlayer.getUniqueId()));
-        boolean isValid = roles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(atomicReference.get()));
+        Predicate<Role> rolePredicate = r -> r.getName().equalsIgnoreCase(citizens.get(offlinePlayer.getUniqueId()));
 
-        if(!isValid) {
+        if(roles.stream().noneMatch(rolePredicate)) {
             citizens.put(offlinePlayer.getUniqueId(), defaultRole);
-            atomicReference.set(citizens.get(offlinePlayer.getUniqueId()));
         }
-        Predicate<Role> rolePredicate = r -> r.getName().equalsIgnoreCase(atomicReference.get());
 
         return roles.stream().filter(rolePredicate).findFirst().orElse(null);
     }

@@ -1,12 +1,13 @@
 package com.huskydreaming.settlements.listeners;
 
-import com.google.inject.Inject;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.SettlementService;
+import com.huskydreaming.settlements.utilities.Visualise;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.Color;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,8 +21,11 @@ import java.util.Objects;
 
 public class LandListener implements Listener {
 
-    @Inject
-    private SettlementService settlementService;
+    private final SettlementService settlementService;
+
+    public LandListener(SettlementService settlementService) {
+        this.settlementService = settlementService;
+    }
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
@@ -34,27 +38,30 @@ public class LandListener implements Listener {
 
             Player player = event.getPlayer();
             if (fromSettlement == null && toSettlement != null) {
+                Visualise.render(player, to, Color.AQUA);
                 player.sendTitle(
                         ChatColor.AQUA + "" + ChatColor.BOLD + toSettlement.getName(),
                         ChatColor.GRAY + toSettlement.getDescription(),
-                        20, 30, 20
+                        20, 40, 20
                 );
                 return;
             }
 
             if (toSettlement == null && fromSettlement != null) {
+                Visualise.render(player, to, Color.LIME);
                 player.sendTitle(
                         ChatColor.GREEN + "" + ChatColor.BOLD + "Wilderness",
                         ChatColor.GRAY + "You have entered the wilderness.",
-                        20, 30, 20
+                        20, 40, 20
                 );
             }
 
             if (toSettlement != null && toSettlement != fromSettlement) {
+                Visualise.render(player, to, Color.RED);
                 player.sendTitle(
                         ChatColor.RED + "" + ChatColor.BOLD + toSettlement.getName(),
                         ChatColor.GRAY + toSettlement.getDescription(),
-                        20, 30, 20
+                        20, 40, 20
                 );
             }
         }

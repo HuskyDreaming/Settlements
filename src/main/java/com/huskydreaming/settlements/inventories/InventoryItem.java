@@ -1,7 +1,5 @@
 package com.huskydreaming.settlements.inventories;
 
-import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;

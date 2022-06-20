@@ -1,12 +1,13 @@
-package com.huskydreaming.settlements.inventories.settlement;
+package com.huskydreaming.settlements.inventories.providers;
 
-import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryItem;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.services.SettlementService;
+import com.huskydreaming.settlements.services.base.ServiceRegistry;
+import com.huskydreaming.settlements.services.base.ServiceType;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
@@ -18,16 +19,13 @@ import org.bukkit.inventory.ItemStack;
 
 public class SettlementInventory implements InventoryProvider {
 
-    @Inject
-    private InventoryService inventoryService;
-
-    @Inject
-    private SettlementService settlementService;
+    private final InventoryService inventoryService;
 
     private final Settlement settlement;
 
     public SettlementInventory(Settlement settlement) {
         this.settlement = settlement;
+        inventoryService = (InventoryService) ServiceRegistry.getService(ServiceType.INVENTORY);
     }
 
     @Override
@@ -102,6 +100,7 @@ public class SettlementInventory implements InventoryProvider {
     }
 
     private ClickableItem disband(Player player, Settlement settlement, InventoryContents contents) {
+        SettlementService settlementService = (SettlementService) ServiceRegistry.getService(ServiceType.SETTLEMENT);
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(ChatColor.RED + "Disband")
                 .setLore(ChatColor.GRAY + "Click to disband settlement.")
