@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -18,9 +19,14 @@ import org.bukkit.entity.Player;
 @Command(label = CommandLabel.UNCLAIM)
 public class UnclaimCommand implements CommandInterface {
 
-    private final CitizenService citizenService;
-    private final ClaimService claimService;
-    private final SettlementService settlementService;
+    @Inject
+    private CitizenService citizenService;
+
+    @Inject
+    private ClaimService claimService;
+
+    @Inject
+    private SettlementService settlementService;
 
     public UnclaimCommand(CitizenService citizenService, SettlementService settlementService, ClaimService claimService) {
         this.citizenService = citizenService;

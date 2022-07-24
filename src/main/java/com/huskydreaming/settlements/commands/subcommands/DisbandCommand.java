@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -15,17 +16,14 @@ import org.bukkit.entity.Player;
 @Command(label = CommandLabel.DISBAND)
 public class DisbandCommand implements CommandInterface {
 
-    private final CitizenService citizenService;
+    @Inject
+    private CitizenService citizenService;
 
-    private final ClaimService claimService;
+    @Inject
+    private ClaimService claimService;
 
-    private final SettlementService settlementService;
-
-    public DisbandCommand(CitizenService citizenService, ClaimService claimService, SettlementService settlementService) {
-        this.citizenService = citizenService;
-        this.claimService = claimService;
-        this.settlementService = settlementService;
-    }
+    @Inject
+    private SettlementService settlementService;
 
 
     @Override

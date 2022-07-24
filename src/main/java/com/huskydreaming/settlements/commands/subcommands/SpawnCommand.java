@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -16,9 +17,11 @@ import org.bukkit.entity.Player;
 @Command(label = CommandLabel.SPAWN)
 public class SpawnCommand implements CommandInterface {
 
-    private final CitizenService citizenService;
+    @Inject
+    private CitizenService citizenService;
 
-    private final SettlementService settlementService;
+    @Inject
+    private SettlementService settlementService;
 
     public SpawnCommand(CitizenService citizenService, SettlementService settlementService) {
         this.citizenService = citizenService;

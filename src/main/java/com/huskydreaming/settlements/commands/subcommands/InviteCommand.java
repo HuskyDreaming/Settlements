@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -18,16 +19,15 @@ import org.bukkit.entity.Player;
 @Command(label = CommandLabel.INVITE)
 public class InviteCommand implements CommandInterface {
 
-    private final CitizenService citizenService;
-    private final InvitationService invitationService;
+    @Inject
+    private CitizenService citizenService;
 
-    private final SettlementService settlementService;
+    @Inject
+    private InvitationService invitationService;
 
-    public InviteCommand(CitizenService citizenService, InvitationService invitationService, SettlementService settlementService) {
-        this.citizenService = citizenService;
-        this.invitationService = invitationService;
-        this.settlementService = settlementService;
-    }
+    @Inject
+    private SettlementService settlementService;
+
 
     @Override
     public void run(Player player, String[] strings) {

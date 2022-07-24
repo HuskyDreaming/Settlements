@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -13,14 +14,11 @@ import org.bukkit.entity.Player;
 @Command(label = CommandLabel.DENY)
 public class DenyCommand implements CommandInterface {
 
-    private final InvitationService invitationService;
+    @Inject
+    private InvitationService invitationService;
 
-    private final SettlementService settlementService;
-
-    public DenyCommand(InvitationService invitationService, SettlementService settlementService) {
-        this.invitationService = invitationService;
-        this.settlementService = settlementService;
-    }
+    @Inject
+    private SettlementService settlementService;
 
     @Override
     public void run(Player player, String[] strings) {
@@ -33,7 +31,6 @@ public class DenyCommand implements CommandInterface {
             }
 
             Settlement settlement = settlementService.getSettlement(string);
-
             if (settlement == null) {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_NULL, string));
                 return;

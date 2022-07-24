@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -15,8 +16,11 @@ import org.bukkit.entity.Player;
 @Command(label = CommandLabel.SETOWNER)
 public class SetOwnerCommand implements CommandInterface {
 
-    private final CitizenService citizenService;
-    private final SettlementService settlementService;
+    @Inject
+    private CitizenService citizenService;
+
+    @Inject
+    private SettlementService settlementService;
 
     public SetOwnerCommand(CitizenService citizenService, SettlementService settlementService) {
         this.citizenService = citizenService;
