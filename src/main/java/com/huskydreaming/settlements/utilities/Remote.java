@@ -1,7 +1,15 @@
 package com.huskydreaming.settlements.utilities;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.TypeLiteral;
+import com.google.inject.spi.InjectionPoint;
 import org.bukkit.*;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
+
+import java.util.List;
+import java.util.Map;
 
 public class Remote {
 
@@ -28,6 +36,33 @@ public class Remote {
             string = string.replace("{" + i + "}", strings[i]);
         }
         return ChatColor.translateAlternateColorCodes('&', Locale.PREFIX.parse() + string);
+    }
+
+    public static boolean isInjected(Injector injector, Object object) {
+        Map<TypeLiteral<?>, List<InjectionPoint>> injectionPoints = injector.getAllMembersInjectorInjectionPoints();
+        return injectionPoints.containsKey(TypeLiteral.get(object.getClass()));
+    }
+
+    public static boolean areAdjacentChunks(Chunk a, Chunk b) {
+        World world = a.getWorld();
+        if (!world.equals(b.getWorld())) {
+            return false;
+        }
+
+        BlockFace[] steps = new BlockFace[]{
+                BlockFace.NORTH,
+                BlockFace.EAST,
+                BlockFace.SOUTH,
+                BlockFace.WEST
+        };
+
+        for (BlockFace step : steps) {
+            if (world.getChunkAt(a.getX() + step.getModX(), a.getZ() + step.getModZ()).equals(b)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static void render(Player player, Chunk chunk, Color color)

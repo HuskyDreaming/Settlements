@@ -4,6 +4,7 @@ import com.google.inject.Inject;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
+import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.CitizenService;
 import com.huskydreaming.settlements.services.ClaimService;
 import com.huskydreaming.settlements.services.SettlementService;
@@ -43,9 +44,11 @@ public class CreateCommand implements CommandInterface {
                 return;
             }
 
+            Settlement settlement = settlementService.createSettlement(player, strings[1]);
+            citizenService.add(player, settlement);
+            claimService.setClaim(chunk, settlement);
+
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATED, strings[1]));
-            claimService.setClaim(strings[1], chunk);
-            settlementService.createSettlement(strings[1]);
         }
     }
 }

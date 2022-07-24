@@ -2,9 +2,11 @@ package com.huskydreaming.settlements.inventories.providers;
 
 import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryItem;
+import com.huskydreaming.settlements.persistence.Citizen;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.services.CitizenService;
 import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.services.SettlementService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
@@ -20,9 +22,16 @@ import org.bukkit.inventory.ItemStack;
 public class SettlementInventory implements InventoryProvider {
 
     @Inject
+    private CitizenService citizenService;
+
+    @Inject
     private InventoryService inventoryService;
 
+    @Inject
+    private SettlementService settlementService;
+
     private final Settlement settlement;
+    private Role role;
 
     public SettlementInventory(Settlement settlement) {
         this.settlement = settlement;
@@ -30,15 +39,16 @@ public class SettlementInventory implements InventoryProvider {
 
     @Override
     public void init(Player player, InventoryContents contents) {
+
+        Citizen citizen = citizenService.getCitizen(player);
+        role = settlement.getRole(citizen.getRole());
+
         contents.fillBorders(InventoryItem.border());
-        /*
         contents.set(1, 1, citizensItem(player, settlement));
         contents.set(1, 2, roleItem(player, settlement));
         contents.set(1, 3, landItem(player, settlement));
         contents.set(1, 4, spawn(player, settlement));
         contents.set(1, 7, disband(player, settlement, contents));
-
-         */
     }
 
     @Override
@@ -46,9 +56,8 @@ public class SettlementInventory implements InventoryProvider {
 
     }
 
-    /*
+
     private ClickableItem citizensItem(Player player, Settlement settlement) {
-        Role role = settlement.getRole(player);
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(Menu.CITIZENS_TITLE.parse())
                 .setLore(Menu.CITIZENS_LORE.parseList())
@@ -60,7 +69,6 @@ public class SettlementInventory implements InventoryProvider {
     }
 
     private ClickableItem roleItem(Player player, Settlement settlement) {
-        Role role = settlement.getRole(player);
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(Menu.ROLES_TITLE.parse())
                 .setLore(Menu.ROLES_LORE.parseList())
@@ -72,7 +80,6 @@ public class SettlementInventory implements InventoryProvider {
     }
 
     private ClickableItem landItem(Player player, Settlement settlement) {
-        Role role = settlement.getRole(player);
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(ChatColor.GREEN + "Lands")
                 .setLore(ChatColor.GRAY + "Click to see lands.")
@@ -84,7 +91,6 @@ public class SettlementInventory implements InventoryProvider {
     }
 
     private ClickableItem spawn(Player player, Settlement settlement) {
-        Role role = settlement.getRole(player);
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(ChatColor.GREEN + "Spawn")
                 .setLore(ChatColor.GRAY + "Click to set spawn.")
@@ -96,7 +102,6 @@ public class SettlementInventory implements InventoryProvider {
     }
 
     private ClickableItem disband(Player player, Settlement settlement, InventoryContents contents) {
-        SettlementService settlementService = (SettlementService) ServiceRegistry.getService(ServiceType.SETTLEMENT);
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(ChatColor.RED + "Disband")
                 .setLore(ChatColor.GRAY + "Click to disband settlement.")
@@ -109,6 +114,4 @@ public class SettlementInventory implements InventoryProvider {
             contents.inventory().close(player);
         });
     }
-
-     */
 }

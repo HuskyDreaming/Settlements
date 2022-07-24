@@ -13,6 +13,7 @@ public interface CitizenService extends ServiceInterface {
 
     void add(OfflinePlayer offlinePlayer, Settlement settlement);
     void remove(OfflinePlayer offlinePlayer);
+    void clean(Settlement settlement);
 
     Citizen getCitizen(OfflinePlayer offlinePlayer);
     Collection<Citizen> getCitizens(Settlement settlement);

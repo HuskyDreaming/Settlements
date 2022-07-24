@@ -27,9 +27,10 @@ public class KickCommand implements CommandInterface {
     @Override
     public void run(Player player, String[] strings) {
         if(strings.length == 2) {
-            OfflinePlayer offlinePlayer = Remote.getOfflinePlayer(strings[1]);
+            String string = strings[1];
+            OfflinePlayer offlinePlayer = Remote.getOfflinePlayer(string);
             if (offlinePlayer == null) {
-                player.sendMessage(Remote.prefix(Locale.PLAYER_NULL, strings[1]));
+                player.sendMessage(Remote.prefix(Locale.PLAYER_NULL, string));
                 return;
             }
 

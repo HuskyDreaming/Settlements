@@ -23,11 +23,6 @@ public class SetSpawnCommand implements CommandInterface {
     @Inject
     private SettlementService settlementService;
 
-    public SetSpawnCommand(CitizenService citizenService, SettlementService settlementService) {
-        this.citizenService = citizenService;
-        this.settlementService = settlementService;
-    }
-
     @Override
     public void run(Player player, String[] strings) {
         if (!citizenService.hasSettlement(player)) {

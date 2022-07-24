@@ -48,11 +48,20 @@ public class ClaimCommand implements CommandInterface {
         player.sendMessage(role.getName());
 
         if(role.hasPermission(RolePermission.LAND_CLAIM) || settlement.isOwner(player)) {
-            String x = String.valueOf(chunk.getX());
-            String z = String.valueOf(chunk.getZ());
+            boolean isAdjacent = false;
+            for(Chunk c : claimService.getChunks(settlement)) {
+                if (Remote.areAdjacentChunks(chunk, c)) isAdjacent = true;
+            }
 
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_CLAIM, x, z));
-            claimService.setClaim(settlement.getName(), chunk);
+            if(isAdjacent) {
+                String x = String.valueOf(chunk.getX());
+                String z = String.valueOf(chunk.getZ());
+
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_CLAIM, x, z));
+                claimService.setClaim(chunk, settlement);
+            } else {
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_ADJACENT));
+            }
         } else {
             player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS, RolePermission.LAND_CLAIM.getName()));
         }

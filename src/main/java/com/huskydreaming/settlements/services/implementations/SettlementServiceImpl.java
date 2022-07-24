@@ -6,6 +6,7 @@ import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.SettlementService;
 import com.huskydreaming.settlements.storage.Json;
+import org.bukkit.entity.Player;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -18,8 +19,10 @@ public class SettlementServiceImpl implements SettlementService {
     private Set<Settlement> settlements = new HashSet<>();
 
     @Override
-    public void createSettlement(String name) {
-
+    public Settlement createSettlement(Player player, String name) {
+        Settlement settlement = Settlement.create(player, name);
+        settlements.add(settlement);
+        return settlement;
     }
 
     @Override
@@ -50,9 +53,12 @@ public class SettlementServiceImpl implements SettlementService {
     @Override
     public void deserialize(SettlementPlugin plugin) {
         Type type = new TypeToken<Set<Settlement>>(){}.getType();
-        Set<Settlement> settlements = Json.read(plugin, "settlements", type);
+        settlements = Json.read(plugin, "settlements", type);
         if(settlements == null) settlements = new HashSet<>();
 
-        this.settlements = settlements;
+        int size = settlements.size();
+        if(size > 0) {
+            plugin.getLogger().info("Registered " + size + " settlement(s).");
+        }
     }
 }

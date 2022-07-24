@@ -11,6 +11,7 @@ import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.CitizenService;
 import com.huskydreaming.settlements.services.ClaimService;
 import com.huskydreaming.settlements.services.InventoryService;
+import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.SmartInventory;
 import org.bukkit.OfflinePlayer;
@@ -19,6 +20,9 @@ import java.util.Collection;
 
 @Singleton
 public class InventoryServiceImpl implements InventoryService {
+
+    @Inject
+    private SettlementPlugin plugin;
 
     @Inject
     private CitizenService citizenService;
@@ -44,6 +48,11 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public SmartInventory getSettlementInventory(Settlement settlement) {
         SettlementInventory settlementInventory = new SettlementInventory(settlement);
+        if(Remote.isInjected(plugin.getInjector(), settlementInventory)) {
+            System.out.println("You suck dick");
+        } else {
+            plugin.getInjector().injectMembers(settlementInventory);
+        }
         return SmartInventory.builder()
                 .manager(inventoryManager)
                 .id("settlementInventory")
@@ -68,7 +77,7 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public SmartInventory getClaimsInventory(Settlement settlement) {
-        Collection<String> chunks = claimService.getChunks(settlement);
+        Collection<String> chunks = claimService.getChunksAsStrings(settlement);
         String[] array = chunks.toArray(new String[0]);
         int rows = (int) Math.ceil((double) array.length / 9);
         ClaimsInventory claimsInventory = new ClaimsInventory(settlement, rows, array);

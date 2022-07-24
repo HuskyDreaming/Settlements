@@ -25,7 +25,6 @@ public class DisbandCommand implements CommandInterface {
     @Inject
     private SettlementService settlementService;
 
-
     @Override
     public void run(Player player, String[] strings) {
         if(!citizenService.hasSettlement(player)) {
@@ -41,6 +40,7 @@ public class DisbandCommand implements CommandInterface {
         }
 
         claimService.clean(settlement);
+        citizenService.clean(settlement);
         settlementService.disbandSettlement(settlement);
 
         player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DISBAND));

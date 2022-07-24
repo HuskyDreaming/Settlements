@@ -28,7 +28,6 @@ public class InviteCommand implements CommandInterface {
     @Inject
     private SettlementService settlementService;
 
-
     @Override
     public void run(Player player, String[] strings) {
         if (strings.length == 2) {
@@ -40,6 +39,11 @@ public class InviteCommand implements CommandInterface {
 
             if (!citizenService.hasSettlement(player)) {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+                return;
+            }
+
+            if (target == player) {
+                player.sendMessage(Remote.prefix(Locale.INVITATION_SELF));
                 return;
             }
 

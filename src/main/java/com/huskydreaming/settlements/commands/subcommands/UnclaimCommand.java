@@ -28,12 +28,6 @@ public class UnclaimCommand implements CommandInterface {
     @Inject
     private SettlementService settlementService;
 
-    public UnclaimCommand(CitizenService citizenService, SettlementService settlementService, ClaimService claimService) {
-        this.citizenService = citizenService;
-        this.settlementService = settlementService;
-        this.claimService = claimService;
-    }
-
     @Override
     public void run(Player player, String[] strings) {
         if (!citizenService.hasSettlement(player)) {
@@ -51,7 +45,6 @@ public class UnclaimCommand implements CommandInterface {
 
         Chunk chunk = player.getLocation().getChunk();
         String claim = claimService.getClaim(chunk);
-
         if(claim == null) {
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_NOT_CLAIMED));
             return;

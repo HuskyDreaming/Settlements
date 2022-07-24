@@ -36,6 +36,11 @@ public class CitizenServiceImpl implements CitizenService {
     }
 
     @Override
+    public void clean(Settlement settlement) {
+        citizens.values().removeIf(citizen -> citizen.getSettlement().equalsIgnoreCase(settlement.getName()));
+    }
+
+    @Override
     public Citizen getCitizen(OfflinePlayer offlinePlayer) {
         return citizens.get(offlinePlayer.getUniqueId());
     }
@@ -56,5 +61,10 @@ public class CitizenServiceImpl implements CitizenService {
         Type type = new TypeToken<Map<UUID, Citizen>>(){}.getType();
         citizens = Json.read(plugin, "citizens", type);
         if(citizens == null) citizens = new ConcurrentHashMap<>();
+
+        int size = citizens.size();
+        if(size > 0) {
+            plugin.getLogger().info("Registered " + size + " citizen(s).");
+        }
     }
 }

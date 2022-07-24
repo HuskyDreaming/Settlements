@@ -8,7 +8,7 @@ import java.util.Collection;
 
 public interface ClaimService extends ServiceInterface {
 
-    void setClaim(String string, Chunk chunk);
+    void setClaim(Chunk chunk, Settlement settlement);
     void removeClaim(Chunk chunk);
 
     void clean(Settlement settlement);
@@ -17,5 +17,6 @@ public interface ClaimService extends ServiceInterface {
 
     String getClaim(Chunk chunk);
 
-    Collection<String> getChunks(Settlement settlement);
+    Collection<String> getChunksAsStrings(Settlement settlement);
+    Collection<Chunk> getChunks(Settlement settlement);
 }

@@ -54,7 +54,7 @@ public class DependencyServiceImpl implements DependencyService {
             plugin.getLogger().info("Dependencies Found: ");
             plugin.getLogger().info(stringBuilder.toString());
         } else {
-            plugin.getLogger().info("No dependencies found. Using basic version of the plugin. ");
+            plugin.getLogger().info("No dependencies found. Using basic version of the plugin.");
         }
     }
 }

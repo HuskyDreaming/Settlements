@@ -5,6 +5,7 @@ import com.google.inject.Injector;
 import com.huskydreaming.settlements.commands.CommandExecutor;
 import com.huskydreaming.settlements.commands.subcommands.*;
 import com.huskydreaming.settlements.services.*;
+import com.huskydreaming.settlements.services.base.PluginModule;
 import com.huskydreaming.settlements.services.base.ServiceInterface;
 import com.huskydreaming.settlements.services.base.ServiceModule;
 import org.bukkit.event.Listener;
@@ -15,10 +16,12 @@ import java.util.Arrays;
 
 public class SettlementPlugin extends JavaPlugin {
 
+    private Injector injector;
+
     @Override
     public void onEnable() {
 
-        Injector injector = Guice.createInjector(new ServiceModule());
+        injector = Guice.createInjector(new PluginModule(this), new ServiceModule());
 
         CommandExecutor.inject(injector,
                 AcceptCommand.class,
@@ -34,26 +37,46 @@ public class SettlementPlugin extends JavaPlugin {
                 UnclaimCommand.class
         ).register(this);
 
-        deserialize(injector,
+        deserialize(
                 CitizenService.class,
                 ClaimService.class,
-                SettlementService.class,
+                DependencyService.class,
                 InventoryService.class,
-                InvitationService.class
+                InvitationService.class,
+                RequestService.class,
+                SettlementService.class,
+                YamlService.class
         );
     }
 
     @Override
     public void onDisable() {
-
+        serialize(
+                CitizenService.class,
+                ClaimService.class,
+                DependencyService.class,
+                InventoryService.class,
+                InvitationService.class,
+                RequestService.class,
+                SettlementService.class,
+                YamlService.class
+        );
     }
 
-    private void deserialize(Injector injector, Class<?>... classes) {
+    private void deserialize(Class<?>... classes) {
         Arrays.stream(classes).forEach(c -> ((ServiceInterface) injector.getInstance(c)).deserialize(this));
+    }
+
+    private void serialize(Class<?>... classes) {
+        Arrays.stream(classes).forEach(c -> ((ServiceInterface) injector.getInstance(c)).serialize(this));
     }
 
     private void registerListeners(Listener... listeners) {
         PluginManager pluginManager = getServer().getPluginManager();
         Arrays.asList(listeners).forEach(listener -> pluginManager.registerEvents(listener, this));
+    }
+
+    public Injector getInjector() {
+        return injector;
     }
 }

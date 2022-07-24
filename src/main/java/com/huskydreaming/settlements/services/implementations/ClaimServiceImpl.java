@@ -8,7 +8,9 @@ import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.ClaimService;
 import com.huskydreaming.settlements.storage.Json;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -21,8 +23,8 @@ public class ClaimServiceImpl implements ClaimService {
     private Map<String, String> claims = new ConcurrentHashMap<>();
 
     @Override
-    public void setClaim(String string, Chunk chunk) {
-        claims.put(parse(chunk), string);
+    public void setClaim(Chunk chunk, Settlement settlement) {
+        claims.put(parse(chunk), settlement.getName());
     }
 
     @Override
@@ -46,10 +48,19 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public Collection<String> getChunks(Settlement settlement) {
+    public Collection<String> getChunksAsStrings(Settlement settlement) {
         Multimap<String, String> multiMap = HashMultimap.create();
         for(Map.Entry<String, String> entry : claims.entrySet()) {
             multiMap.put(entry.getValue(), entry.getKey());
+        }
+        return multiMap.get(settlement.getName());
+    }
+
+    @Override
+    public Collection<Chunk> getChunks(Settlement settlement) {
+        Multimap<String, Chunk> multiMap = HashMultimap.create();
+        for(Map.Entry<String, String> entry : claims.entrySet()) {
+            multiMap.put(entry.getValue(), serialize(entry.getKey()));
         }
         return multiMap.get(settlement.getName());
     }
@@ -65,9 +76,21 @@ public class ClaimServiceImpl implements ClaimService {
         Type type = new TypeToken<Map<String, String>>(){}.getType();
         claims = Json.read(plugin, "claims", type);
         if(claims == null) claims = new ConcurrentHashMap<>();
+
+        int size = claims.size();
+        if(size > 0) {
+            plugin.getLogger().info("Registered " + size + " claim(s).");
+        }
     }
 
     private String parse(Chunk chunk) {
         return chunk.getX() + ":" + chunk.getZ() + ":" + chunk.getWorld().getName();
+    }
+
+    private Chunk serialize(String string) {
+        String[] strings = string.split(":");
+        World world = Bukkit.getWorld(strings[2]);
+        if (world == null) return null;
+        return world.getChunkAt(Integer.parseInt(strings[0]), Integer.parseInt(strings[1]));
     }
 }
