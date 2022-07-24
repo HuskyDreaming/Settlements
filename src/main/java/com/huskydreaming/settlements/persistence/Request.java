@@ -22,12 +22,8 @@ public class Request {
 
     public void send(Player player) {
         switch (type) {
-            case ROLE_CREATE:
-                player.sendMessage(ChatColor.GREEN + "Type a name for the role you want to create:");
-                break;
-            case ROLE_RENAME:
-                player.sendMessage(ChatColor.GREEN + "Type a name for the role you want to rename:");
-                break;
+            case ROLE_CREATE -> player.sendMessage(ChatColor.GREEN + "Type a name for the role you want to create:");
+            case ROLE_RENAME -> player.sendMessage(ChatColor.GREEN + "Type a name for the role you want to rename:");
         }
     }
 

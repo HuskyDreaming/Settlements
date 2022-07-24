@@ -1,10 +1,14 @@
 package com.huskydreaming.settlements.commands;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.huskydreaming.settlements.persistence.Citizen;
 import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.services.CitizenService;
 import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.services.SettlementService;
-import com.huskydreaming.settlements.services.base.ServiceRegistry;
-import com.huskydreaming.settlements.services.base.ServiceType;
+import com.huskydreaming.settlements.utilities.Remote;
+import com.huskydreaming.settlements.utilities.Locale;
 import org.bukkit.Server;
 import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
@@ -15,19 +19,26 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class CommandExecutor extends org.bukkit.command.Command {
 
+    @Inject
+    private CitizenService citizenService;
+
+    @Inject
+    private InventoryService inventoryService;
+
+    @Inject
+    private SettlementService settlementService;
+
     protected final Set<CommandInterface> subCommands;
 
-    protected CommandExecutor(Class<?>... commandInterfaces) {
+    protected CommandExecutor(Injector injector, Class<?>... commandInterfaces) {
         super(CommandLabel.SETTLEMENTS.name().toLowerCase());
         this.subCommands = new HashSet<>();
+        setAliases(Arrays.asList("s", "settlement", "settle"));
 
         for(Class<?> commandInterfaceClass : commandInterfaces) {
             try {
@@ -36,15 +47,17 @@ public class CommandExecutor extends org.bukkit.command.Command {
                 CommandInterface commandInterface = (CommandInterface) constructor.newInstance();
 
                 subCommands.add(commandInterface);
+                injector.injectMembers(commandInterface);
             } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                      IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
         }
+        injector.injectMembers(this);
     }
 
-    public static CommandExecutor create(Class<?>... commandInterfaces) {
-        return new CommandExecutor(commandInterfaces);
+    public static CommandExecutor inject(Injector injector, Class<?>... commandInterfaces) {
+        return new CommandExecutor(injector, commandInterfaces);
     }
 
     public void register(Plugin plugin) {
@@ -76,15 +89,19 @@ public class CommandExecutor extends org.bukkit.command.Command {
                                 return name.equalsIgnoreCase(strings[0]) || aliases.contains(strings[0]);
                             }).findFirst();
 
-                    commandBase.ifPresentOrElse(c -> c.run(player, strings), ()->
-                            commandSender.sendMessage("Unknown Alias: Type /" + getName() + " for help.")
+                    commandBase.ifPresentOrElse(c -> {
+                                if (c.requiresPermissions() && !player.hasPermission("settlements." + c.getLabel().name().toLowerCase())) {
+                                    player.sendMessage(Remote.parameterize(Locale.NO_PERMISSIONS, c.getLabel().name()));
+                                } else if(!c.isDebug()) {
+                                    c.run(player, strings);
+                                }
+                            }, () -> commandSender.sendMessage("Unknown Alias: Type /" + getName() + " for help.")
                     );
                 } else {
-                    SettlementService settlementService = (SettlementService) ServiceRegistry.getService(ServiceType.SETTLEMENT);
 
-                    Settlement settlement = settlementService.getSettlement(player);
-                    if(settlement != null) {
-                        InventoryService inventoryService = (InventoryService) ServiceRegistry.getService(ServiceType.INVENTORY);
+                    Citizen citizen = citizenService.getCitizen(player);
+                    if(citizen != null) {
+                        Settlement settlement = settlementService.getSettlement(citizen.getSettlement());
                         inventoryService.getSettlementInventory(settlement).open(player);
                     } else {
                         player.sendMessage("You do not seem to belong to a settlement.");
@@ -95,5 +112,14 @@ public class CommandExecutor extends org.bukkit.command.Command {
             commandSender.sendMessage("You must be a player to execute this command.");
         }
         return false;
+    }
+
+    @NotNull
+    @Override
+    public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
+        if(args.length == 1) {
+            return subCommands.stream().filter(c -> !c.isDebug()).map(c -> c.getLabel().name().toLowerCase()).collect(Collectors.toList());
+        }
+        return new ArrayList<>();
     }
 }

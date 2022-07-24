@@ -3,46 +3,56 @@ package com.huskydreaming.settlements.commands.subcommands;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
+import com.huskydreaming.settlements.persistence.Citizen;
 import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.services.CitizenService;
 import com.huskydreaming.settlements.services.SettlementService;
-import com.huskydreaming.settlements.services.base.ServiceRegistry;
-import com.huskydreaming.settlements.services.base.ServiceType;
-import com.huskydreaming.settlements.utilities.Chat;
 import com.huskydreaming.settlements.utilities.Locale;
-import org.bukkit.Bukkit;
+import com.huskydreaming.settlements.utilities.Remote;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.SETOWNER)
 public class SetOwnerCommand implements CommandInterface {
 
+    private final CitizenService citizenService;
+    private final SettlementService settlementService;
+
+    public SetOwnerCommand(CitizenService citizenService, SettlementService settlementService) {
+        this.citizenService = citizenService;
+        this.settlementService = settlementService;
+    }
+
     @Override
     public void run(Player player, String[] strings) {
         if (strings.length == 2) {
-            Player target = Bukkit.getPlayer(strings[1]);
-            if (target == null) {
-                player.sendMessage(Chat.parameterize(Locale.PLAYER_OFFLINE, strings[1]));
+            OfflinePlayer offlinePlayer = Remote.getOfflinePlayer(strings[1]);
+            if (offlinePlayer == null) {
+                player.sendMessage(Remote.prefix(Locale.PLAYER_NULL, strings[1]));
                 return;
             }
 
-            SettlementService settlementService = (SettlementService) ServiceRegistry.getService(ServiceType.SETTLEMENT);
-            if (!settlementService.hasSettlement(player)) {
-                player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_PLAYER_NULL));
+
+            if (!citizenService.hasSettlement(player)) {
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
                 return;
             }
 
-            Settlement settlement = settlementService.getSettlement(player);
+            Citizen citizen = citizenService.getCitizen(player);
+            Settlement settlement = settlementService.getSettlement(citizen.getSettlement());
             if (!settlement.isOwner(player)) {
-                player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_OWNER));
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_OWNER));
                 return;
             }
 
-            if (!settlement.isCitizen(target)) {
-                player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_NOT_CITIZEN));
+            Citizen offlineCitizen = citizenService.getCitizen(offlinePlayer);
+            if (!offlineCitizen.getSettlement().equalsIgnoreCase(citizen.getSettlement())) {
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_NOT_CITIZEN));
                 return;
             }
 
-            settlement.setOwner(target);
-            player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_NOT_CITIZEN), target.getName());
+            settlement.setOwner(offlinePlayer);
+            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_NOT_CITIZEN), offlinePlayer.getName());
         }
     }
 }

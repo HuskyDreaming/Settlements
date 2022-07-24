@@ -1,25 +1,25 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.google.gson.reflect.TypeToken;
+import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.SettlementService;
 import com.huskydreaming.settlements.storage.Json;
-import org.bukkit.Chunk;
-import org.bukkit.entity.Player;
 
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+@Singleton
 public class SettlementServiceImpl implements SettlementService {
 
     private Set<Settlement> settlements = new HashSet<>();
 
     @Override
-    public void createSettlement(Player player, String name) {
-        settlements.add(Settlement.create(player, name));
+    public void createSettlement(String name) {
+
     }
 
     @Override
@@ -28,33 +28,13 @@ public class SettlementServiceImpl implements SettlementService {
     }
 
     @Override
-    public boolean hasSettlement(Player player) {
-        return settlements.stream().anyMatch(settlement -> settlement.isCitizen(player));
-    }
-
-    @Override
     public boolean isSettlement(String name) {
         return settlements.stream().anyMatch(settlement -> settlement.getName().equalsIgnoreCase(name));
     }
 
     @Override
-    public boolean isSettlement(Chunk chunk) {
-        return settlements.stream().anyMatch(settlement -> settlement.isClaimed(chunk));
-    }
-
-    @Override
-    public Settlement getSettlement(Chunk chunk) {
-        return settlements.stream().filter(settlement -> settlement.isClaimed(chunk)).findFirst().orElse(null);
-    }
-
-    @Override
     public Settlement getSettlement(String string) {
         return settlements.stream().filter(settlement -> settlement.getName().equalsIgnoreCase(string)).findFirst().orElse(null);
-    }
-
-    @Override
-    public Settlement getSettlement(Player player) {
-        return settlements.stream().filter(settlement -> settlement.isCitizen(player)).findFirst().orElse(null);
     }
 
     @Override

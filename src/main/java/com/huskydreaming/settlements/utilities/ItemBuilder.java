@@ -28,6 +28,12 @@ public class ItemBuilder {
         return this;
     }
 
+    public ItemBuilder setLore(List<String> lore) {
+        this.lore = lore;
+        return this;
+    }
+
+
     public ItemBuilder setLore(String... strings) {
         this.lore = Arrays.asList(strings);
         return this;

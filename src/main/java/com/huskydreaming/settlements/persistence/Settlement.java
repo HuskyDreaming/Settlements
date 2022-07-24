@@ -1,22 +1,21 @@
 package com.huskydreaming.settlements.persistence;
 
-import com.huskydreaming.settlements.persistence.lands.Land;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RoleDefault;
-import org.bukkit.*;
+import org.bukkit.Location;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class Settlement {
 
     private UUID owner;
     private String name;
-    private String world;
     private String description;
     private String defaultRole;
     private Location location;
@@ -25,8 +24,6 @@ public class Settlement {
     private int maxCitizens;
 
     private final List<Role> roles;
-    private final Set<Land> lands;
-    private final Map<UUID, String> citizens;
 
     public static Settlement create(Player player, String name) {
         return new Settlement(player, name, Arrays.stream(RoleDefault.values())
@@ -40,19 +37,9 @@ public class Settlement {
         this.roles = roles;
         this.maxCitizens = 10;
         this.maxLand = 15;
-        this.lands = new HashSet<>();
         this.description = "A peaceful place.";
-        this.citizens = new ConcurrentHashMap<>();
         this.location = player.getLocation();
         this.defaultRole = RoleDefault.CITIZEN.name();
-
-        World world = location.getWorld();
-        if(world != null) {
-            this.world = location.getWorld().getName();
-        }
-
-        add(player.getLocation().getChunk());
-        citizens.put(player.getUniqueId(), RoleDefault.MAJESTY.name());
     }
 
     public void setOwner(OfflinePlayer offlinePlayer) {
@@ -71,10 +58,6 @@ public class Settlement {
         this.location = location;
     }
 
-    public void setRole(Player player, Role role) {
-        citizens.put(player.getUniqueId(), role.getName());
-    }
-
     public void setDefaultRole(String defaultRole) {
         this.defaultRole = defaultRole;
     }
@@ -87,37 +70,13 @@ public class Settlement {
         this.maxLand = maxLand;
     }
 
-    public void add(Chunk chunk) {
-        lands.add(Land.create(chunk));
-    }
-
-    public void add(Player player) {
-        citizens.put(player.getUniqueId(), defaultRole);
-    }
-
     public boolean add(Role role) {
         return roles.add(role);
-    }
-
-    public void remove(OfflinePlayer offlinePlayer) {
-        citizens.remove(offlinePlayer.getUniqueId());
-    }
-
-    public void remove(Chunk chunk) {
-        lands.removeIf(land -> land.matches(chunk));
     }
 
     public void remove(Role role) {
         if(defaultRole.equalsIgnoreCase(role.getName())) return;
         roles.removeIf(r -> r.getName().equalsIgnoreCase(role.getName()));
-    }
-
-    public boolean isClaimed(Chunk chunk) {
-        return lands.stream().anyMatch(land -> land.matches(chunk));
-    }
-
-    public boolean isCitizen(Player player) {
-        return citizens.containsKey(player.getUniqueId());
     }
 
     public boolean isOwner(OfflinePlayer offlinePlayer) {
@@ -132,34 +91,12 @@ public class Settlement {
         return roles.stream().filter(role -> role.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
-    public Role getRole(OfflinePlayer offlinePlayer) {
-        Predicate<Role> rolePredicate = r -> r.getName().equalsIgnoreCase(citizens.get(offlinePlayer.getUniqueId()));
-
-        if(roles.stream().noneMatch(rolePredicate)) {
-            citizens.put(offlinePlayer.getUniqueId(), defaultRole);
-        }
-
-        return roles.stream().filter(rolePredicate).findFirst().orElse(null);
-    }
-
-    public String getWorld() {
-        return world;
-    }
-
     public Location getLocation() {
         return location;
     }
 
-    public OfflinePlayer[] getCitizens() {
-        return citizens.keySet().stream().map(Bukkit::getOfflinePlayer).toArray(OfflinePlayer[]::new);
-    }
-
     public List<Role> getRoles() {
         return Collections.unmodifiableList(roles);
-    }
-
-    public Set<Land> getLands() {
-        return Collections.unmodifiableSet(lands);
     }
 
     public String getName() {

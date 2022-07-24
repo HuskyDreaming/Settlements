@@ -3,3 +3,5 @@ main: com.huskydreaming.settlements.SettlementPlugin
 version: 0.1.0
 api-version: 1.18
 author: HuskyDreaming
+softdepend:
+  - WorldGuard

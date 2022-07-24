@@ -1,13 +1,8 @@
 package com.huskydreaming.settlements.listeners;
 
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.SettlementService;
-import com.huskydreaming.settlements.utilities.Visualise;
-import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
-import org.bukkit.Color;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,7 +28,7 @@ public class LandListener implements Listener {
             Chunk from = event.getFrom().getChunk();
             Chunk to = event.getTo().getChunk();
 
-            Settlement fromSettlement = settlementService.getSettlement(from);
+            /*Settlement fromSettlement = settlementService.getSettlement(from);
             Settlement toSettlement = settlementService.getSettlement(to);
 
             Player player = event.getPlayer();
@@ -64,6 +59,7 @@ public class LandListener implements Listener {
                         20, 40, 20
                 );
             }
+             */
         }
     }
 
@@ -92,18 +88,21 @@ public class LandListener implements Listener {
     }
 
     private boolean isCancelled(Chunk chunk, Player player, RolePermission rolePermission) {
-        if (!settlementService.isSettlement(chunk)) return false;
+       /* if (!settlementService.isSettlement(chunk)) return false;
 
         Settlement settlement = settlementService.getSettlement(chunk);
         if (settlement == null) return false;
 
+        */
+
         boolean cancel = true;
-        if (settlement.isCitizen(player)) {
+        /*if (settlement.isCitizen(player)) {
             Role role = settlement.getRole(player);
             if (role.hasPermission(rolePermission) || settlement.isOwner(player)) {
                 cancel = false;
             }
         }
+         */
         return cancel;
     }
 }

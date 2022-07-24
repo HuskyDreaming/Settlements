@@ -1,12 +1,12 @@
 package com.huskydreaming.settlements;
 
+import com.google.inject.Guice;
+import com.google.inject.Injector;
 import com.huskydreaming.settlements.commands.CommandExecutor;
 import com.huskydreaming.settlements.commands.subcommands.*;
-import com.huskydreaming.settlements.listeners.LandListener;
-import com.huskydreaming.settlements.listeners.RequestListener;
-import com.huskydreaming.settlements.services.SettlementService;
-import com.huskydreaming.settlements.services.base.ServiceRegistry;
-import com.huskydreaming.settlements.services.base.ServiceType;
+import com.huskydreaming.settlements.services.*;
+import com.huskydreaming.settlements.services.base.ServiceInterface;
+import com.huskydreaming.settlements.services.base.ServiceModule;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -15,14 +15,12 @@ import java.util.Arrays;
 
 public class SettlementPlugin extends JavaPlugin {
 
-    private ServiceRegistry serviceRegistry;
-
     @Override
     public void onEnable() {
-        serviceRegistry = new ServiceRegistry();
-        serviceRegistry.deserialize(this);
 
-        CommandExecutor.create(
+        Injector injector = Guice.createInjector(new ServiceModule());
+
+        CommandExecutor.inject(injector,
                 AcceptCommand.class,
                 ClaimCommand.class,
                 CreateCommand.class,
@@ -30,20 +28,28 @@ public class SettlementPlugin extends JavaPlugin {
                 DisbandCommand.class,
                 InviteCommand.class,
                 KickCommand.class,
-                ListCommand.class,
                 SetOwnerCommand.class,
                 SetSpawnCommand.class,
                 SpawnCommand.class,
                 UnclaimCommand.class
         ).register(this);
 
-        SettlementService settlementService = (SettlementService) ServiceRegistry.getService(ServiceType.SETTLEMENT);
-        registerListeners(new LandListener(settlementService), new RequestListener(this));
+        deserialize(injector,
+                CitizenService.class,
+                ClaimService.class,
+                SettlementService.class,
+                InventoryService.class,
+                InvitationService.class
+        );
     }
 
     @Override
     public void onDisable() {
-        serviceRegistry.serialize(this);
+
+    }
+
+    private void deserialize(Injector injector, Class<?>... classes) {
+        Arrays.stream(classes).forEach(c -> ((ServiceInterface) injector.getInstance(c)).deserialize(this));
     }
 
     private void registerListeners(Listener... listeners) {

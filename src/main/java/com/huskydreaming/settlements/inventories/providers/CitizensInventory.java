@@ -1,10 +1,10 @@
 package com.huskydreaming.settlements.inventories.providers;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
+import com.huskydreaming.settlements.persistence.Citizen;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.InventoryService;
-import com.huskydreaming.settlements.services.base.ServiceRegistry;
-import com.huskydreaming.settlements.services.base.ServiceType;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.ChatColor;
@@ -13,33 +13,33 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
-public class CitizensInventory extends InventoryPageProvider<OfflinePlayer> {
+public class CitizensInventory extends InventoryPageProvider<Citizen> {
 
-    private final InventoryService inventoryService;
+    @Inject
+    private InventoryService inventoryService;
 
-    public CitizensInventory(Settlement settlement, int rows) {
-        super(settlement, rows, settlement.getCitizens());
-        inventoryService = (InventoryService) ServiceRegistry.getService(ServiceType.INVENTORY);
+    public CitizensInventory(Settlement settlement, int rows, Citizen[] citizens) {
+        super(settlement, rows, citizens);
         this.smartInventory = inventoryService.getSettlementInventory(settlement);
     }
 
     @Override
-    public ItemStack construct(int index, OfflinePlayer offlinePlayer) {
-        String status = offlinePlayer.isOnline() ? ChatColor.GREEN + "Online" : ChatColor.RED + "Offline";
+    public ItemStack construct(int index, Citizen citizen) {
+        //String status = offlinePlayer.isOnline() ? ChatColor.GREEN + "Online" : ChatColor.RED + "Offline";
         return ItemBuilder.create()
-                .setDisplayName(ChatColor.YELLOW + "" + index + ". " + offlinePlayer.getName())
+                .setDisplayName(ChatColor.YELLOW + "" + index + ". ")
                 .setLore(
-                        ChatColor.GRAY + settlement.getRole(offlinePlayer).getName() + ChatColor.DARK_GRAY + " | " +  status,
+                        ChatColor.GRAY + "" + ChatColor.DARK_GRAY + " | ",
                         "",
                         ChatColor.GRAY + "Click to edit player."
                 )
-                .buildPlayer(offlinePlayer);
+                .build();
     }
 
     @Override
-    public void run(InventoryClickEvent event, OfflinePlayer offlinePlayer, InventoryContents contents) {
+    public void run(InventoryClickEvent event, Citizen Citizen, InventoryContents contents) {
         if(event.getWhoClicked() instanceof Player player) {
-            inventoryService.getCitizenInventory(settlement, offlinePlayer).open(player);
+           // inventoryService.getCitizenInventory(settlement).open(player);
         }
     }
 }

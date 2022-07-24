@@ -12,5 +12,13 @@ public interface CommandInterface {
         return getClass().getAnnotation(Command.class).aliases();
     }
 
+    default boolean requiresPermissions() {
+        return getClass().getAnnotation(Command.class).requiresPermissions();
+    }
+
+    default boolean isDebug() {
+        return getClass().getAnnotation(Command.class).debug();
+    }
+
     void run(Player player, String[] strings);
 }

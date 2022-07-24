@@ -4,6 +4,7 @@ public enum CommandLabel {
     ACCEPT,
     CLAIM,
     CREATE,
+    DEBUG,
     DENY,
     DISBAND,
     INVITE,
@@ -14,5 +15,6 @@ public enum CommandLabel {
     SETTLEMENTS,
     SHOW,
     SPAWN,
+    RELOAD,
     UNCLAIM
 }

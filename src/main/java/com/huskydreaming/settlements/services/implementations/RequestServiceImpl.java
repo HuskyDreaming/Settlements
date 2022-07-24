@@ -2,15 +2,16 @@ package com.huskydreaming.settlements.services.implementations;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Request;
 import com.huskydreaming.settlements.services.RequestService;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+@Singleton
 public class RequestServiceImpl implements RequestService {
 
     private Cache<UUID, Request> cache;

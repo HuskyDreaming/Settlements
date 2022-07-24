@@ -1,41 +1,51 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
+import com.huskydreaming.settlements.services.CitizenService;
+import com.huskydreaming.settlements.services.ClaimService;
 import com.huskydreaming.settlements.services.SettlementService;
-import com.huskydreaming.settlements.services.base.ServiceRegistry;
-import com.huskydreaming.settlements.services.base.ServiceType;
-import com.huskydreaming.settlements.utilities.Chat;
 import com.huskydreaming.settlements.utilities.Locale;
+import com.huskydreaming.settlements.utilities.Remote;
+import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.CREATE)
 public class CreateCommand implements CommandInterface {
 
+    @Inject
+    private CitizenService citizenService;
+
+    @Inject
+    private ClaimService claimService;
+
+    @Inject
+    private SettlementService settlementService;
+
     @Override
     public void run(Player player, String[] strings) {
         if (strings.length == 2) {
-            SettlementService settlementService = (SettlementService) ServiceRegistry.getService(ServiceType.SETTLEMENT);
-
-            String string = strings[1];
-            if (settlementService.hasSettlement(player)) {
-                player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_PLAYER_EXISTS));
+            if(citizenService.hasSettlement(player)) {
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_EXISTS));
                 return;
             }
 
-            if (settlementService.isSettlement(string)) {
-                player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_EXIST));
+            if (settlementService.isSettlement(strings[1])) {
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_EXIST));
                 return;
             }
 
-            if (settlementService.isSettlement(player.getLocation().getChunk())) {
-                player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_ESTABLISHED));
+            Chunk chunk = player.getLocation().getChunk();
+            if (claimService.isClaim(chunk)) {
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_ESTABLISHED));
                 return;
             }
 
-            player.sendMessage(Chat.parameterize(Locale.SETTLEMENT_CREATED, string));
-            settlementService.createSettlement(player, string);
+            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATED, strings[1]));
+            claimService.setClaim(strings[1], chunk);
+            settlementService.createSettlement(strings[1]);
         }
     }
 }

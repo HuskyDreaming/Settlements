@@ -9,4 +9,6 @@ import java.lang.annotation.*;
 public @interface Command {
     CommandLabel label();
     String[] aliases() default {};
+    boolean requiresPermissions() default false;
+    boolean debug() default false;
 }
