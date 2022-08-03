@@ -2,6 +2,7 @@ package com.huskydreaming.settlements.services;
 
 import com.huskydreaming.settlements.persistence.Citizen;
 import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.services.base.Service;
 import com.huskydreaming.settlements.services.base.ServiceInterface;
 import org.bukkit.OfflinePlayer;
 

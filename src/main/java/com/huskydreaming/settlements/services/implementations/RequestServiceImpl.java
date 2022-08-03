@@ -6,11 +6,13 @@ import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Request;
 import com.huskydreaming.settlements.services.RequestService;
+import com.huskydreaming.settlements.services.base.Service;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+@Service
 @Singleton
 public class RequestServiceImpl implements RequestService {
 

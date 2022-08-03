@@ -6,6 +6,7 @@ import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.InvitationService;
+import com.huskydreaming.settlements.services.base.Service;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -17,6 +18,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+@Service
 @Singleton
 public class InvitationServiceImpl implements InvitationService {
 

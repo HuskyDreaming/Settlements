@@ -1,10 +1,12 @@
 package com.huskydreaming.settlements.inventories.providers;
 
+import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryItem;
 import com.huskydreaming.settlements.persistence.Citizen;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.services.CitizenService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
@@ -19,13 +21,16 @@ import java.util.List;
 
 public class CitizenInventory implements InventoryProvider {
 
+    @Inject
+    private CitizenService citizenService;
+
     private final Settlement settlement;
-    private final Citizen citizen;
+    private final OfflinePlayer offlinePlayer;
     private int index = 0;
 
-    public CitizenInventory(Settlement settlement, Citizen citizen) {
+    public CitizenInventory(Settlement settlement, OfflinePlayer offlinePlayer) {
         this.settlement = settlement;
-        this.citizen = citizen;
+        this.offlinePlayer = offlinePlayer;
     }
 
 
@@ -51,7 +56,7 @@ public class CitizenInventory implements InventoryProvider {
                 .setMaterial(Material.EMERALD)
                 .build(), e-> {
             if(settlement.isOwner(player)) {
-                /*
+
                 if(offlinePlayer.getUniqueId().equals(player.getUniqueId())) {
                     player.sendMessage("You already owner of the settlement");
                 } else {
@@ -62,20 +67,18 @@ public class CitizenInventory implements InventoryProvider {
                     player.sendMessage("You have transferred ownership to " + offlinePlayer.getName());
                     settlement.setOwner(offlinePlayer);
                 }
-                */
-
             } else {
                 player.sendMessage("You must be the settlement owner to transfer ownership.");
             }
-
             contents.inventory().close(player);
         });
     }
 
     private ClickableItem roleItem(Player player, InventoryContents contents) {
+        Citizen citizen = citizenService.getCitizen(offlinePlayer);
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(ChatColor.GREEN + "Set Role")
-                //.setLore(ChatColor.GRAY + "Click to set role: " + ChatColor.WHITE + settlement.getRole(offlinePlayer).getName())
+                .setLore(ChatColor.GRAY + "Click to set role: " + citizen.getRole())
                 .setMaterial(Material.WRITABLE_BOOK)
                 .build(), e-> {
             List<Role> roles = new ArrayList<>(settlement.getRoles());
@@ -84,7 +87,7 @@ public class CitizenInventory implements InventoryProvider {
             index += 1;
             if (index >= size) index = 0;
 
-           // settlement.setRole(player, roles.get(index));
+            citizen.setRole(roles.get(index).getName());
             contents.inventory().open(player);
         });
     }
@@ -96,8 +99,9 @@ public class CitizenInventory implements InventoryProvider {
                 .setMaterial(Material.ANVIL)
                 .build(), e-> {
 
-            /*
-            Role role = settlement.getRole(offlinePlayer);
+
+            Citizen citizen = citizenService.getCitizen(offlinePlayer);
+            Role role = settlement.getRole(citizen.getRole());
             if(settlement.isOwner(offlinePlayer) || role.hasPermission(RolePermission.CITIZEN_KICK_EXEMPT)) {
                 player.sendMessage("This player can't be kicked from the settlement");
             } else {
@@ -106,10 +110,8 @@ public class CitizenInventory implements InventoryProvider {
                 if(target != null) {
                     target.sendMessage("You have been kicked from the " + settlement.getName() + " settlement.");
                 }
-                settlement.remove(offlinePlayer);
+                citizenService.remove(offlinePlayer);
             }
-
-             */
             contents.inventory().close(player);
         });
     }

@@ -5,6 +5,7 @@ import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.SettlementService;
+import com.huskydreaming.settlements.services.base.Service;
 import com.huskydreaming.settlements.storage.Json;
 import org.bukkit.entity.Player;
 
@@ -13,6 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+@Service
 @Singleton
 public class SettlementServiceImpl implements SettlementService {
 

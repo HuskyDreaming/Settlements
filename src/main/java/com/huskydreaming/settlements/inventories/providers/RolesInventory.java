@@ -5,7 +5,6 @@ import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Request;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.services.RequestService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.ClickableItem;
@@ -19,15 +18,12 @@ import org.bukkit.inventory.ItemStack;
 public class RolesInventory extends InventoryPageProvider<Role> {
 
     @Inject
-    private InventoryService inventoryService;
-
-    @Inject
     private RequestService requestService;
 
 
     public RolesInventory(Settlement settlement, int rows) {
         super(settlement, rows, settlement.getRoles().toArray(new Role[0]));
-        this.smartInventory = inventoryService.getSettlementInventory(settlement);
+        //this.smartInventory = inventoryService.getSettlementInventory(settlement);
     }
 
     @Override
@@ -58,7 +54,7 @@ public class RolesInventory extends InventoryPageProvider<Role> {
     @Override
     public void run(InventoryClickEvent event, Role role, InventoryContents contents) {
         if (event.getWhoClicked() instanceof Player player) {
-            inventoryService.getRoleInventory(settlement, role).open(player);
+            //inventoryService.getRoleInventory(settlement, role).open(player);
         }
     }
 

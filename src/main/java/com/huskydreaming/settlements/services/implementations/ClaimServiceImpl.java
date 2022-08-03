@@ -7,6 +7,7 @@ import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.ClaimService;
+import com.huskydreaming.settlements.services.base.Service;
 import com.huskydreaming.settlements.storage.Json;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -17,6 +18,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Service
 @Singleton
 public class ClaimServiceImpl implements ClaimService {
 

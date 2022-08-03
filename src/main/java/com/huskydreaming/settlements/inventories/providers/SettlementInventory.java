@@ -7,10 +7,8 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.CitizenService;
-import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.services.SettlementService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
-import com.huskydreaming.settlements.utilities.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
@@ -23,9 +21,6 @@ public class SettlementInventory implements InventoryProvider {
 
     @Inject
     private CitizenService citizenService;
-
-    @Inject
-    private InventoryService inventoryService;
 
     @Inject
     private SettlementService settlementService;
@@ -44,9 +39,11 @@ public class SettlementInventory implements InventoryProvider {
         role = settlement.getRole(citizen.getRole());
 
         contents.fillBorders(InventoryItem.border());
+        /*
         contents.set(1, 1, citizensItem(player, settlement));
         contents.set(1, 2, roleItem(player, settlement));
         contents.set(1, 3, landItem(player, settlement));
+         */
         contents.set(1, 4, spawn(player, settlement));
         contents.set(1, 7, disband(player, settlement, contents));
     }
@@ -56,7 +53,7 @@ public class SettlementInventory implements InventoryProvider {
 
     }
 
-
+/*
     private ClickableItem citizensItem(Player player, Settlement settlement) {
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(Menu.CITIZENS_TITLE.parse())
@@ -79,6 +76,7 @@ public class SettlementInventory implements InventoryProvider {
         return InventoryItem.of(permission, itemStack, e -> inventoryService.getRolesInventory(settlement).open(player));
     }
 
+
     private ClickableItem landItem(Player player, Settlement settlement) {
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(ChatColor.GREEN + "Lands")
@@ -89,6 +87,7 @@ public class SettlementInventory implements InventoryProvider {
         boolean permission = role.hasPermission(RolePermission.EDIT_LAND) || settlement.isOwner(player);
         return InventoryItem.of(permission, itemStack, e -> inventoryService.getClaimsInventory(settlement).open(player));
     }
+ */
 
     private ClickableItem spawn(Player player, Settlement settlement) {
         ItemStack itemStack = ItemBuilder.create()

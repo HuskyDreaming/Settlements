@@ -1,11 +1,9 @@
 package com.huskydreaming.settlements.inventories.providers;
 
-import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
-import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
@@ -17,15 +15,13 @@ import org.bukkit.inventory.ItemStack;
 
 public class RoleInventory extends InventoryPageProvider<RolePermission> {
 
-    @Inject
-    private  InventoryService inventoryService;
     private final Settlement settlement;
     private final Role role;
 
     public RoleInventory(Settlement settlement, int rows, Role role) {
         super(settlement, rows, RolePermission.values());
 
-        this.smartInventory = inventoryService.getRolesInventory(settlement);
+        //this.smartInventory = inventoryService.getRolesInventory(settlement);
         this.settlement = settlement;
         this.role = role;
     }
@@ -72,7 +68,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 .setMaterial(Material.TNT_MINECART)
                 .build(), e -> {
             settlement.remove(role);
-            inventoryService.getRolesInventory(settlement).open(player);
+           // inventoryService.getRolesInventory(settlement).open(player);
         });
     }
 
@@ -83,7 +79,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 .setMaterial(Material.DIAMOND)
                 .build(), e-> {
             settlement.setDefaultRole(role.getName());
-            inventoryService.getRolesInventory(settlement).open(player);
+            //inventoryService.getRolesInventory(settlement).open(player);
         });
     }
 }

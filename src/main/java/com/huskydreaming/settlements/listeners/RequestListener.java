@@ -5,7 +5,6 @@ import com.huskydreaming.settlements.persistence.Citizen;
 import com.huskydreaming.settlements.persistence.Request;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.CitizenService;
-import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.services.RequestService;
 import com.huskydreaming.settlements.services.SettlementService;
 import org.bukkit.Bukkit;
@@ -24,9 +23,6 @@ public class RequestListener implements Listener {
 
     @Inject
     private CitizenService citizenService;
-
-    @Inject
-    private InventoryService inventoryService;
 
     @Inject
     private RequestService requestService;
@@ -61,9 +57,8 @@ public class RequestListener implements Listener {
                     case CANCEL:
                         switch (request.getType()) {
                             case ROLE_CREATE:
-                                Bukkit.getScheduler().runTask(plugin, () ->
-                                        inventoryService.getRolesInventory(settlement).open(player)
-                                );
+                                // OPEN INVENTORY
+                                //Bukkit.getScheduler().runTask(plugin, null);
                                 break;
                         }
 

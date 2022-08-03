@@ -1,9 +1,7 @@
 package com.huskydreaming.settlements.inventories.providers;
 
-import com.google.inject.Inject;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.InventoryService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.*;
@@ -13,12 +11,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class ClaimsInventory extends InventoryPageProvider<String> {
 
-    @Inject
-    private InventoryService inventoryService;
-
     public ClaimsInventory(Settlement settlement, int rows, String[] chunks) {
         super(settlement, rows, chunks);
-        this.smartInventory =  inventoryService.getSettlementInventory(settlement);
+        //this.smartInventory =  inventoryService.getSettlementInventory(settlement);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Citizen;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.CitizenService;
+import com.huskydreaming.settlements.services.base.Service;
 import com.huskydreaming.settlements.storage.Json;
 import org.bukkit.OfflinePlayer;
 
@@ -15,6 +16,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+@Service
 @Singleton
 public class CitizenServiceImpl implements CitizenService {
 

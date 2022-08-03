@@ -6,6 +6,7 @@ import org.bukkit.Chunk;
 
 import java.util.Collection;
 
+
 public interface ClaimService extends ServiceInterface {
 
     void setClaim(Chunk chunk, Settlement settlement);

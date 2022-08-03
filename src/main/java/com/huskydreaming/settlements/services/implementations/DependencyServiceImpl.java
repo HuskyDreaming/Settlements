@@ -4,6 +4,7 @@ import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.services.DependencyService;
 import com.huskydreaming.settlements.services.base.DependencyType;
+import com.huskydreaming.settlements.services.base.Service;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldguard.WorldGuard;
@@ -16,6 +17,7 @@ import org.bukkit.plugin.PluginManager;
 import java.util.HashSet;
 import java.util.Set;
 
+@Service
 @Singleton
 public class DependencyServiceImpl implements DependencyService {
 

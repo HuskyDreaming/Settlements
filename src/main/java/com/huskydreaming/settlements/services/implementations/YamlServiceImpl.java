@@ -3,10 +3,12 @@ package com.huskydreaming.settlements.services.implementations;
 import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.services.YamlService;
+import com.huskydreaming.settlements.services.base.Service;
 import com.huskydreaming.settlements.storage.Yaml;
 import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Menu;
 
+@Service
 @Singleton
 public class YamlServiceImpl implements YamlService {
 

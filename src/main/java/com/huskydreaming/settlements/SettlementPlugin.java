@@ -3,11 +3,10 @@ package com.huskydreaming.settlements;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.huskydreaming.settlements.commands.CommandExecutor;
-import com.huskydreaming.settlements.commands.subcommands.*;
-import com.huskydreaming.settlements.services.*;
-import com.huskydreaming.settlements.services.base.PluginModule;
-import com.huskydreaming.settlements.services.base.ServiceInterface;
-import com.huskydreaming.settlements.services.base.ServiceModule;
+import com.huskydreaming.settlements.listeners.LandListener;
+import com.huskydreaming.settlements.listeners.RequestListener;
+import com.huskydreaming.settlements.modules.PluginModule;
+import com.huskydreaming.settlements.modules.ServiceModule;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -22,61 +21,25 @@ public class SettlementPlugin extends JavaPlugin {
     public void onEnable() {
 
         injector = Guice.createInjector(new PluginModule(this), new ServiceModule());
+        new CommandExecutor().setup(this, injector);
 
-        CommandExecutor.inject(injector,
-                AcceptCommand.class,
-                ClaimCommand.class,
-                CreateCommand.class,
-                DenyCommand.class,
-                DisbandCommand.class,
-                InviteCommand.class,
-                KickCommand.class,
-                SetOwnerCommand.class,
-                SetSpawnCommand.class,
-                SpawnCommand.class,
-                UnclaimCommand.class
-        ).register(this);
 
-        deserialize(
-                CitizenService.class,
-                ClaimService.class,
-                DependencyService.class,
-                InventoryService.class,
-                InvitationService.class,
-                RequestService.class,
-                SettlementService.class,
-                YamlService.class
+        registerListeners(
+                new LandListener(),
+                new RequestListener()
         );
     }
 
     @Override
     public void onDisable() {
-        serialize(
-                CitizenService.class,
-                ClaimService.class,
-                DependencyService.class,
-                InventoryService.class,
-                InvitationService.class,
-                RequestService.class,
-                SettlementService.class,
-                YamlService.class
-        );
-    }
-
-    private void deserialize(Class<?>... classes) {
-        Arrays.stream(classes).forEach(c -> ((ServiceInterface) injector.getInstance(c)).deserialize(this));
-    }
-
-    private void serialize(Class<?>... classes) {
-        Arrays.stream(classes).forEach(c -> ((ServiceInterface) injector.getInstance(c)).serialize(this));
     }
 
     private void registerListeners(Listener... listeners) {
         PluginManager pluginManager = getServer().getPluginManager();
-        Arrays.asList(listeners).forEach(listener -> pluginManager.registerEvents(listener, this));
+        Arrays.asList(listeners).forEach(listener -> {
+            pluginManager.registerEvents(listener, this);
+            injector.injectMembers(listener);
+        });
     }
 
-    public Injector getInjector() {
-        return injector;
-    }
 }
