@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.huskydreaming.settlements.serializers.LocationSerializer;
+import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
 
@@ -14,7 +15,6 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class Json {
     private static final Gson GSON = new GsonBuilder()
@@ -23,16 +23,7 @@ public class Json {
             .create();
 
     public static void write(Plugin plugin, String fileName, Object object) {
-        Path path = Paths.get(plugin.getDataFolder() + "/" + fileName + ".json");
-        try {
-            if(!Files.exists(path)) {
-                Files.createDirectories(path.getParent());
-                Files.createFile(path);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        Path path = Remote.create(plugin, fileName, Extension.JSON);
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             GSON.toJson(object, bufferedWriter);
         } catch (IOException e) {
@@ -41,16 +32,7 @@ public class Json {
     }
 
     public static <T> T read(Plugin plugin, String fileName, Type type) {
-        Path path = Paths.get(plugin.getDataFolder() + "/" + fileName + ".json");
-        try {
-            if (!Files.exists(path)) {
-                Files.createDirectories(path.getParent());
-                Files.createFile(path);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+        Path path = Remote.create(plugin, fileName, Extension.JSON);
         try {
             BufferedReader bufferedReader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
             JsonReader jsonReader = new JsonReader(bufferedReader);

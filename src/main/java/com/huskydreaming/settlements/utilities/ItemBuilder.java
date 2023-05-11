@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.utilities;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.enchantments.Enchantment;
@@ -7,9 +8,12 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ItemBuilder {
 
@@ -28,14 +32,23 @@ public class ItemBuilder {
         return this;
     }
 
-    public ItemBuilder setLore(List<String> lore) {
-        this.lore = lore;
+    public ItemBuilder setLore(@Nullable List<String> lore) {
+        if(lore == null) {
+            this.lore = new ArrayList<>();
+            return this;
+        }
+        this.lore = lore.stream()
+                .map(s -> ChatColor.translateAlternateColorCodes('&', s))
+                .collect(Collectors.toList());
         return this;
     }
 
 
-    public ItemBuilder setLore(String... strings) {
-        this.lore = Arrays.asList(strings);
+    public ItemBuilder setLore(@Nullable String... strings) {
+        List<String> lore = List.of(strings);
+        this.lore = lore.stream()
+                .map(s -> ChatColor.translateAlternateColorCodes('&', s))
+                .collect(Collectors.toList());
         return this;
     }
 

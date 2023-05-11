@@ -1,10 +1,8 @@
 package com.huskydreaming.settlements.services.implementations;
 
-import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.services.DependencyService;
+import com.huskydreaming.settlements.services.interfaces.DependencyService;
 import com.huskydreaming.settlements.services.base.DependencyType;
-import com.huskydreaming.settlements.services.base.Service;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldguard.WorldGuard;
@@ -17,8 +15,6 @@ import org.bukkit.plugin.PluginManager;
 import java.util.HashSet;
 import java.util.Set;
 
-@Service
-@Singleton
 public class DependencyServiceImpl implements DependencyService {
 
     private final Set<DependencyType> types = new HashSet<>();
@@ -33,11 +29,6 @@ public class DependencyServiceImpl implements DependencyService {
             return set.size() != 0;
         }
         return false;
-    }
-
-    @Override
-    public void serialize(SettlementPlugin plugin) {
-
     }
 
     @Override

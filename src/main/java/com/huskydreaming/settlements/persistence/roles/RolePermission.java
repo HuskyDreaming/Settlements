@@ -16,11 +16,11 @@ public enum RolePermission {
     EDIT_SPAWN(RolePermissionType.EDIT),
     EDIT_ROLES(RolePermissionType.EDIT),
 
-    // CITIZEN
-    CITIZEN_KICK(RolePermissionType.CITIZEN),
-    CITIZEN_INVITE(RolePermissionType.CITIZEN),
-    CITIZEN_KICK_EXEMPT(RolePermissionType.CITIZEN),
-    CITIZEN_FRIENDLY_FIRE(RolePermissionType.CITIZEN),
+    // MEMBER
+    MEMBER_KICK(RolePermissionType.MEMBER),
+    MEMBER_INVITE(RolePermissionType.MEMBER),
+    MEMBER_KICK_EXEMPT(RolePermissionType.MEMBER),
+    MEMBER_FRIENDLY_FIRE(RolePermissionType.MEMBER),
 
     //SPAWN
     SPAWN_SET(RolePermissionType.SPAWN),
@@ -28,13 +28,6 @@ public enum RolePermission {
 
     RolePermission(RolePermissionType type) {
         this.type = type;
-    }
-
-    public enum RolePermissionType {
-        LAND,
-        EDIT,
-        CITIZEN,
-        SPAWN
     }
 
     private final RolePermissionType type;

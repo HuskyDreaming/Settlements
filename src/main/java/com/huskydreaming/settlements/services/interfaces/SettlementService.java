@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services;
+package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceInterface;

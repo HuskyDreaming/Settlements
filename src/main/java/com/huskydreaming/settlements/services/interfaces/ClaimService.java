@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services;
+package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceInterface;
@@ -10,6 +10,7 @@ import java.util.Collection;
 public interface ClaimService extends ServiceInterface {
 
     void setClaim(Chunk chunk, Settlement settlement);
+
     void removeClaim(Chunk chunk);
 
     void clean(Settlement settlement);
@@ -19,5 +20,6 @@ public interface ClaimService extends ServiceInterface {
     String getClaim(Chunk chunk);
 
     Collection<String> getChunksAsStrings(Settlement settlement);
+
     Collection<Chunk> getChunks(Settlement settlement);
 }

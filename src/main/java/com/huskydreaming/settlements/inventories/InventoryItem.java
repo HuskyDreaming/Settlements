@@ -1,6 +1,8 @@
 package com.huskydreaming.settlements.inventories;
 
 import com.huskydreaming.settlements.utilities.ItemBuilder;
+import com.huskydreaming.settlements.utilities.Menu;
+import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;
 import fr.minuskube.inv.content.InventoryContents;
@@ -20,8 +22,8 @@ public class InventoryItem {
         ItemMeta itemMeta = itemStack.getItemMeta();
         if(itemMeta != null) {
             return ClickableItem.empty(ItemBuilder.create()
-                    .setDisplayName(ChatColor.RED + itemMeta.getDisplayName())
-                    .setLore(ChatColor.GRAY + "No permissions.")
+                    .setDisplayName(Remote.parameterize(Menu.GENERAL_NO_PERMISSIONS_TITLE, itemMeta.getDisplayName()))
+                    .setLore(Menu.GENERAL_NO_PERMISSIONS_TITLE.parseList())
                     .build());
         }
         return ClickableItem.empty(new ItemStack(Material.GRAY_DYE));
@@ -36,8 +38,8 @@ public class InventoryItem {
 
     public static ClickableItem next(Player player, InventoryContents contents) {
         ItemStack itemStack = ItemBuilder.create()
-                .setDisplayName(ChatColor.WHITE + "Next")
-                .setLore(ChatColor.GRAY + "Click for next page.")
+                .setDisplayName(Menu.GENERAL_NEXT_TITLE.parse())
+                .setLore(Menu.GENERAL_NEXT_LORE.parseList())
                 .setMaterial(Material.ARROW)
                 .build();
 
@@ -46,8 +48,8 @@ public class InventoryItem {
 
     public static ClickableItem back(Player player, SmartInventory smartInventory) {
         ItemStack itemStack = ItemBuilder.create()
-                .setDisplayName(ChatColor.WHITE + "Back")
-                .setLore(ChatColor.GRAY + "Click to go back.")
+                .setDisplayName(Menu.GENERAL_BACK_TITLE.parse())
+                .setLore(Menu.GENERAL_BACK_LORE.parseList())
                 .setMaterial(Material.ARROW)
                 .build();
 
@@ -56,8 +58,8 @@ public class InventoryItem {
 
     public static ClickableItem previous(Player player, InventoryContents contents) {
         ItemStack itemStack = ItemBuilder.create()
-                .setDisplayName(ChatColor.WHITE + "Previous")
-                .setLore(ChatColor.GRAY + "Click for previous page.")
+                .setDisplayName(Menu.GENERAL_PREVIOUS_TITLE.parse())
+                .setLore(Menu.GENERAL_PREVIOUS_LORE.parseList())
                 .setMaterial(Material.ARROW)
                 .build();
 

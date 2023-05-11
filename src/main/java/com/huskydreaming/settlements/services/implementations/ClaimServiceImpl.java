@@ -3,11 +3,9 @@ package com.huskydreaming.settlements.services.implementations;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.reflect.TypeToken;
-import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.ClaimService;
-import com.huskydreaming.settlements.services.base.Service;
+import com.huskydreaming.settlements.services.interfaces.ClaimService;
 import com.huskydreaming.settlements.storage.Json;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -18,8 +16,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Service
-@Singleton
 public class ClaimServiceImpl implements ClaimService {
 
     private Map<String, String> claims = new ConcurrentHashMap<>();
@@ -36,7 +32,7 @@ public class ClaimServiceImpl implements ClaimService {
 
     @Override
     public void clean(Settlement settlement) {
-        getChunks(settlement).forEach(s -> claims.remove(s));
+        getChunksAsStrings(settlement).forEach(s -> claims.remove(s));
     }
 
     @Override
@@ -70,13 +66,13 @@ public class ClaimServiceImpl implements ClaimService {
 
     @Override
     public void serialize(SettlementPlugin plugin) {
-        Json.write(plugin, "claims", claims);
+        Json.write(plugin, "data/claims", claims);
     }
 
     @Override
     public void deserialize(SettlementPlugin plugin) {
         Type type = new TypeToken<Map<String, String>>(){}.getType();
-        claims = Json.read(plugin, "claims", type);
+        claims = Json.read(plugin, "data/claims", type);
         if(claims == null) claims = new ConcurrentHashMap<>();
 
         int size = claims.size();

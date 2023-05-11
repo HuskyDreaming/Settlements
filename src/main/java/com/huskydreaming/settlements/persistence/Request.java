@@ -1,6 +1,5 @@
 package com.huskydreaming.settlements.persistence;
 
-import com.huskydreaming.settlements.persistence.roles.Role;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -33,6 +32,7 @@ public class Request {
             return Response.CANCEL;
         }
 
+        /*
         this.response = response;
         switch (type) {
             case ROLE_CREATE:
@@ -45,13 +45,15 @@ public class Request {
                 break;
         }
         send(player);
+
+         */
         return Response.ERROR;
     }
 
     public Response process(Settlement settlement, Response response) {
         if(response == Response.OK) {
             if (type == Type.ROLE_CREATE) {
-                settlement.add(Role.create(this.response));
+                //settlement.add(Role.create(this.response));
             }
         }
         return response;

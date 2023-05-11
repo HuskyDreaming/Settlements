@@ -1,16 +1,17 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.google.inject.Inject;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.persistence.Citizen;
+import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
-import com.huskydreaming.settlements.services.CitizenService;
-import com.huskydreaming.settlements.services.ClaimService;
-import com.huskydreaming.settlements.services.SettlementService;
+import com.huskydreaming.settlements.services.base.ServiceProvider;
+import com.huskydreaming.settlements.services.interfaces.MemberService;
+import com.huskydreaming.settlements.services.interfaces.ClaimService;
+import com.huskydreaming.settlements.services.interfaces.RoleService;
+import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Chunk;
@@ -19,25 +20,29 @@ import org.bukkit.entity.Player;
 @Command(label = CommandLabel.UNCLAIM)
 public class UnclaimCommand implements CommandInterface {
 
-    @Inject
-    private CitizenService citizenService;
+    private final MemberService memberService;
+    private final ClaimService claimService;
+    private final RoleService roleService;
 
-    @Inject
-    private ClaimService claimService;
+    private final SettlementService settlementService;
 
-    @Inject
-    private SettlementService settlementService;
+    public UnclaimCommand() {
+        memberService = ServiceProvider.Provide(MemberService.class);
+        claimService = ServiceProvider.Provide(ClaimService.class);
+        roleService = ServiceProvider.Provide(RoleService.class);
+        settlementService = ServiceProvider.Provide(SettlementService.class);
+    }
 
     @Override
     public void run(Player player, String[] strings) {
-        if (!citizenService.hasSettlement(player)) {
+        if (!memberService.hasSettlement(player)) {
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
             return;
         }
 
-        Citizen citizen = citizenService.getCitizen(player);
-        Settlement settlement = settlementService.getSettlement(citizen.getSettlement());
-        Role role = settlement.getRole(citizen.getRole());
+        Member member = memberService.getCitizen(player);
+        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Role role = roleService.getRole(settlement, member);
         if (!(role.hasPermission(RolePermission.LAND_UNCLAIM) || settlement.isOwner(player))) {
             player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS), RolePermission.LAND_UNCLAIM.getName());
             return;
@@ -47,6 +52,11 @@ public class UnclaimCommand implements CommandInterface {
         String claim = claimService.getClaim(chunk);
         if(claim == null) {
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_NOT_CLAIMED));
+            return;
+        }
+
+        if(claimService.getChunks(settlement).size() == 1) {
+            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_UNCLAIM_ONE));
             return;
         }
 

@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services;
+package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.settlements.persistence.Request;
 import com.huskydreaming.settlements.services.base.ServiceInterface;
@@ -9,6 +9,7 @@ public interface RequestService extends ServiceInterface {
     void removeRequest(Player player);
 
     void createRequest(Player player, Request.Type type);
+
     boolean hasRequest(Player player);
 
     Request getRequest(Player player);

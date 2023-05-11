@@ -4,7 +4,11 @@ import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.services.base.ServiceProvider;
+import com.huskydreaming.settlements.services.interfaces.InventoryService;
+import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
+import com.huskydreaming.settlements.utilities.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.ChatColor;
@@ -15,13 +19,17 @@ import org.bukkit.inventory.ItemStack;
 
 public class RoleInventory extends InventoryPageProvider<RolePermission> {
 
+    private final InventoryService inventoryService;
+    private final RoleService roleService;
     private final Settlement settlement;
     private final Role role;
 
     public RoleInventory(Settlement settlement, int rows, Role role) {
         super(settlement, rows, RolePermission.values());
+        inventoryService = ServiceProvider.Provide(InventoryService.class);
+        roleService = ServiceProvider.Provide(RoleService.class);
 
-        //this.smartInventory = inventoryService.getRolesInventory(settlement);
+        this.smartInventory = inventoryService.getRolesInventory(settlement);
         this.settlement = settlement;
         this.role = role;
     }
@@ -37,14 +45,16 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
     public ItemStack construct(int index, RolePermission rolePermission) {
         boolean enabled = this.role.hasPermission(rolePermission);
 
-        ChatColor color = enabled ? ChatColor.GREEN : ChatColor.RED;
-        String lore = enabled ? "Click to disable." : "Click to enable";
-        Material material = enabled ? Material.LIME_DYE : Material.GRAY_DYE;
+        String materialEnabled = Menu.ROLE_SETTING_ENABLE_MATERIAL.parse();
+        String materialDisabled = Menu.ROLE_SETTING_DISABLE_MATERIAL.parse();
+
+        String colorEnabled = Menu.ROLE_SETTING_ENABLE_COLOR.parse();
+        String colorDisabled = Menu.ROLE_SETTING_DISABLE_COLOR.parse();
 
         return ItemBuilder.create()
-                .setDisplayName(color + rolePermission.getName())
-                .setLore(ChatColor.GRAY + lore)
-                .setMaterial(material)
+                .setDisplayName(ChatColor.valueOf(enabled ? colorEnabled : colorDisabled) + rolePermission.getName())
+                .setLore(enabled ? Menu.ROLE_SETTING_ENABLE_LORE.parse() : Menu.ROLE_SETTING_DISABLE_LORE.parse())
+                .setMaterial(Material.valueOf(enabled ? materialEnabled : materialDisabled))
                 .build();
     }
 
@@ -63,23 +73,28 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
 
     private ClickableItem deleteItem(Player player) {
         return ClickableItem.of(ItemBuilder.create()
-                .setDisplayName(ChatColor.RED + "Delete")
-                .setLore(ChatColor.GRAY + "Click to delete role.")
+                .setDisplayName(Menu.ROLE_DELETE_TITLE.parse())
+                .setLore(Menu.ROLE_DELETE_LORE.parseList())
                 .setMaterial(Material.TNT_MINECART)
                 .build(), e -> {
-            settlement.remove(role);
-           // inventoryService.getRolesInventory(settlement).open(player);
+            if(roleService.getRoles(settlement).size() > 1) {
+                // TODO: Check if members have this role and assign them to another role.
+                roleService.remove(settlement, role);
+                inventoryService.getRolesInventory(settlement).open(player);
+            } else {
+                // TODO: Tell the player that the settlement must have at least 1 role.
+            }
         });
     }
 
     private ClickableItem defaultItem(Player player) {
         return ClickableItem.of(ItemBuilder.create()
-                .setDisplayName(ChatColor.AQUA + "Default")
-                .setLore(ChatColor.GRAY + "Set role as default.")
+                .setDisplayName(Menu.ROLE_DEFAULT_TITLE.parse())
+                .setLore(Menu.ROLE_DELETE_LORE.parseList())
                 .setMaterial(Material.DIAMOND)
                 .build(), e-> {
             settlement.setDefaultRole(role.getName());
-            //inventoryService.getRolesInventory(settlement).open(player);
+            inventoryService.getRolesInventory(settlement).open(player);
         });
     }
 }

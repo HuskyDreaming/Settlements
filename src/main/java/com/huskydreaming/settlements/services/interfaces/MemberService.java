@@ -1,21 +1,25 @@
-package com.huskydreaming.settlements.services;
+package com.huskydreaming.settlements.services.interfaces;
 
-import com.huskydreaming.settlements.persistence.Citizen;
+import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.Service;
 import com.huskydreaming.settlements.services.base.ServiceInterface;
 import org.bukkit.OfflinePlayer;
 
-import java.util.Collection;
+import java.util.List;
 
-public interface CitizenService extends ServiceInterface {
+public interface MemberService extends ServiceInterface {
 
     boolean hasSettlement(OfflinePlayer offlinePlayer);
 
     void add(OfflinePlayer offlinePlayer, Settlement settlement);
+
     void remove(OfflinePlayer offlinePlayer);
+
     void clean(Settlement settlement);
 
-    Citizen getCitizen(OfflinePlayer offlinePlayer);
-    Collection<Citizen> getCitizens(Settlement settlement);
+    Member getCitizen(OfflinePlayer offlinePlayer);
+
+    List<Member> getMembers(Settlement settlement);
+
+    List<OfflinePlayer> getOfflinePlayers(Settlement settlement);
 }

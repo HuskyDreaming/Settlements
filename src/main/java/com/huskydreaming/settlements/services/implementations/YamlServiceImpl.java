@@ -1,26 +1,17 @@
 package com.huskydreaming.settlements.services.implementations;
 
-import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.services.YamlService;
-import com.huskydreaming.settlements.services.base.Service;
+import com.huskydreaming.settlements.services.interfaces.YamlService;
 import com.huskydreaming.settlements.storage.Yaml;
 import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Menu;
 
-@Service
-@Singleton
 public class YamlServiceImpl implements YamlService {
-
-    @Override
-    public void serialize(SettlementPlugin plugin) {
-
-    }
 
     @Override
     public void deserialize(SettlementPlugin plugin) {
         // Localization for general messages
-        Yaml locale = new Yaml("locale");
+        Yaml locale = new Yaml("localisation/locale");
         locale.load(plugin);
         Locale.setConfiguration(locale.getConfiguration());
 
@@ -30,7 +21,7 @@ public class YamlServiceImpl implements YamlService {
         locale.save();
 
         // Localization for menus
-        Yaml menu = new Yaml("menu");
+        Yaml menu = new Yaml("localisation/menu");
         menu.load(plugin);
         Menu.setConfiguration(menu.getConfiguration());
 

@@ -1,11 +1,9 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.google.gson.reflect.TypeToken;
-import com.google.inject.Singleton;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.SettlementService;
-import com.huskydreaming.settlements.services.base.Service;
+import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.storage.Json;
 import org.bukkit.entity.Player;
 
@@ -14,8 +12,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-@Service
-@Singleton
 public class SettlementServiceImpl implements SettlementService {
 
     private Set<Settlement> settlements = new HashSet<>();
@@ -49,13 +45,13 @@ public class SettlementServiceImpl implements SettlementService {
 
     @Override
     public void serialize(SettlementPlugin plugin) {
-        Json.write(plugin, "settlements", settlements);
+        Json.write(plugin, "data/settlements", settlements);
     }
 
     @Override
     public void deserialize(SettlementPlugin plugin) {
         Type type = new TypeToken<Set<Settlement>>(){}.getType();
-        settlements = Json.read(plugin, "settlements", type);
+        settlements = Json.read(plugin, "data/settlements", type);
         if(settlements == null) settlements = new HashSet<>();
 
         int size = settlements.size();

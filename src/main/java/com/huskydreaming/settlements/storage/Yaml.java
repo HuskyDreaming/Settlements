@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.storage;
 
+import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -8,12 +9,11 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class Yaml {
 
     private final String name;
-    private File file;
+    private Path path;
     private FileConfiguration configuration;
 
     public Yaml(String name) {
@@ -21,29 +21,21 @@ public class Yaml {
     }
 
     public void load(Plugin plugin) {
-        file = new File(plugin.getDataFolder() + File.separator + getFileName());
-        try {
-            if(file.createNewFile()) {
-                plugin.getLogger().info("Created new file: " + getFileName());
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        configuration = YamlConfiguration.loadConfiguration(file);
+        path = Remote.create(plugin, name, Extension.YAML);
+        configuration = YamlConfiguration.loadConfiguration(path.toFile());
     }
 
     public void save() {
-        if(configuration == null || file == null || !file.exists()) return;
+        if(configuration == null || path == null || !Files.exists(path)) return;
         try {
-            configuration.save(file);
+            configuration.save(path.toFile());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     public void reload(Plugin plugin) {
-        configuration = YamlConfiguration.loadConfiguration(file);
+        configuration = YamlConfiguration.loadConfiguration(path.toFile());
         InputStream inputStream = plugin.getResource(getFileName());
 
         if(inputStream == null) return;

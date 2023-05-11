@@ -1,13 +1,14 @@
 package com.huskydreaming.settlements.listeners;
 
-import com.google.inject.Inject;
-import com.huskydreaming.settlements.persistence.Citizen;
+import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
-import com.huskydreaming.settlements.services.CitizenService;
-import com.huskydreaming.settlements.services.ClaimService;
-import com.huskydreaming.settlements.services.SettlementService;
+import com.huskydreaming.settlements.services.base.ServiceProvider;
+import com.huskydreaming.settlements.services.interfaces.MemberService;
+import com.huskydreaming.settlements.services.interfaces.ClaimService;
+import com.huskydreaming.settlements.services.interfaces.RoleService;
+import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -25,14 +26,19 @@ import java.util.Objects;
 
 public class LandListener implements Listener {
 
-    @Inject
-    private CitizenService citizenService;
+    private final MemberService memberService;
 
-    @Inject
-    private ClaimService claimService;
+    private final ClaimService claimService;
+    private final RoleService roleService;
 
-    @Inject
-    private SettlementService settlementService;
+    private final SettlementService settlementService;
+
+    public LandListener() {
+        memberService = ServiceProvider.Provide(MemberService.class);
+        claimService = ServiceProvider.Provide(ClaimService.class);
+        roleService = ServiceProvider.Provide(RoleService.class);
+        settlementService = ServiceProvider.Provide(SettlementService.class);
+    }
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
@@ -97,18 +103,15 @@ public class LandListener implements Listener {
 
     private boolean isCancelled(Chunk chunk, Player player, RolePermission rolePermission) {
         if (!claimService.isClaim(chunk)) return false;
-        if( citizenService.hasSettlement(player)) return true;
+        if( memberService.hasSettlement(player)) return true;
 
-        Citizen citizen = citizenService.getCitizen(player);
+        Member member = memberService.getCitizen(player);
 
-        boolean cancel = true;
-        if (claimService.getClaim(chunk).equalsIgnoreCase(citizen.getSettlement())) {
-            Settlement settlement = settlementService.getSettlement(citizen.getSettlement());
-            Role role = settlement.getRole(citizen.getRole());
-            if (role.hasPermission(rolePermission) || settlement.isOwner(player)) {
-                cancel = false;
-            }
+        if (claimService.getClaim(chunk).equalsIgnoreCase(member.getSettlement())) {
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            Role role = roleService.getRole(settlement, member);
+            return !role.hasPermission(rolePermission) && !settlement.isOwner(player);
         }
-        return cancel;
+        return true;
     }
 }

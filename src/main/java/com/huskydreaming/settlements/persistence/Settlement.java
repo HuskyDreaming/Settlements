@@ -1,16 +1,12 @@
 package com.huskydreaming.settlements.persistence;
 
-import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RoleDefault;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 public class Settlement {
 
@@ -22,24 +18,20 @@ public class Settlement {
 
     private int maxLand;
     private int maxCitizens;
-
-    private final List<Role> roles;
+    private int maxRoles;
 
     public static Settlement create(Player player, String name) {
-        return new Settlement(player, name, Arrays.stream(RoleDefault.values())
-                .map(RoleDefault::build)
-                .collect(Collectors.toList()));
+        return new Settlement(player, name);
     }
 
-    public Settlement(Player player, String name, List<Role> roles) {
+    public Settlement(Player player, String name) {
         this.owner = player.getUniqueId();
         this.name = name;
-        this.roles = roles;
         this.maxCitizens = 10;
         this.maxLand = 15;
+        this.maxRoles = 5;
         this.description = "A peaceful place.";
         this.location = player.getLocation();
-        this.defaultRole = RoleDefault.CITIZEN.name();
     }
 
     public void setOwner(OfflinePlayer offlinePlayer) {
@@ -58,10 +50,6 @@ public class Settlement {
         this.location = location;
     }
 
-    public void setDefaultRole(String defaultRole) {
-        this.defaultRole = defaultRole;
-    }
-
     public void setMaxCitizens(int maxCitizens) {
         this.maxCitizens = maxCitizens;
     }
@@ -70,45 +58,29 @@ public class Settlement {
         this.maxLand = maxLand;
     }
 
-    public boolean add(Role role) {
-        return roles.add(role);
-    }
-
-    public void remove(Role role) {
-        if(defaultRole.equalsIgnoreCase(role.getName())) return;
-        roles.removeIf(r -> r.getName().equalsIgnoreCase(role.getName()));
-    }
-
     public boolean isOwner(OfflinePlayer offlinePlayer) {
         return owner.equals(offlinePlayer.getUniqueId());
     }
 
-    public boolean hasRole(String name) {
-        return roles.stream().anyMatch(role -> role.getName().equalsIgnoreCase(name));
-    }
-
-    public Role getRole(String name) {
-        return roles.stream().filter(role -> role.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
-    }
 
     public Location getLocation() {
         return location;
-    }
-
-    public List<Role> getRoles() {
-        return Collections.unmodifiableList(roles);
     }
 
     public String getName() {
         return name;
     }
 
-    public String getDefaultRole() {
-        return defaultRole;
-    }
-
     public String getDescription() {
         return description;
+    }
+
+    public String getOwnerName() {
+        OfflinePlayer player = Arrays.stream(Bukkit.getOfflinePlayers())
+                .filter(offlinePlayer -> offlinePlayer.getUniqueId().equals(owner))
+                .findFirst().orElse(null);
+        if(player != null) return player.getName();
+        return null;
     }
 
     public int getMaxLand() {
@@ -117,5 +89,21 @@ public class Settlement {
 
     public int getMaxCitizens() {
         return maxCitizens;
+    }
+
+    public String getDefaultRole() {
+        return defaultRole;
+    }
+
+    public void setDefaultRole(String defaultRole) {
+        this.defaultRole = defaultRole;
+    }
+
+    public int getMaxRoles() {
+        return maxRoles;
+    }
+
+    public void setMaxRoles(int maxRoles) {
+        this.maxRoles = maxRoles;
     }
 }

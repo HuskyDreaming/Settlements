@@ -1,15 +1,15 @@
 package com.huskydreaming.settlements.persistence;
 
-public class Citizen {
+public class Member {
 
     private String settlement;
     private String role;
 
-    public static Citizen create(Settlement settlement, String role) {
-        return new Citizen(settlement.getName(), role);
+    public static Member create(Settlement settlement, String role) {
+        return new Member(settlement.getName(), role);
     }
 
-    public Citizen(String settlement, String role) {
+    public Member(String settlement, String role) {
         this.settlement = settlement;
         this.role = role;
     }

@@ -2,7 +2,12 @@ package com.huskydreaming.settlements.inventories.providers;
 
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.services.base.ServiceProvider;
+import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
+import com.huskydreaming.settlements.utilities.Locale;
+import com.huskydreaming.settlements.utilities.Menu;
+import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -13,18 +18,16 @@ public class ClaimsInventory extends InventoryPageProvider<String> {
 
     public ClaimsInventory(Settlement settlement, int rows, String[] chunks) {
         super(settlement, rows, chunks);
-        //this.smartInventory =  inventoryService.getSettlementInventory(settlement);
+        InventoryService inventoryService = ServiceProvider.Provide(InventoryService.class);
+        this.smartInventory =  inventoryService.getSettlementInventory(settlement);
     }
 
     @Override
     public ItemStack construct(int index, String string) {
         String[] data = string.split(":");
         return ItemBuilder.create()
-                .setDisplayName(ChatColor.GREEN + "" + data[0] + ", " + data[1])
-                .setLore(
-                        ChatColor.GRAY + "Left-Click  - Teleport",
-                        ChatColor.GRAY + "Right-Click - Set Owner"
-                )
+                .setDisplayName(Remote.parameterize(Menu.CLAIMS_TITLE, data[0], data[1]))
+                .setLore(Menu.CLAIMS_LORE.parseList())
                 .setMaterial(Material.GRASS_BLOCK)
                 .build();
     }
@@ -37,7 +40,7 @@ public class ClaimsInventory extends InventoryPageProvider<String> {
                 int dataX = Integer.parseInt(data[0]);
                 int dataZ = Integer.parseInt(data[1]);
 
-                World world = Bukkit.getWorld(data[3]);
+                World world = Bukkit.getWorld(data[2]);
                 if (world != null) {
                     Chunk chunk = world.getChunkAt(dataX, dataZ);
 
@@ -47,7 +50,7 @@ public class ClaimsInventory extends InventoryPageProvider<String> {
 
                     Location location = new Location(world, x, y + 1, z);
                     player.teleport(location);
-                    player.sendMessage("You have teleported to: " + x + ", " + z);
+                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_TELEPORT, x, z));
                 }
             }
         }
