@@ -11,3 +11,4 @@ A spigot land plugin that allows you to build communities and work together to s
 - JSON Message Handling for invitations etc
 - 100% Customizable Messages
 - Easy to use commands
+- Guice Dependency Injection
