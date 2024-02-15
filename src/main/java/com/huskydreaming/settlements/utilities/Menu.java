@@ -58,6 +58,7 @@ public enum Menu implements Parseable {
     MEMBERS_TITLE("&e{0}. {1}"),
     MEMBERS_LORE(Arrays.asList(
             "&f{0} &7| {1}",
+            "&7Last Online: &f{2}",
             "",
             "&7Click to edit player."
     )),

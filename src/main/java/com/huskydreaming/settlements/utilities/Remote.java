@@ -1,5 +1,7 @@
 package com.huskydreaming.settlements.utilities;
 
+import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.services.interfaces.ClaimService;
 import com.huskydreaming.settlements.storage.Extension;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
@@ -11,9 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Remote {
 
@@ -97,27 +97,33 @@ public class Remote {
         return false;
     }
 
-    public static void render(Player player, Chunk chunk, Color color)
+    public static void render(ClaimService claimService, Settlement settlement)
     {
-        int minX = chunk.getX() * 16;
-        int minZ = chunk.getZ() * 16;
-        int y;
+        Collection<Chunk> chunks = claimService.getChunks(settlement);
+        Particle.DustOptions dustOptions = new Particle.DustOptions(Color.AQUA, 0.8f);
+        for (Chunk chunk : chunks) {
 
-        Particle.DustOptions dustOptions = new Particle.DustOptions(color, 0.8f);
+            World world = chunk.getWorld();
+            int chunkX = chunk.getX();
+            int chunkZ = chunk.getZ();
 
-        for(int x = minX; x < minX + 16; x++) {
-            for(int z = minZ; z < minZ + 16; z++) {
-                y = chunk.getWorld().getHighestBlockYAt(minX, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
-                player.spawnParticle(Particle.REDSTONE, minX, y + 1, z, 1, dustOptions);
+            int minX = chunkX << 4;
+            int minZ = chunkZ << 4;
+            int maxX = minX + 15;
+            int maxZ = minZ + 15;
 
-                y = chunk.getWorld().getHighestBlockYAt(x, minZ, HeightMap.MOTION_BLOCKING_NO_LEAVES);
-                player.spawnParticle(Particle.REDSTONE, x , y + 1, minZ, 1, dustOptions);
+            Chunk north = world.getChunkAt(chunkX, chunkZ - 1);
+            Chunk south = world.getChunkAt(chunkX, chunkZ + 1);
+            for (int x = minX; x <= maxX; x++) {
+                if(!claimService.isClaim(north)) world.spawnParticle(Particle.REDSTONE, x, world.getHighestBlockYAt(x, minZ) + 1, minZ, 1, dustOptions);
+                if(!claimService.isClaim(south)) world.spawnParticle(Particle.REDSTONE, x, world.getHighestBlockYAt(x, maxZ) + 1, maxZ, 1, dustOptions);
+            }
 
-                y = chunk.getWorld().getHighestBlockYAt(minX + 16, z, HeightMap.MOTION_BLOCKING_NO_LEAVES);
-                player.spawnParticle(Particle.REDSTONE, minX + 16, y + 1, z, 1, dustOptions);
-
-                y = chunk.getWorld().getHighestBlockYAt(x, minZ + 16, HeightMap.MOTION_BLOCKING_NO_LEAVES);
-                player.spawnParticle(Particle.REDSTONE, x , y + 1, minZ + 16, 1, dustOptions);
+            Chunk west = world.getChunkAt(chunkX - 1, chunkZ);
+            Chunk east = world.getChunkAt(chunkX + 1, chunkZ);
+            for (int z = minZ; z <= maxZ; z++) {
+                if(!claimService.isClaim(west)) world.spawnParticle(Particle.REDSTONE, minX, world.getHighestBlockYAt(minX, z) + 1, z, 1, dustOptions);
+                if(!claimService.isClaim(east)) world.spawnParticle(Particle.REDSTONE, maxX, world.getHighestBlockYAt(maxX, z) + 1, z, 1, dustOptions);
             }
         }
     }

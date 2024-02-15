@@ -140,7 +140,7 @@ public class SettlementInventory implements InventoryProvider {
                 .build();
 
         return InventoryItem.of(settlement.isOwner(player), itemStack, e -> {
-            player.sendMessage(Locale.SETTLEMENT_DISBAND.parse());
+            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DISBAND));
 
             claimService.clean(settlement);
             memberService.clean(settlement);

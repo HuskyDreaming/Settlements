@@ -22,6 +22,7 @@ public class ServiceProvider {
         services.put(RoleService.class, new RoleServiceImpl());
         services.put(SettlementService.class, new SettlementServiceImpl());
         services.put(YamlService.class, new YamlServiceImpl());
+        services.put(BorderService.class, new BorderServiceImpl());
     }
 
     public static void Deserialize(SettlementPlugin settlementPlugin) {

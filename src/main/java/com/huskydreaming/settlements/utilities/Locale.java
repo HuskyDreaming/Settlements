@@ -8,6 +8,8 @@ import java.util.List;
 public enum Locale implements Parseable {
     PREFIX("&aSettlements: &7"),
     SETTLEMENT_CREATED("You have created a new settlement named &b{0}&7."),
+    SETTLEMENT_DESCRIPTION("You have set the settlement description to: &b{0}"),
+    SETTLEMENT_DESCRIPTION_LONG("The description can't be greater than &b{0} &7characters."),
     SETTLEMENT_DISBAND("You have disbanded your settlement."),
     SETTLEMENT_ESTABLISHED("A settlement has already been established here."),
     SETTLEMENT_EXIST("A settlement with that name already exists."),
@@ -33,7 +35,7 @@ public enum Locale implements Parseable {
     SETTLEMENT_PLAYER_NULL("You do not seem to belong to a settlement."),
     SETTLEMENT_SET_SPAWN("You have set the spawn for the settlement at your location."),
     SETTLEMENT_SPAWN("You have been teleported to the settlement spawn."),
-    SETTLEMENT_TELEPORT("You have teleported to: &b{0}, {1}."),
+    SETTLEMENT_TELEPORT("You have teleported to &7x: &b{0}&7, z: &b{1}"),
     INVITATION_DENIED("You have denied an invitation for &b{0}&7."),
     INVITATION_SELF("You can't invite yourself."),
     INVITATION_NULL("You do not have an invitation for &b{0}&7."),

@@ -5,10 +5,7 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
-import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
-import com.huskydreaming.settlements.services.interfaces.RoleService;
-import com.huskydreaming.settlements.services.interfaces.SettlementService;
+import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -22,6 +19,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+import javax.swing.border.Border;
 import java.util.Objects;
 
 public class LandListener implements Listener {
@@ -30,6 +28,7 @@ public class LandListener implements Listener {
 
     private final ClaimService claimService;
     private final RoleService roleService;
+    private final BorderService borderService;
 
     private final SettlementService settlementService;
 
@@ -37,6 +36,7 @@ public class LandListener implements Listener {
         memberService = ServiceProvider.Provide(MemberService.class);
         claimService = ServiceProvider.Provide(ClaimService.class);
         roleService = ServiceProvider.Provide(RoleService.class);
+        borderService = ServiceProvider.Provide(BorderService.class);
         settlementService = ServiceProvider.Provide(SettlementService.class);
     }
 
@@ -48,17 +48,22 @@ public class LandListener implements Listener {
 
             Player player = event.getPlayer();
             if (fromChunk == null && toChunk != null) {
-                Remote.render(player, event.getFrom().getChunk(), Color.AQUA);
+                Settlement settlement = settlementService.getSettlement(toChunk);
+                if(settlement == null) return;
+
+                borderService.addPlayer(player, toChunk);
+
                 player.sendTitle(
                         ChatColor.AQUA + "" + ChatColor.BOLD + toChunk,
-                        "Welcome to the settlement",
+                        settlement.getDescription(),
                         20, 40, 20
                 );
                 return;
             }
 
             if (toChunk == null && fromChunk != null) {
-                Remote.render(player, event.getFrom().getChunk(), Color.GREEN);
+                borderService.removePlayer(player);
+
                 player.sendTitle(
                         ChatColor.GREEN + "" + ChatColor.BOLD + "Wilderness",
                         ChatColor.GRAY + "You have entered the wilderness.",
@@ -67,7 +72,8 @@ public class LandListener implements Listener {
             }
 
             if (toChunk != null && !toChunk.equals(fromChunk)) {
-                Remote.render(player, event.getFrom().getChunk(), Color.RED);
+                borderService.addPlayer(player, toChunk);
+
                 player.sendTitle(
                         ChatColor.RED + "" + ChatColor.BOLD + toChunk,
                         ChatColor.GRAY + "Welcome to the settlement",
@@ -103,12 +109,13 @@ public class LandListener implements Listener {
 
     private boolean isCancelled(Chunk chunk, Player player, RolePermission rolePermission) {
         if (!claimService.isClaim(chunk)) return false;
-        if( memberService.hasSettlement(player)) return true;
 
         Member member = memberService.getCitizen(player);
+        String memberSettlement = member.getSettlement();
+        String currentSettlement = claimService.getClaim(chunk);
 
-        if (claimService.getClaim(chunk).equalsIgnoreCase(member.getSettlement())) {
-            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        if (memberSettlement.equalsIgnoreCase(currentSettlement)) {
+            Settlement settlement = settlementService.getSettlement(memberSettlement);
             Role role = roleService.getRole(settlement, member);
             return !role.hasPermission(rolePermission) && !settlement.isOwner(player);
         }

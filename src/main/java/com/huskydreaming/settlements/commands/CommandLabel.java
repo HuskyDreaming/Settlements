@@ -10,6 +10,7 @@ public enum CommandLabel {
     INVITE,
     KICK,
     LIST,
+    SETDESCRIPTION,
     SETOWNER,
     SETSPAWN,
     SETTLEMENTS,

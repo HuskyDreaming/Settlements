@@ -1,11 +1,12 @@
 package com.huskydreaming.settlements;
 
 import com.huskydreaming.settlements.commands.CommandExecutor;
-import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.subcommands.*;
 import com.huskydreaming.settlements.listeners.LandListener;
+import com.huskydreaming.settlements.listeners.MemberListener;
 import com.huskydreaming.settlements.listeners.RequestListener;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
+import com.huskydreaming.settlements.services.interfaces.BorderService;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -27,6 +28,7 @@ public class SettlementPlugin extends JavaPlugin {
                 new DisbandCommand(),
                 new InviteCommand(),
                 new KickCommand(),
+                new SetDescriptionCommand(),
                 new SetOwnerCommand(),
                 new SetSpawnCommand(),
                 new SpawnCommand(),
@@ -35,8 +37,11 @@ public class SettlementPlugin extends JavaPlugin {
 
         registerListeners(
                 new LandListener(),
+                new MemberListener(),
                 new RequestListener()
         );
+
+        ServiceProvider.Provide(BorderService.class).run(this);
     }
 
     @Override
