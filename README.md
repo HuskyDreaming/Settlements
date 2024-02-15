@@ -14,7 +14,4 @@ A spigot land plugin that allows you to build communities and work together to s
 - Guice Dependency Injection
 
 ## Images
-<img src="https://i.imgur.com/MD0THGC.png" height="30" /> 
-<img src="https://i.imgur.com/S79M0ED.png" height="30" /> 
-<img src="https://i.imgur.com/pWRj8m5.png" height="30" /> 
-<img src="https://i.imgur.com/P3XNBXo.png" height="30" />
+<img src="https://i.imgur.com/MD0THGC.png" height="30" /> <img src="https://i.imgur.com/S79M0ED.png" height="30" /> <img src="https://i.imgur.com/pWRj8m5.png" height="30" /> <img src="https://i.imgur.com/P3XNBXo.png" height="30" />
