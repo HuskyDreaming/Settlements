@@ -49,13 +49,15 @@ public class MemberListener implements Listener {
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        Member member = memberService.getCitizen(event.getPlayer());
+        Player player = event.getPlayer();
+        Member member = memberService.getCitizen(player);
         if(member != null) {
             DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             Date today = Calendar.getInstance().getTime();
             String lastOnline = df.format(today);
 
             member.setLastOnline(lastOnline);
+            borderService.removePlayer(player);
         }
     }
 }

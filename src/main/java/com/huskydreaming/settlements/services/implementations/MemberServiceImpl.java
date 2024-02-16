@@ -4,6 +4,7 @@ import com.google.gson.reflect.TypeToken;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.storage.Json;
 import org.bukkit.Bukkit;
@@ -58,6 +59,15 @@ public class MemberServiceImpl implements MemberService {
                 .filter(entry -> entry.getValue().getSettlement().equalsIgnoreCase(settlement.getName()))
                 .map(entry -> Bukkit.getOfflinePlayer(entry.getKey()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public void sync(Settlement settlement, Role role) {
+        for(Member member : getMembers(settlement)) {
+            if(member.getRole().equalsIgnoreCase(role.getName())) {
+                member.setRole(settlement.getDefaultRole());
+            }
+        }
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.settlements.SettlementPlugin;
+import com.huskydreaming.settlements.inventories.InventoryAction;
 import com.huskydreaming.settlements.inventories.providers.*;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
@@ -43,6 +44,18 @@ public class InventoryServiceImpl implements InventoryService {
                 .size(3, 9)
                 .provider(settlementInventory)
                 .title("Editing: " + settlement.getName())
+                .build();
+    }
+
+    @Override
+    public SmartInventory getConfirmationInventory(Settlement settlement, InventoryAction inventoryAction) {
+        ConfirmationInventory confirmationInventory = new ConfirmationInventory(settlement, inventoryAction);
+        return SmartInventory.builder()
+                .manager(inventoryManager)
+                .id("confirmationInventory")
+                .size(3, 9)
+                .provider(confirmationInventory)
+                .title(inventoryAction.getTitle())
                 .build();
     }
 

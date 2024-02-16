@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.inventories.providers;
 
+import com.huskydreaming.settlements.inventories.InventoryAction;
 import com.huskydreaming.settlements.inventories.InventoryItem;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
@@ -26,12 +27,9 @@ public class SettlementInventory implements InventoryProvider {
 
     private final RoleService roleService;
 
-    private final SettlementService settlementService;
-
     private final Settlement settlement;
 
     public SettlementInventory(Settlement settlement) {
-        settlementService = ServiceProvider.Provide(SettlementService.class);
         claimService = ServiceProvider.Provide(ClaimService.class);
         memberService = ServiceProvider.Provide(MemberService.class);
         roleService = ServiceProvider.Provide(RoleService.class);
@@ -53,7 +51,7 @@ public class SettlementInventory implements InventoryProvider {
         contents.set(1, 3, landItem(player, settlement, role));
         contents.set(1, 4, info(settlement));
         contents.set(1, 5, spawn(player, settlement, role));
-        contents.set(1, 7, disband(player, settlement, contents));
+        contents.set(1, 7, disband(player, settlement));
     }
 
     @Override
@@ -122,27 +120,23 @@ public class SettlementInventory implements InventoryProvider {
         boolean permission = role.hasPermission(RolePermission.EDIT_SPAWN) || settlement.isOwner(player);
         return InventoryItem.of(permission, itemStack, e -> {
             if(e.isLeftClick()) {
+                player.closeInventory();
                 player.teleport(settlement.getLocation());
             } else if(e.isRightClick()) {
                 settlement.setLocation(player.getLocation());
+                player.closeInventory();
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_SET_SPAWN));
             }
         });
     }
 
-    private ClickableItem disband(Player player, Settlement settlement, InventoryContents contents) {
+    private ClickableItem disband(Player player, Settlement settlement) {
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(Menu.SETTLEMENT_DISBAND_TITLE.parse())
                 .setLore(Menu.SETTLEMENT_DISBAND_LORE.parseList())
                 .setMaterial(Material.TNT_MINECART)
                 .build();
 
-        return InventoryItem.of(settlement.isOwner(player), itemStack, e -> {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DISBAND));
-
-            claimService.clean(settlement);
-            memberService.clean(settlement);
-            settlementService.disbandSettlement(settlement);
-            contents.inventory().close(player);
-        });
+        return InventoryItem.of(settlement.isOwner(player), itemStack, e -> inventoryService.getConfirmationInventory(settlement, InventoryAction.DISBAND).open(player));
     }
 }

@@ -83,6 +83,14 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    public Role getOtherRole(Settlement settlement, String name) {
+        return roles.get(settlement.getName()).stream()
+                .filter(role -> !role.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
     public void remove(Settlement settlement, Role role) {
         roles.get(settlement.getName()).removeIf(r -> r.getName().equalsIgnoreCase(role.getName()));
     }

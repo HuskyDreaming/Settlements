@@ -6,9 +6,12 @@ import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
+import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
+import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Menu;
+import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.ChatColor;
@@ -20,6 +23,7 @@ import org.bukkit.inventory.ItemStack;
 public class RoleInventory extends InventoryPageProvider<RolePermission> {
 
     private final InventoryService inventoryService;
+    private final MemberService memberService;
     private final RoleService roleService;
     private final Settlement settlement;
     private final Role role;
@@ -27,6 +31,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
     public RoleInventory(Settlement settlement, int rows, Role role) {
         super(settlement, rows, RolePermission.values());
         inventoryService = ServiceProvider.Provide(InventoryService.class);
+        memberService = ServiceProvider.Provide(MemberService.class);
         roleService = ServiceProvider.Provide(RoleService.class);
 
         this.smartInventory = inventoryService.getRolesInventory(settlement);
@@ -78,11 +83,16 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 .setMaterial(Material.TNT_MINECART)
                 .build(), e -> {
             if(roleService.getRoles(settlement).size() > 1) {
-                // TODO: Check if members have this role and assign them to another role.
+                if(settlement.getDefaultRole().equalsIgnoreCase(role.getName())) {
+                    Role defaultRole = roleService.getOtherRole(settlement, role.getName());
+                    settlement.setDefaultRole(defaultRole.getName());
+                }
+
+                memberService.sync(settlement, role);
                 roleService.remove(settlement, role);
                 inventoryService.getRolesInventory(settlement).open(player);
             } else {
-                // TODO: Tell the player that the settlement must have at least 1 role.
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_ROLE_ONE));
             }
         });
     }

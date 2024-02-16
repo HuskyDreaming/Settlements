@@ -22,6 +22,11 @@ public enum Menu implements Parseable {
     GENERAL_NO_PERMISSIONS_TITLE("&c{0}"),
     GENERAL_NO_PERMISSIONS_LORE(Collections.singletonList("&7No permissions.")),
 
+    // Confirmation Menu
+
+    CONFIRMATION_YES_TITLE("&a&lYes"),
+    CONFIRMATION_NO_TITLE("&c&lNo"),
+
     // Settlement Menu
     SETTLEMENT_CITIZENS_TITLE("&aMembers"),
     SETTLEMENT_CITIZENS_LORE(Collections.singletonList("&7Click to edit Members.")),
@@ -30,7 +35,10 @@ public enum Menu implements Parseable {
     SETTLEMENT_LANDS_TITLE("&aLands"),
     SETTLEMENT_LANDS_LORE(Collections.singletonList("&7Click to edit Lands.")),
     SETTLEMENT_SPAWN_TITLE("&aSpawn"),
-    SETTLEMENT_SPAWN_LORE(Collections.singletonList("&7Click to set spawn.")),
+    SETTLEMENT_SPAWN_LORE(Arrays.asList(
+            "&7Left-Click to teleport",
+            "&7Right-Click to set spawn"
+    )),
     SETTLEMENT_DISBAND_TITLE("&cDisband"),
     SETTLEMENT_DISBAND_LORE(Collections.singletonList("&7Click to disband settlement.")),
     SETTLEMENT_INFO_TITLE("&aSettlement Info"),
@@ -66,7 +74,7 @@ public enum Menu implements Parseable {
     MEMBERS_STATUS_ONLINE("&aOnline"),
     // Claims Menu
     CLAIMS_TITLE("&a{0}, {1}"),
-    CLAIMS_LORE(List.of("Click to teleport.")),
+    CLAIMS_LORE(List.of("&7Click to teleport.")),
     // Roles Menu
     ROLE_SETTING_ENABLE_LORE("&7Click to enable"),
     ROLE_SETTING_DISABLE_LORE("&7Click to disable"),

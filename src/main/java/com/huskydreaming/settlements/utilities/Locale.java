@@ -57,6 +57,7 @@ public enum Locale implements Parseable {
     SETTLEMENT_ROLE_DELETE("Successfully deleted the &b{0} &7role."),
     SETTLEMENT_ROLE_EXISTS("The settlement already has the &b{0} &7role."),
     SETTLEMENT_ROLE_NULL("The role you are trying to delete doesn't exist."),
+    SETTLEMENT_ROLE_ONE("The settlement must have at least one role available."),
     SETTLEMENT_SET_SPAWN("You have set the spawn for the settlement at your location."),
     SETTLEMENT_SPAWN("You have been teleported to the settlement spawn."),
     SETTLEMENT_TELEPORT("You have teleported to &7x: &b{0}&7, z: &b{1}"),
@@ -70,7 +71,9 @@ public enum Locale implements Parseable {
     NO_PERMISSIONS("You do not have permissions for: &b{0}"),
     UNKNOWN_SUBCOMMAND("&b{0} &7is not a valid subcommand."),
     PLAYER_NULL("The player &b{0} &7has never played before."),
-    PLAYER_OFFLINE("The player &b{0} &7does not seem to be online.");
+    PLAYER_OFFLINE("The player &b{0} &7does not seem to be online."),
+    WILDERNESS_TITLE("&a&lWilderness"),
+    WILDERNESS_FOOTER("&7Fresh new land awaits you");
 
     private final String def;
 

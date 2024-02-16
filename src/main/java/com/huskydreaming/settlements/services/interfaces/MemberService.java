@@ -2,6 +2,7 @@ package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.base.ServiceInterface;
 import org.bukkit.OfflinePlayer;
 
@@ -22,4 +23,6 @@ public interface MemberService extends ServiceInterface {
     List<Member> getMembers(Settlement settlement);
 
     List<OfflinePlayer> getOfflinePlayers(Settlement settlement);
+
+    void sync(Settlement settlement, Role role);
 }

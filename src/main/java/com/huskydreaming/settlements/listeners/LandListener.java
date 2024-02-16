@@ -6,6 +6,7 @@ import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.*;
+import com.huskydreaming.settlements.utilities.Locale;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
@@ -74,18 +75,31 @@ public class LandListener implements Listener {
                 borderService.removePlayer(player);
 
                 player.sendTitle(
-                        ChatColor.GREEN + "" + ChatColor.BOLD + "Wilderness",
-                        ChatColor.GRAY + "You have entered the wilderness.",
+                        Locale.WILDERNESS_FOOTER.parse(),
+                        Locale.WILDERNESS_TITLE.parse(),
                         20, 40, 20
                 );
             }
 
             if (toChunk != null && !fromChunk.equals(toChunk)) {
-                borderService.addPlayer(player, toChunk, Color.RED);
+                Settlement settlement = settlementService.getSettlement(toChunk);
+                if(settlement == null) return;
+
+                Color color = Color.RED;
+                ChatColor chatColor = ChatColor.RED;
+
+                if(memberService.hasSettlement(player)) {
+                    Member member = memberService.getCitizen(player);
+
+                    color = member.getSettlement().equalsIgnoreCase(toChunk) ? Color.AQUA : Color.RED;
+                    chatColor = member.getSettlement().equalsIgnoreCase(toChunk) ? ChatColor.AQUA : ChatColor.RED;
+                }
+
+                borderService.addPlayer(player, toChunk, color);
 
                 player.sendTitle(
-                        ChatColor.RED + "" + ChatColor.BOLD + toChunk,
-                        ChatColor.GRAY + "Welcome to the settlement",
+                        chatColor + "" + ChatColor.BOLD + toChunk,
+                        settlement.getDescription(),
                         20, 40, 20
                 );
             }
@@ -120,15 +134,16 @@ public class LandListener implements Listener {
 
     private boolean isCancelled(Chunk chunk, Player player, RolePermission rolePermission) {
         if (!claimService.isClaim(chunk)) return false;
+        if(memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+            String memberSettlement = member.getSettlement();
+            String currentSettlement = claimService.getClaim(chunk);
 
-        Member member = memberService.getCitizen(player);
-        String memberSettlement = member.getSettlement();
-        String currentSettlement = claimService.getClaim(chunk);
-
-        if (memberSettlement.equalsIgnoreCase(currentSettlement)) {
-            Settlement settlement = settlementService.getSettlement(memberSettlement);
-            Role role = roleService.getRole(settlement, member);
-            return !role.hasPermission(rolePermission) && !settlement.isOwner(player);
+            if (memberSettlement.equalsIgnoreCase(currentSettlement)) {
+                Settlement settlement = settlementService.getSettlement(memberSettlement);
+                Role role = roleService.getRole(settlement, member);
+                return !role.hasPermission(rolePermission) && !settlement.isOwner(player);
+            }
         }
         return true;
     }
