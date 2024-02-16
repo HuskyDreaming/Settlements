@@ -15,17 +15,14 @@ import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
-
-@Command(label = CommandLabel.SETDESCRIPTION)
-public class SetDescriptionCommand implements CommandInterface {
+@Command(label = CommandLabel.DELETEROLE)
+public class DeleteRoleCommand implements CommandInterface {
 
     private final MemberService memberService;
-
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public SetDescriptionCommand() {
+    public DeleteRoleCommand() {
         memberService = ServiceProvider.Provide(MemberService.class);
         roleService = ServiceProvider.Provide(RoleService.class);
         settlementService = ServiceProvider.Provide(SettlementService.class);
@@ -33,8 +30,8 @@ public class SetDescriptionCommand implements CommandInterface {
 
     @Override
     public void run(Player player, String[] strings) {
-        if (strings.length > 1) {
-            if (!memberService.hasSettlement(player)) {
+        if (strings.length == 2) {
+            if(!memberService.hasSettlement(player)) {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
                 return;
             }
@@ -43,18 +40,19 @@ public class SetDescriptionCommand implements CommandInterface {
             Settlement settlement = settlementService.getSettlement(member.getSettlement());
             Role role = roleService.getRole(settlement, member);
 
-            if (role.hasPermission(RolePermission.EDIT_DESCRIPTION) || settlement.isOwner(player)) {
-                String[] array = Arrays.copyOfRange(strings, 1, strings.length);
-                String string = String.join(" ", array);
-
-                if(string.length() > 36) {
-                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DESCRIPTION_LONG, 36));
-                } else {
-                    settlement.setDescription(string);
-                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DESCRIPTION, string));
+            if(role.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player)) {
+                String roleName = strings[1];
+                if(!roleService.hasRole(settlement, roleName)) {
+                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_ROLE_NULL, roleName));
+                    return;
                 }
+
+                Role roleToDelete = roleService.getRole(settlement, roleName);
+
+                roleService.remove(settlement, roleToDelete);
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_ROLE_DELETE, roleName));
             } else {
-                player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS, RolePermission.LAND_CLAIM.getName()));
+                player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS, RolePermission.EDIT_ROLES.getName()));
             }
         }
     }

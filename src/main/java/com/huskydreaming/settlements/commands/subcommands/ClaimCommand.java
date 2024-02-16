@@ -8,26 +8,32 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
-import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
-import com.huskydreaming.settlements.services.interfaces.RoleService;
-import com.huskydreaming.settlements.services.interfaces.SettlementService;
+import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Chunk;
+import org.bukkit.Color;
 import org.bukkit.entity.Player;
+
+import java.util.Collection;
 
 @Command(label = CommandLabel.CLAIM)
 public class ClaimCommand implements CommandInterface {
 
-    private final MemberService memberService;
+    private final BorderService borderService;
+
     private final ClaimService claimService;
+    private final DependencyService dependencyService;
+    private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
 
+
     public ClaimCommand() {
-        memberService = ServiceProvider.Provide(MemberService.class);
+        borderService = ServiceProvider.Provide(BorderService.class);
         claimService = ServiceProvider.Provide(ClaimService.class);
+        dependencyService = ServiceProvider.Provide(DependencyService.class);
+        memberService = ServiceProvider.Provide(MemberService.class);
         roleService = ServiceProvider.Provide(RoleService.class);
         settlementService = ServiceProvider.Provide(SettlementService.class);
     }
@@ -38,6 +44,12 @@ public class ClaimCommand implements CommandInterface {
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
             return;
         }
+
+        if(dependencyService.isWorldGuard(player)) {
+            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_WORLDGUARD));
+            return;
+        }
+
         Chunk chunk = player.getLocation().getChunk();
         if(claimService.isClaim(chunk)) {
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_CLAIMED));
@@ -49,6 +61,12 @@ public class ClaimCommand implements CommandInterface {
         Role role = roleService.getRole(settlement, member);
 
         if(role.hasPermission(RolePermission.LAND_CLAIM) || settlement.isOwner(player)) {
+            Collection<Chunk> chunks = claimService.getChunks(settlement);
+            if(chunks.size() >= settlement.getMaxLand()) {
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_CLAIMED_MAX, settlement.getMaxLand()));
+                return;
+            }
+
             boolean isAdjacent = false;
             for(Chunk c : claimService.getChunks(settlement)) {
                 if (Remote.areAdjacentChunks(chunk, c)) isAdjacent = true;
@@ -60,6 +78,7 @@ public class ClaimCommand implements CommandInterface {
 
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_CLAIM, x, z));
                 claimService.setClaim(chunk, settlement);
+                borderService.addPlayer(player, settlement.getName(), Color.AQUA);
             } else {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_ADJACENT));
             }

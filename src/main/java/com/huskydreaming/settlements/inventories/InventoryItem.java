@@ -23,7 +23,7 @@ public class InventoryItem {
         if(itemMeta != null) {
             return ClickableItem.empty(ItemBuilder.create()
                     .setDisplayName(Remote.parameterize(Menu.GENERAL_NO_PERMISSIONS_TITLE, itemMeta.getDisplayName()))
-                    .setLore(Menu.GENERAL_NO_PERMISSIONS_TITLE.parseList())
+                    .setLore(Menu.GENERAL_NO_PERMISSIONS_LORE.parseList())
                     .build());
         }
         return ClickableItem.empty(new ItemStack(Material.GRAY_DYE));

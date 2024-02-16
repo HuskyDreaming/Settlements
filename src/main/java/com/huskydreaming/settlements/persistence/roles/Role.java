@@ -1,6 +1,6 @@
 package com.huskydreaming.settlements.persistence.roles;
 
-import org.apache.commons.lang.WordUtils;
+import com.huskydreaming.settlements.utilities.Remote;
 
 import java.util.*;
 
@@ -35,6 +35,6 @@ public class Role {
     }
 
     public String getName() {
-        return WordUtils.capitalize(name.toLowerCase());
+        return Remote.capitalizeFully(name.toLowerCase());
     }
 }

@@ -8,10 +8,7 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
-import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
-import com.huskydreaming.settlements.services.interfaces.RoleService;
-import com.huskydreaming.settlements.services.interfaces.SettlementService;
+import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Chunk;
@@ -20,6 +17,7 @@ import org.bukkit.entity.Player;
 @Command(label = CommandLabel.UNCLAIM)
 public class UnclaimCommand implements CommandInterface {
 
+    private final BorderService borderService;
     private final MemberService memberService;
     private final ClaimService claimService;
     private final RoleService roleService;
@@ -27,6 +25,7 @@ public class UnclaimCommand implements CommandInterface {
     private final SettlementService settlementService;
 
     public UnclaimCommand() {
+        borderService = ServiceProvider.Provide(BorderService.class);
         memberService = ServiceProvider.Provide(MemberService.class);
         claimService = ServiceProvider.Provide(ClaimService.class);
         roleService = ServiceProvider.Provide(RoleService.class);
@@ -62,6 +61,7 @@ public class UnclaimCommand implements CommandInterface {
 
         if(settlement.getName().equalsIgnoreCase(claim)) {
             claimService.removeClaim(chunk);
+            borderService.removePlayer(player);
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_UNCLAIM));
             return;
         }

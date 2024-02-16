@@ -1,6 +1,6 @@
 package com.huskydreaming.settlements.persistence.roles;
 
-import org.apache.commons.lang.WordUtils;
+import com.huskydreaming.settlements.utilities.Remote;
 
 public enum RolePermission {
     // LAND
@@ -34,7 +34,7 @@ public enum RolePermission {
     private final RolePermissionType type;
 
     public String getName() {
-        return WordUtils.capitalizeFully(name().toLowerCase()).replace("_", " ");
+        return Remote.capitalizeFully(name().toLowerCase()).replace("_", " ");
     }
 
     public RolePermissionType getType() {

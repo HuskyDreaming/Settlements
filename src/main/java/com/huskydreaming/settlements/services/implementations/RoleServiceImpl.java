@@ -37,6 +37,11 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
+    public void clean(Settlement settlement) {
+        roles.remove(settlement.getName());
+    }
+
+    @Override
     public void setup(Settlement settlement) {
         List<Role> roles = Arrays.stream(RoleDefault.values())
                 .map(RoleDefault::build)
@@ -67,6 +72,14 @@ public class RoleServiceImpl implements RoleService {
         }
 
         return finalRole.get();
+    }
+
+    @Override
+    public Role getRole(Settlement settlement, String name) {
+        return roles.get(settlement.getName()).stream()
+                .filter(role -> role.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
@@ -107,6 +120,11 @@ public class RoleServiceImpl implements RoleService {
             }
         }
         return false;
+    }
+
+    @Override
+    public boolean hasRole(Settlement settlement, String name) {
+        return roles.get(settlement.getName()).stream().anyMatch(role -> role.getName().equalsIgnoreCase(name));
     }
 
     @Override

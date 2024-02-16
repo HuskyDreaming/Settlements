@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface RoleService extends ServiceInterface {
 
+    void clean(Settlement settlement);
+
     void setup(Settlement settlement);
 
     void remove(Settlement settlement, Role role);
@@ -19,6 +21,8 @@ public interface RoleService extends ServiceInterface {
 
     boolean demote(Settlement settlement, Member member);
 
+    boolean hasRole(Settlement settlement, String name);
+
     int getIndex(Settlement settlement, Member member);
 
     int getIndex(Settlement settlement, String name);
@@ -26,6 +30,8 @@ public interface RoleService extends ServiceInterface {
     Role sync(List<Role> roles, Settlement settlement, Member member);
 
     Role getRole(Settlement settlement, Member member);
+
+    Role getRole(Settlement settlement, String name);
 
     List<Role> getRoles(Settlement settlement);
 }

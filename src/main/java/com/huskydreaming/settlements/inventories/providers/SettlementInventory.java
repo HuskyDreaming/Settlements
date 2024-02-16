@@ -14,7 +14,6 @@ import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -52,7 +51,7 @@ public class SettlementInventory implements InventoryProvider {
         contents.set(1, 1, citizensItem(player, settlement, role));
         contents.set(1, 2, roleItem(player, settlement, role));
         contents.set(1, 3, landItem(player, settlement, role));
-        contents.set(1, 4, info(player, settlement, role));
+        contents.set(1, 4, info(settlement));
         contents.set(1, 5, spawn(player, settlement, role));
         contents.set(1, 7, disband(player, settlement, contents));
     }
@@ -96,7 +95,7 @@ public class SettlementInventory implements InventoryProvider {
         return InventoryItem.of(permission, itemStack, e -> inventoryService.getClaimsInventory(settlement).open(player));
     }
 
-    private ClickableItem info(Player player, Settlement settlement, Role role) {
+    private ClickableItem info(Settlement settlement) {
         int roles = roleService.getRoles(settlement).size();
         int claims = claimService.getChunks(settlement).size();
         int members = memberService.getMembers(settlement).size();
@@ -110,9 +109,7 @@ public class SettlementInventory implements InventoryProvider {
                         claims, settlement.getMaxLand(),
                         roles, settlement.getMaxRoles()
                 )).setMaterial(Material.CHEST).build();
-
-        boolean permission = role.hasPermission(RolePermission.EDIT_SPAWN) || settlement.isOwner(player);
-        return InventoryItem.of(permission, itemStack, e -> settlement.setLocation(player.getLocation()));
+        return ClickableItem.empty(itemStack);
     }
 
     private ClickableItem spawn(Player player, Settlement settlement, Role role) {

@@ -67,7 +67,7 @@ public class MemberInventory implements InventoryProvider {
                 } else {
                     Player target = offlinePlayer.getPlayer();
                     if (target != null) {
-                        target.sendMessage(Locale.SETTLEMENT_OWNER.parse());
+                        target.sendMessage(Remote.prefix(Locale.SETTLEMENT_OWNER));
                     }
                     player.sendMessage(Remote.prefix(Locale.SETTLEMENT_OWNER_TRANSFERRED, offlinePlayer.getName()));
                     settlement.setOwner(offlinePlayer);

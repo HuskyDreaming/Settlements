@@ -8,22 +8,28 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
+import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
+import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+
+import java.util.List;
 
 @Command(label = CommandLabel.KICK)
 public class KickCommand implements CommandInterface {
 
+    private final BorderService borderService;
     private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
 
     public KickCommand() {
+        borderService = ServiceProvider.Provide(BorderService.class);
         memberService = ServiceProvider.Provide(MemberService.class);
         roleService = ServiceProvider.Provide(RoleService.class);
         settlementService = ServiceProvider.Provide(SettlementService.class);
@@ -56,11 +62,22 @@ public class KickCommand implements CommandInterface {
             if(role.hasPermission(RolePermission.MEMBER_KICK_EXEMPT) || settlement.isOwner(offlinePlayer)) {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK_EXEMPT));
             } else {
+                String settlementName = settlement.getName();
+
                 memberService.remove(offlinePlayer);
+                borderService.removePlayer(player);
+                borderService.addPlayer(player, settlementName, Color.RED);
+
                 Player onlinePlayer = offlinePlayer.getPlayer();
-                if(onlinePlayer != null) {
-                    onlinePlayer.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK));
-                }
+                if(onlinePlayer != null) onlinePlayer.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK));
+
+                List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(settlement);
+                offlinePlayers.forEach(off ->  {
+                    if(off.isOnline()) {
+                        Player on = off.getPlayer();
+                        if(on != null) on.sendMessage(Remote.prefix(Locale.SETTLEMENT_LEAVE_PLAYER, offlinePlayer.getName()));
+                    }
+                });
             }
         }
     }

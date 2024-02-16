@@ -3,9 +3,9 @@ package com.huskydreaming.settlements.utilities;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.ClaimService;
 import com.huskydreaming.settlements.storage.Extension;
+import com.huskydreaming.settlements.transience.BorderData;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import java.io.File;
@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Remote {
 
@@ -33,6 +34,16 @@ public class Remote {
             e.printStackTrace();
         }
         return path;
+    }
+
+    public static String capitalizeFully(String input) {
+        if (input == null || input.isEmpty()) {
+            return null;
+        }
+
+        return Arrays.stream(input.split("\\s+"))
+                .map(word -> Character.toUpperCase(word.charAt(0)) + word.substring(1))
+                .collect(Collectors.joining(" "));
     }
 
     public static String parameterize(Parseable parseable, Object... objects) {
@@ -70,7 +81,7 @@ public class Remote {
         String string = locale.parse();
         for(int i = 0; i < objects.length; i++) {
             String parameter = (objects[i] instanceof String stringObject) ? stringObject : String.valueOf(objects[i]);
-            string = string.replace("{" + i + "}", parameter);
+            if(string != null) string = string.replace("{" + i + "}", parameter);
         }
         return ChatColor.translateAlternateColorCodes('&', Locale.PREFIX.parse() + string);
     }
@@ -97,10 +108,9 @@ public class Remote {
         return false;
     }
 
-    public static void render(ClaimService claimService, Settlement settlement)
-    {
+    public static List<BorderData> calculatePositions(ClaimService claimService, Settlement settlement, Color color) {
+        List<BorderData> data = new ArrayList<>();
         Collection<Chunk> chunks = claimService.getChunks(settlement);
-        Particle.DustOptions dustOptions = new Particle.DustOptions(Color.AQUA, 0.8f);
         for (Chunk chunk : chunks) {
 
             World world = chunk.getWorld();
@@ -115,16 +125,17 @@ public class Remote {
             Chunk north = world.getChunkAt(chunkX, chunkZ - 1);
             Chunk south = world.getChunkAt(chunkX, chunkZ + 1);
             for (int x = minX; x <= maxX; x++) {
-                if(!claimService.isClaim(north)) world.spawnParticle(Particle.REDSTONE, x, world.getHighestBlockYAt(x, minZ) + 1, minZ, 1, dustOptions);
-                if(!claimService.isClaim(south)) world.spawnParticle(Particle.REDSTONE, x, world.getHighestBlockYAt(x, maxZ) + 1, maxZ, 1, dustOptions);
+                if(!claimService.isClaim(north)) data.add(new BorderData(x, world.getHighestBlockYAt(x, minZ) + 1, minZ, color));
+                if(!claimService.isClaim(south)) data.add(new BorderData(x, world.getHighestBlockYAt(x, maxZ) + 1, maxZ, color));
             }
 
             Chunk west = world.getChunkAt(chunkX - 1, chunkZ);
             Chunk east = world.getChunkAt(chunkX + 1, chunkZ);
             for (int z = minZ; z <= maxZ; z++) {
-                if(!claimService.isClaim(west)) world.spawnParticle(Particle.REDSTONE, minX, world.getHighestBlockYAt(minX, z) + 1, z, 1, dustOptions);
-                if(!claimService.isClaim(east)) world.spawnParticle(Particle.REDSTONE, maxX, world.getHighestBlockYAt(maxX, z) + 1, z, 1, dustOptions);
+                if(!claimService.isClaim(west)) data.add(new BorderData(minX, world.getHighestBlockYAt(minX, z) + 1, z, color));
+                if(!claimService.isClaim(east)) data.add(new BorderData(maxX, world.getHighestBlockYAt(maxX, z) + 1, z, color));
             }
         }
+        return data;
     }
 }

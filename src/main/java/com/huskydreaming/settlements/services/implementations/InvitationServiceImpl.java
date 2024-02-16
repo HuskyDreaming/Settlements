@@ -7,7 +7,6 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.InvitationService;
 import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
-import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;

@@ -43,7 +43,7 @@ public class DependencyServiceImpl implements DependencyService {
             }
         }
 
-        if (types.size() > 0) {
+        if (!types.isEmpty()) {
             plugin.getLogger().info("Dependencies Found: ");
             plugin.getLogger().info(stringBuilder.toString());
         } else {

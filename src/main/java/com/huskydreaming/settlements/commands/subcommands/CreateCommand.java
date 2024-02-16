@@ -5,24 +5,24 @@ import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
-import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
-import com.huskydreaming.settlements.services.interfaces.RoleService;
-import com.huskydreaming.settlements.services.interfaces.SettlementService;
+import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Chunk;
+import org.bukkit.Color;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.CREATE)
 public class CreateCommand implements CommandInterface {
 
+    private final BorderService borderService;
     private final MemberService memberService;
     private final ClaimService claimService;
     private final RoleService roleService;
     private final SettlementService settlementService;
 
     public CreateCommand() {
+        borderService = ServiceProvider.Provide(BorderService.class);
         memberService = ServiceProvider.Provide(MemberService.class);
         claimService = ServiceProvider.Provide(ClaimService.class);
         roleService = ServiceProvider.Provide(RoleService.class);
@@ -52,6 +52,8 @@ public class CreateCommand implements CommandInterface {
             roleService.setup(settlement);
             memberService.add(player, settlement);
             claimService.setClaim(chunk, settlement);
+
+            borderService.addPlayer(player, settlement.getName(), Color.AQUA);
 
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATED, strings[1]));
         }

@@ -2,20 +2,30 @@ package com.huskydreaming.settlements.commands;
 
 public enum CommandLabel {
     ACCEPT,
+    ADMIN,
     CLAIM,
     CREATE,
-    DEBUG,
+    CREATEROLE,
+    DELETEROLE,
     DENY,
     DISBAND,
+    HELP,
     INVITE,
     KICK,
-    LIST,
+    LEAVE,
     SETDESCRIPTION,
     SETOWNER,
     SETSPAWN,
     SETTLEMENTS,
-    SHOW,
     SPAWN,
-    RELOAD,
-    UNCLAIM
+    UNCLAIM;
+
+    public static boolean contains(String string) {
+        for (CommandLabel c : CommandLabel.values()) {
+            if (c.name().equals(string.toUpperCase())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

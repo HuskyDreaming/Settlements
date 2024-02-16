@@ -6,7 +6,7 @@
 
     <groupId>com.huskydreaming</groupId>
     <artifactId>Settlements</artifactId>
-    <version>0.5.0</version>
+    <version>0.5.2</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -59,7 +59,7 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.18.2-R0.1-SNAPSHOT</version>
+            <version>1.20.4-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

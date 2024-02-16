@@ -6,25 +6,27 @@ import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
-import com.huskydreaming.settlements.services.interfaces.*;
+import com.huskydreaming.settlements.services.interfaces.BorderService;
+import com.huskydreaming.settlements.services.interfaces.MemberService;
+import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
+import org.bukkit.Color;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-@Command(label = CommandLabel.DISBAND)
-public class DisbandCommand implements CommandInterface {
+import java.util.List;
+
+@Command(label = CommandLabel.LEAVE)
+public class LeaveCommand implements CommandInterface {
 
     private final BorderService borderService;
     private final MemberService memberService;
-    private final ClaimService claimService;
-    private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public DisbandCommand() {
+    public LeaveCommand() {
         borderService = ServiceProvider.Provide(BorderService.class);
         memberService = ServiceProvider.Provide(MemberService.class);
-        claimService = ServiceProvider.Provide(ClaimService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
         settlementService = ServiceProvider.Provide(SettlementService.class);
     }
 
@@ -37,17 +39,23 @@ public class DisbandCommand implements CommandInterface {
 
         Member member = memberService.getCitizen(player);
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
-        if(!settlement.isOwner(player)) {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_NOT_OWNER));
+        if(settlement.isOwner(player)) {
+            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LEAVE_OWNER));
             return;
         }
+        String settlementName = settlement.getName();
 
-        claimService.clean(settlement);
-        memberService.clean(settlement);
-        roleService.clean(settlement);
-        settlementService.disbandSettlement(settlement);
+        memberService.remove(player);
         borderService.removePlayer(player);
+        borderService.addPlayer(player, settlementName, Color.RED);
+        player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LEAVE));
 
-        player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DISBAND));
+        List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(settlement);
+        offlinePlayers.forEach(offlinePlayer ->  {
+            if(offlinePlayer.isOnline()) {
+                Player onlinePlayer = offlinePlayer.getPlayer();
+                if(onlinePlayer != null) onlinePlayer.sendMessage(Remote.prefix(Locale.SETTLEMENT_LEAVE_PLAYER, player.getName()));
+            }
+        });
     }
 }

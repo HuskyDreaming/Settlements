@@ -6,7 +6,6 @@ import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
@@ -14,12 +13,12 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import javax.swing.border.Border;
 import java.util.Objects;
 
 public class LandListener implements Listener {
@@ -51,10 +50,20 @@ public class LandListener implements Listener {
                 Settlement settlement = settlementService.getSettlement(toChunk);
                 if(settlement == null) return;
 
-                borderService.addPlayer(player, toChunk);
+                Color color = Color.RED;
+                ChatColor chatColor = ChatColor.RED;
+
+                if(memberService.hasSettlement(player)) {
+                    Member member = memberService.getCitizen(player);
+
+                    color = member.getSettlement().equalsIgnoreCase(toChunk) ? Color.AQUA : Color.RED;
+                    chatColor = member.getSettlement().equalsIgnoreCase(toChunk) ? ChatColor.AQUA : ChatColor.RED;
+                }
+
+                borderService.addPlayer(player, toChunk, color);
 
                 player.sendTitle(
-                        ChatColor.AQUA + "" + ChatColor.BOLD + toChunk,
+                        chatColor + "" + ChatColor.BOLD + toChunk,
                         settlement.getDescription(),
                         20, 40, 20
                 );
@@ -71,8 +80,8 @@ public class LandListener implements Listener {
                 );
             }
 
-            if (toChunk != null && !toChunk.equals(fromChunk)) {
-                borderService.addPlayer(player, toChunk);
+            if (toChunk != null && !fromChunk.equals(toChunk)) {
+                borderService.addPlayer(player, toChunk, Color.RED);
 
                 player.sendTitle(
                         ChatColor.RED + "" + ChatColor.BOLD + toChunk,
@@ -85,11 +94,13 @@ public class LandListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        Block block = event.getClickedBlock();
-        if (block != null) {
-            Chunk chunk = block.getChunk();
-            Player player = event.getPlayer();
-            event.setCancelled(isCancelled(chunk, player, RolePermission.LAND_INTERACT));
+        if(event.getAction() != Action.PHYSICAL) {
+            Block block = event.getClickedBlock();
+            if (block != null) {
+                Chunk chunk = block.getChunk();
+                Player player = event.getPlayer();
+                event.setCancelled(isCancelled(chunk, player, RolePermission.LAND_INTERACT));
+            }
         }
     }
 

@@ -16,7 +16,7 @@ public class YamlServiceImpl implements YamlService {
         Locale.setConfiguration(locale.getConfiguration());
 
         for (Locale message : Locale.values()) {
-            locale.getConfiguration().set(message.toString(), message.parse());
+            locale.getConfiguration().set(message.toString(), message.parseList() != null ? message.parseList() : message.parse());
         }
         locale.save();
 

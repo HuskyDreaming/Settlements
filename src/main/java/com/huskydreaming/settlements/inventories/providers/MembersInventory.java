@@ -11,17 +11,11 @@ import com.huskydreaming.settlements.utilities.Menu;
 import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 public class MembersInventory extends InventoryPageProvider<OfflinePlayer> {

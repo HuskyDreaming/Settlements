@@ -22,12 +22,16 @@ public class SettlementPlugin extends JavaPlugin {
 
         new CommandExecutor().setup(
                 new AcceptCommand(),
+                new AdminCommand(),
                 new ClaimCommand(),
                 new CreateCommand(),
+                new CreateRoleCommand(),
+                new DeleteRoleCommand(),
                 new DenyCommand(),
                 new DisbandCommand(),
                 new InviteCommand(),
                 new KickCommand(),
+                new LeaveCommand(),
                 new SetDescriptionCommand(),
                 new SetOwnerCommand(),
                 new SetSpawnCommand(),
