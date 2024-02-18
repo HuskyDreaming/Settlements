@@ -1,12 +1,12 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.services.interfaces.YamlService;
+import com.huskydreaming.settlements.services.interfaces.LocaleService;
 import com.huskydreaming.settlements.storage.Yaml;
 import com.huskydreaming.settlements.utilities.Locale;
 import com.huskydreaming.settlements.utilities.Menu;
 
-public class YamlServiceImpl implements YamlService {
+public class LocaleServiceImpl implements LocaleService {
 
     @Override
     public void deserialize(SettlementPlugin plugin) {

@@ -33,6 +33,8 @@ public interface RoleService extends ServiceInterface {
 
     Role getRole(Settlement settlement, String name);
 
+    Role getDefaultRole(Settlement settlement);
+
     Role getOtherRole(Settlement settlement, String name);
 
     List<Role> getRoles(Settlement settlement);

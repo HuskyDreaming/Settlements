@@ -1,7 +1,9 @@
 package com.huskydreaming.settlements.inventories;
 
+import com.huskydreaming.settlements.utilities.Menu;
+
 public enum InventoryAction {
-    DISBAND("Disband Settlement?");
+    DISBAND(Menu.DISBAND_TITLE.parse());
 
     private final String title;
 

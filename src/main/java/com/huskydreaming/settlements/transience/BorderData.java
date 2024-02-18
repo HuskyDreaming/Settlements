@@ -1,7 +1,10 @@
 package com.huskydreaming.settlements.transience;
 
 import org.bukkit.Color;
+import org.bukkit.Location;
 
-public record BorderData(double x, double y, double z, Color color) {
+import java.util.Set;
+
+public record BorderData(Color color, Set<Location> locations) {
 
 }

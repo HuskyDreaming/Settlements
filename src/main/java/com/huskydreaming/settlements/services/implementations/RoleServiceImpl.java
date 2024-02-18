@@ -5,19 +5,22 @@ import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RoleDefault;
+import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.storage.Json;
+import com.huskydreaming.settlements.storage.Yaml;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
 
+import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collectors;
 
 public class RoleServiceImpl implements RoleService {
 
     private Map<String, List<Role>> roles = new HashMap<>();
+    private final List<Role> defaultRoles = new ArrayList<>();
 
     @Override
     public void serialize(SettlementPlugin plugin) {
@@ -26,13 +29,38 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void deserialize(SettlementPlugin plugin) {
-        Type type = new TypeToken<Map<String, List<Role>>>(){}.getType();
+        Type type = new TypeToken<Map<String, List<Role>>>() {}.getType();
         roles = Json.read(plugin, "data/roles", type);
-        if(roles == null) roles = new ConcurrentHashMap<>();
+        if (roles == null) roles = new ConcurrentHashMap<>();
 
-        int size = roles.size();
-        if(size > 0) {
-            plugin.getLogger().info("Registered " + size + " roles(s).");
+        int rolesSize = roles.size();
+        if (rolesSize > 0) {
+            plugin.getLogger().info("Registered " + rolesSize + " roles(s).");
+        }
+
+        File file = new File(plugin.getDataFolder(), "default-roles.yml");
+        if (!file.exists()) {
+            plugin.saveResource("default-roles.yml", false);
+        }
+
+        Yaml yaml = new Yaml("default-roles");
+        yaml.load(plugin);
+
+        FileConfiguration configuration = yaml.getConfiguration();
+
+        ConfigurationSection configurationSection = configuration.getConfigurationSection("");
+        if (configurationSection != null) {
+            for (String key : configurationSection.getKeys(false)) {
+                Role role = new Role(key);
+                List<String> permissions = configuration.getStringList(key);
+                permissions.forEach(p -> role.add(RolePermission.valueOf(p)));
+                defaultRoles.add(role);
+            }
+
+            int defaultRolesSize = defaultRoles.size();
+            if (defaultRolesSize > 0) {
+                plugin.getLogger().info("Registered " + defaultRolesSize + " default roles(s).");
+            }
         }
     }
 
@@ -43,12 +71,8 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void setup(Settlement settlement) {
-        List<Role> roles = Arrays.stream(RoleDefault.values())
-                .map(RoleDefault::build)
-                .collect(Collectors.toList());
-
-        this.roles.put(settlement.getName(), roles);
-        settlement.setDefaultRole(RoleDefault.CITIZEN.name());
+        this.roles.put(settlement.getName(), defaultRoles);
+        settlement.setDefaultRole(defaultRoles.stream().findFirst().map(Role::getName).orElse(null));
     }
 
     @Override
@@ -58,26 +82,34 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public Role getRole(Settlement settlement, Member member) {
-        List<Role> roles = getRoles(settlement);
-        AtomicReference<Role> finalRole = new AtomicReference<>(roles.stream()
-                .filter(role -> role.getName().equalsIgnoreCase(member.getRole()))
-                .findFirst()
-                .orElse(null));
+        if(!hasRole(settlement, member.getRole()) || member.getRole() == null) {
+            Role defaultRole = getDefaultRole(settlement);
+            List<Role> roles = getRoles(settlement);
+            if(defaultRole == null) {
+                settlement.setDefaultRole(roles.stream().map(Role::getName).findFirst().orElse(null));
+            }
 
-        if(finalRole.get() == null) {
-            roles.stream().findFirst().ifPresent(role -> {
-                finalRole.set(role);
-                member.setRole(role.getName());
-            });
+            member.setRole(settlement.getDefaultRole());
         }
 
-        return finalRole.get();
+        return roles.get(settlement.getName()).stream()
+                .filter(role -> role.getName().equalsIgnoreCase(member.getRole()))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
     public Role getRole(Settlement settlement, String name) {
         return roles.get(settlement.getName()).stream()
                 .filter(role -> role.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
+    public Role getDefaultRole(Settlement settlement) {
+        return roles.get(settlement.getName()).stream()
+                .filter(role -> role.getName().equalsIgnoreCase(settlement.getDefaultRole()))
                 .findFirst()
                 .orElse(null);
     }

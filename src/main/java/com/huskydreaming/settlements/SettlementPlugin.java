@@ -4,7 +4,6 @@ import com.huskydreaming.settlements.commands.CommandExecutor;
 import com.huskydreaming.settlements.commands.subcommands.*;
 import com.huskydreaming.settlements.listeners.LandListener;
 import com.huskydreaming.settlements.listeners.MemberListener;
-import com.huskydreaming.settlements.listeners.RequestListener;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.BorderService;
 import org.bukkit.event.Listener;
@@ -23,6 +22,7 @@ public class SettlementPlugin extends JavaPlugin {
         new CommandExecutor().setup(
                 new AcceptCommand(),
                 new AdminCommand(),
+                new AutoClaimCommand(),
                 new ClaimCommand(),
                 new CreateCommand(),
                 new CreateRoleCommand(),
@@ -41,8 +41,7 @@ public class SettlementPlugin extends JavaPlugin {
 
         registerListeners(
                 new LandListener(),
-                new MemberListener(),
-                new RequestListener()
+                new MemberListener()
         );
 
         ServiceProvider.Provide(BorderService.class).run(this);

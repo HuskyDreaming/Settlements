@@ -6,6 +6,8 @@ public class Member {
     private String role;
     private String lastOnline;
 
+    private boolean autoClaim;
+
     public static Member create(Settlement settlement, String role) {
         return new Member(settlement.getName(), role);
     }
@@ -37,5 +39,13 @@ public class Member {
 
     public void setLastOnline(String lastOnline) {
         this.lastOnline = lastOnline;
+    }
+
+    public void setAutoClaim(boolean autoClaim) {
+        this.autoClaim = autoClaim;
+    }
+
+    public boolean hasAutoClaim() {
+        return autoClaim;
     }
 }

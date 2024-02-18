@@ -100,7 +100,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
     private ClickableItem defaultItem(Player player) {
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.ROLE_DEFAULT_TITLE.parse())
-                .setLore(Menu.ROLE_DELETE_LORE.parseList())
+                .setLore(Menu.ROLE_DEFAULT_LORE.parseList())
                 .setMaterial(Material.DIAMOND)
                 .build(), e-> {
             settlement.setDefaultRole(role.getName());

@@ -17,11 +17,6 @@ public class Role {
         this.permissions = new HashSet<>();
     }
 
-    public Role(RoleDefault roleDefault) {
-        this.name = roleDefault.name();
-        this.permissions = roleDefault.getRolePermissions();
-    }
-
     public void add(RolePermission permission) {
         permissions.add(permission);
     }

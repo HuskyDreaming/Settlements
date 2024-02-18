@@ -31,7 +31,7 @@ public class Remote {
                 plugin.getLogger().info("Created new file: " + path.getFileName());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            plugin.getLogger().severe(e.getMessage());
         }
         return path;
     }
@@ -106,36 +106,5 @@ public class Remote {
         }
 
         return false;
-    }
-
-    public static List<BorderData> calculatePositions(ClaimService claimService, Settlement settlement, Color color) {
-        List<BorderData> data = new ArrayList<>();
-        Collection<Chunk> chunks = claimService.getChunks(settlement);
-        for (Chunk chunk : chunks) {
-
-            World world = chunk.getWorld();
-            int chunkX = chunk.getX();
-            int chunkZ = chunk.getZ();
-
-            int minX = chunkX << 4;
-            int minZ = chunkZ << 4;
-            int maxX = minX + 15;
-            int maxZ = minZ + 15;
-
-            Chunk north = world.getChunkAt(chunkX, chunkZ - 1);
-            Chunk south = world.getChunkAt(chunkX, chunkZ + 1);
-            for (int x = minX; x <= maxX; x++) {
-                if(!claimService.isClaim(north)) data.add(new BorderData(x, world.getHighestBlockYAt(x, minZ) + 1, minZ, color));
-                if(!claimService.isClaim(south)) data.add(new BorderData(x, world.getHighestBlockYAt(x, maxZ) + 1, maxZ, color));
-            }
-
-            Chunk west = world.getChunkAt(chunkX - 1, chunkZ);
-            Chunk east = world.getChunkAt(chunkX + 1, chunkZ);
-            for (int z = minZ; z <= maxZ; z++) {
-                if(!claimService.isClaim(west)) data.add(new BorderData(minX, world.getHighestBlockYAt(minX, z) + 1, z, color));
-                if(!claimService.isClaim(east)) data.add(new BorderData(maxX, world.getHighestBlockYAt(maxX, z) + 1, z, color));
-            }
-        }
-        return data;
     }
 }

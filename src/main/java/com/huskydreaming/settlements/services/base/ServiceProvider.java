@@ -15,14 +15,13 @@ public class ServiceProvider {
     public static void Initialize() {
         services.put(MemberService.class, new MemberServiceImpl());
         services.put(ClaimService.class, new ClaimServiceImpl());
-        services.put(DependencyService.class, new DependencyServiceImpl());
         services.put(InventoryService.class, new InventoryServiceImpl());
         services.put(InvitationService.class, new InvitationServiceImpl());
-        services.put(RequestService.class, new RequestServiceImpl());
         services.put(RoleService.class, new RoleServiceImpl());
         services.put(SettlementService.class, new SettlementServiceImpl());
-        services.put(YamlService.class, new YamlServiceImpl());
+        services.put(LocaleService.class, new LocaleServiceImpl());
         services.put(BorderService.class, new BorderServiceImpl());
+        services.put(DependencyService.class, new DependencyServiceImpl());
     }
 
     public static void Deserialize(SettlementPlugin settlementPlugin) {

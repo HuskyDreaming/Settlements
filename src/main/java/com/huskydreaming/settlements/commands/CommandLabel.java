@@ -3,6 +3,7 @@ package com.huskydreaming.settlements.commands;
 public enum CommandLabel {
     ACCEPT,
     ADMIN,
+    AUTOCLAIM,
     CLAIM,
     CREATE,
     CREATEROLE,

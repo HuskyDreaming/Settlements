@@ -7,6 +7,7 @@ import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.utilities.Locale;
+import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
@@ -20,6 +21,7 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+import java.util.Collection;
 import java.util.Objects;
 
 public class LandListener implements Listener {
@@ -42,66 +44,26 @@ public class LandListener implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        if(Objects.requireNonNull(event.getTo()).getChunk() != event.getFrom().getChunk()) {
+        if (Objects.requireNonNull(event.getTo()).getChunk() != event.getFrom().getChunk()) {
+
             String fromChunk = claimService.getClaim(event.getFrom().getChunk());
             String toChunk = claimService.getClaim(event.getTo().getChunk());
 
             Player player = event.getPlayer();
             if (fromChunk == null && toChunk != null) {
-                Settlement settlement = settlementService.getSettlement(toChunk);
-                if(settlement == null) return;
+                handleChunkChange(player, toChunk);
+                return;
+            }
 
-                Color color = Color.RED;
-                ChatColor chatColor = ChatColor.RED;
-
-                if(memberService.hasSettlement(player)) {
-                    Member member = memberService.getCitizen(player);
-
-                    color = member.getSettlement().equalsIgnoreCase(toChunk) ? Color.AQUA : Color.RED;
-                    chatColor = member.getSettlement().equalsIgnoreCase(toChunk) ? ChatColor.AQUA : ChatColor.RED;
-                }
-
-                borderService.addPlayer(player, toChunk, color);
-
-                player.sendTitle(
-                        chatColor + "" + ChatColor.BOLD + toChunk,
-                        settlement.getDescription(),
-                        20, 40, 20
-                );
+            if (toChunk != null && !fromChunk.equalsIgnoreCase(toChunk)) {
+                handleChunkChange(player, toChunk);
                 return;
             }
 
             if (toChunk == null && fromChunk != null) {
-                borderService.removePlayer(player);
+                if(hasAutoClaimedChunk(player, event.getTo().getChunk())) return;
 
-                player.sendTitle(
-                        Locale.WILDERNESS_FOOTER.parse(),
-                        Locale.WILDERNESS_TITLE.parse(),
-                        20, 40, 20
-                );
-            }
-
-            if (toChunk != null && !fromChunk.equals(toChunk)) {
-                Settlement settlement = settlementService.getSettlement(toChunk);
-                if(settlement == null) return;
-
-                Color color = Color.RED;
-                ChatColor chatColor = ChatColor.RED;
-
-                if(memberService.hasSettlement(player)) {
-                    Member member = memberService.getCitizen(player);
-
-                    color = member.getSettlement().equalsIgnoreCase(toChunk) ? Color.AQUA : Color.RED;
-                    chatColor = member.getSettlement().equalsIgnoreCase(toChunk) ? ChatColor.AQUA : ChatColor.RED;
-                }
-
-                borderService.addPlayer(player, toChunk, color);
-
-                player.sendTitle(
-                        chatColor + "" + ChatColor.BOLD + toChunk,
-                        settlement.getDescription(),
-                        20, 40, 20
-                );
+                handleWildernessChange(player);
             }
         }
     }
@@ -130,6 +92,62 @@ public class LandListener implements Listener {
         Player player = event.getPlayer();
         Chunk chunk = event.getBlock().getChunk();
         event.setCancelled(isCancelled(chunk, player, RolePermission.LAND_PLACE));
+    }
+
+    private void handleChunkChange(Player player, String toChunk) {
+        Settlement settlement = settlementService.getSettlement(toChunk);
+        if (settlement == null) return;
+
+        Color color = Color.RED;
+        ChatColor chatColor = ChatColor.RED;
+
+        if (memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+
+            color = member.getSettlement().equalsIgnoreCase(toChunk) ? Color.AQUA : Color.RED;
+            chatColor = member.getSettlement().equalsIgnoreCase(toChunk) ? ChatColor.AQUA : ChatColor.RED;
+        }
+
+        borderService.removePlayer(player);
+        borderService.addPlayer(player, toChunk, color);
+
+        player.sendTitle(
+                chatColor + Remote.parameterize(Locale.SETTLEMENT_TITLE_HEADER, toChunk),
+                Remote.parameterize(Locale.SETTLEMENT_TITLE_FOOTER, settlement.getDescription()),
+                20, 40, 20
+        );
+    }
+
+    private boolean hasAutoClaimedChunk(Player player, Chunk chunk) {
+        if (!memberService.hasSettlement(player)) return false;
+
+        Member member = memberService.getCitizen(player);
+        if (!member.hasAutoClaim()) return false;
+
+        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Collection<Chunk> chunks = claimService.getChunks(settlement);
+        if (chunks.size() >= settlement.getMaxLand()) {
+            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_AUTO_CLAIM_OFF_MAX_LAND));
+            member.setAutoClaim(false);
+            return false;
+        }
+        claimService.setClaim(chunk, settlement);
+
+        borderService.removePlayer(player);
+        borderService.addPlayer(player, member.getSettlement(), Color.AQUA);
+
+        player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_CLAIM, chunk.getX(), chunk.getZ()));
+        return true;
+    }
+
+    private void handleWildernessChange(Player player) {
+        borderService.removePlayer(player);
+
+        player.sendTitle(
+                Locale.WILDERNESS_TITLE.parse(),
+                Locale.WILDERNESS_FOOTER.parse(),
+                20, 40, 20
+        );
     }
 
     private boolean isCancelled(Chunk chunk, Player player, RolePermission rolePermission) {

@@ -72,6 +72,8 @@ public enum Menu implements Parseable {
     )),
     MEMBERS_STATUS_OFFLINE("&cOffline"),
     MEMBERS_STATUS_ONLINE("&aOnline"),
+
+    DISBAND_TITLE("Disband Settlement?"),
     // Claims Menu
     CLAIMS_TITLE("&a{0}, {1}"),
     CLAIMS_LORE(List.of("&7Click to teleport.")),
