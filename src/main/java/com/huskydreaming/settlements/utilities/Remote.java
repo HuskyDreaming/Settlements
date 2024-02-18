@@ -1,9 +1,6 @@
 package com.huskydreaming.settlements.utilities;
 
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
 import com.huskydreaming.settlements.storage.Extension;
-import com.huskydreaming.settlements.transience.BorderData;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.plugin.Plugin;
