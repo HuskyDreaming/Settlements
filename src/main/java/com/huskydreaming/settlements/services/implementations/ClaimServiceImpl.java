@@ -5,7 +5,9 @@ import com.google.common.collect.Multimap;
 import com.google.gson.reflect.TypeToken;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.ClaimService;
+import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.storage.Json;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -13,12 +15,19 @@ import org.bukkit.World;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ClaimServiceImpl implements ClaimService {
 
+    private final ConfigService configService;
     private Map<String, String> claims = new ConcurrentHashMap<>();
+    private List<String> disabledWorlds;
+
+    public ClaimServiceImpl() {
+        configService = ServiceProvider.Provide(ConfigService.class);
+    }
 
     @Override
     public void setClaim(Chunk chunk, Settlement settlement) {
@@ -63,6 +72,11 @@ public class ClaimServiceImpl implements ClaimService {
         return multiMap.get(settlement.getName());
     }
 
+    @Override
+    public boolean isDisabledWorld(World world) {
+        return disabledWorlds.contains(world.getName());
+    }
+
 
     @Override
     public void serialize(SettlementPlugin plugin) {
@@ -79,6 +93,9 @@ public class ClaimServiceImpl implements ClaimService {
         if(size > 0) {
             plugin.getLogger().info("Registered " + size + " claim(s).");
         }
+
+        if(disabledWorlds != null) disabledWorlds.clear();
+        disabledWorlds = configService.deserializeDisabledWorlds(plugin);
     }
 
     private String parse(Chunk chunk) {

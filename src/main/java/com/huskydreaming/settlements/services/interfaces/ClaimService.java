@@ -3,9 +3,9 @@ package com.huskydreaming.settlements.services.interfaces;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceInterface;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 
 import java.util.Collection;
-
 
 public interface ClaimService extends ServiceInterface {
 
@@ -22,4 +22,6 @@ public interface ClaimService extends ServiceInterface {
     Collection<String> getChunksAsStrings(Settlement settlement);
 
     Collection<Chunk> getChunks(Settlement settlement);
+
+    boolean isDisabledWorld(World world);
 }

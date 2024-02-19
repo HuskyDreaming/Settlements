@@ -1,0 +1,37 @@
+# The default amount of claims, members and roles a settlement can have maximum
+default-maximum:
+  claims: 15
+  members: 10
+  roles: 5
+
+# The default roles that get created when you make a settlement with appropriate permissions.
+# Refer to wiki for all available permissions
+
+#{name}:
+#  - PERMISSION_1
+#  - PERMISSION_2
+
+default-roles:
+  citizen:
+    - SPAWN_TELEPORT
+    - LAND_BREAK
+    - LAND_PLACE
+  veteran:
+    - SPAWN_TELEPORT
+    - MEMBER_INVITE
+    - LAND_BREAK
+    - LAND_PLACE
+    - LAND_INTERACT
+  royal:
+    - SPAWN_TELEPORT
+    - MEMBER_INVITE
+    - MEMBER_KICK
+    - MEMBER_KICK_EXEMPT
+    - LAND_BREAK
+    - LAND_PLACE
+    - LAND_INTERACT
+
+# Disable settlements in certain worlds (claiming, creation etc)
+disabled-worlds:
+  - world_nether
+  - world_the_end

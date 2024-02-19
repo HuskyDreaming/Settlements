@@ -26,19 +26,19 @@ import java.util.Objects;
 
 public class LandListener implements Listener {
 
-    private final MemberService memberService;
-
-    private final ClaimService claimService;
-    private final RoleService roleService;
     private final BorderService borderService;
-
+    private final ClaimService claimService;
+    private final DependencyService dependencyService;
+    private final MemberService memberService;
+    private final RoleService roleService;
     private final SettlementService settlementService;
 
     public LandListener() {
-        memberService = ServiceProvider.Provide(MemberService.class);
-        claimService = ServiceProvider.Provide(ClaimService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
         borderService = ServiceProvider.Provide(BorderService.class);
+        claimService = ServiceProvider.Provide(ClaimService.class);
+        dependencyService = ServiceProvider.Provide(DependencyService.class);
+        memberService = ServiceProvider.Provide(MemberService.class);
+        roleService = ServiceProvider.Provide(RoleService.class);
         settlementService = ServiceProvider.Provide(SettlementService.class);
     }
 
@@ -123,6 +123,15 @@ public class LandListener implements Listener {
 
         Member member = memberService.getCitizen(player);
         if (!member.hasAutoClaim()) return false;
+
+        if(claimService.isDisabledWorld(player.getWorld())) {
+            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_DISABLED_WORLD));
+            return false;
+        }
+        if(dependencyService.isWorldGuard(player)) {
+            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_WORLDGUARD));
+            return false;
+        }
 
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
         Collection<Chunk> chunks = claimService.getChunks(settlement);

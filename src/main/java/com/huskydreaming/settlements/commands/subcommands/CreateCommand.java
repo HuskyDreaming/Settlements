@@ -16,15 +16,17 @@ import org.bukkit.entity.Player;
 public class CreateCommand implements CommandInterface {
 
     private final BorderService borderService;
-    private final MemberService memberService;
     private final ClaimService claimService;
+    private final DependencyService dependencyService;
+    private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
 
     public CreateCommand() {
         borderService = ServiceProvider.Provide(BorderService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
         claimService = ServiceProvider.Provide(ClaimService.class);
+        dependencyService = ServiceProvider.Provide(DependencyService.class);
+        memberService = ServiceProvider.Provide(MemberService.class);
         roleService = ServiceProvider.Provide(RoleService.class);
         settlementService = ServiceProvider.Provide(SettlementService.class);
     }
@@ -37,8 +39,18 @@ public class CreateCommand implements CommandInterface {
                 return;
             }
 
+            if(dependencyService.isWorldGuard(player)) {
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATE_WORLDGUARD));
+                return;
+            }
+
             if (settlementService.isSettlement(strings[1])) {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_EXIST));
+                return;
+            }
+
+            if(claimService.isDisabledWorld(player.getWorld())) {
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATE_DISABLED_WORLD));
                 return;
             }
 

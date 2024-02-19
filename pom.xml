@@ -6,7 +6,7 @@
 
     <groupId>com.huskydreaming</groupId>
     <artifactId>Settlements</artifactId>
-    <version>0.5.4</version>
+    <version>0.5.5</version>
 
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
@@ -52,6 +52,10 @@
             <id>panda-repository</id>
             <url>https://repo.panda-lang.org/releases</url>
         </repository>
+        <repository>
+            <id>placeholderapi</id>
+            <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -76,6 +80,12 @@
             <groupId>com.sk89q.worldguard</groupId>
             <artifactId>worldguard-bukkit</artifactId>
             <version>LATEST</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.clip</groupId>
+            <artifactId>placeholderapi</artifactId>
+            <version>2.11.5</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

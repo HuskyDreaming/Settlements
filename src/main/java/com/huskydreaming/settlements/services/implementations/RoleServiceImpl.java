@@ -5,22 +5,25 @@ import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.services.base.ServiceProvider;
+import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.storage.Json;
-import com.huskydreaming.settlements.storage.Yaml;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
 
-import java.io.File;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RoleServiceImpl implements RoleService {
 
+    private final ConfigService configService;
+
     private Map<String, List<Role>> roles = new HashMap<>();
-    private final List<Role> defaultRoles = new ArrayList<>();
+    private List<Role> defaultRoles;
+
+    public RoleServiceImpl() {
+        configService = ServiceProvider.Provide(ConfigService.class);
+    }
 
     @Override
     public void serialize(SettlementPlugin plugin) {
@@ -38,30 +41,8 @@ public class RoleServiceImpl implements RoleService {
             plugin.getLogger().info("Registered " + rolesSize + " roles(s).");
         }
 
-        File file = new File(plugin.getDataFolder(), "default-roles.yml");
-        if (!file.exists()) {
-            plugin.saveResource("default-roles.yml", false);
-        }
-
-        Yaml yaml = new Yaml("default-roles");
-        yaml.load(plugin);
-
-        FileConfiguration configuration = yaml.getConfiguration();
-
-        ConfigurationSection configurationSection = configuration.getConfigurationSection("");
-        if (configurationSection != null) {
-            for (String key : configurationSection.getKeys(false)) {
-                Role role = new Role(key);
-                List<String> permissions = configuration.getStringList(key);
-                permissions.forEach(p -> role.add(RolePermission.valueOf(p)));
-                defaultRoles.add(role);
-            }
-
-            int defaultRolesSize = defaultRoles.size();
-            if (defaultRolesSize > 0) {
-                plugin.getLogger().info("Registered " + defaultRolesSize + " default roles(s).");
-            }
-        }
+        if(defaultRoles != null) defaultRoles.clear();
+        defaultRoles = configService.deserializeDefaultRoles(plugin);
     }
 
     @Override

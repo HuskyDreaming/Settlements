@@ -1,6 +1,17 @@
 package com.huskydreaming.settlements.services.base;
 
 public enum DependencyType {
-    WORLDGUARD,
-    PLACEHOLDER_API
+    WORLDGUARD("WorldGuard"),
+    PLACEHOLDER_API("PlaceholderAPI");
+
+    private final String string;
+
+    DependencyType(String string) {
+        this.string = string;
+    }
+
+    @Override
+    public String toString() {
+        return string;
+    }
 }

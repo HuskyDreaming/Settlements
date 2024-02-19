@@ -28,7 +28,6 @@ public class ClaimCommand implements CommandInterface {
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-
     public ClaimCommand() {
         borderService = ServiceProvider.Provide(BorderService.class);
         claimService = ServiceProvider.Provide(ClaimService.class);
@@ -42,6 +41,11 @@ public class ClaimCommand implements CommandInterface {
     public void run(Player player, String[] strings) {
         if(!memberService.hasSettlement(player)) {
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+            return;
+        }
+
+        if(claimService.isDisabledWorld(player.getWorld())) {
+            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_DISABLED_WORLD));
             return;
         }
 

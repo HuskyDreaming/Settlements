@@ -13,6 +13,7 @@ public class ServiceProvider {
     public static Map<Class<?>, ServiceInterface> services = new HashMap<>();
 
     public static void Initialize() {
+        services.put(ConfigService.class, new ConfigServiceImpl());
         services.put(MemberService.class, new MemberServiceImpl());
         services.put(ClaimService.class, new ClaimServiceImpl());
         services.put(InventoryService.class, new InventoryServiceImpl());
