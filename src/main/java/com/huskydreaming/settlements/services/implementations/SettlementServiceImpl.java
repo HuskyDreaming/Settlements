@@ -6,14 +6,11 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.Json;
+import com.huskydreaming.settlements.storage.types.Json;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class SettlementServiceImpl implements SettlementService {
 
@@ -28,12 +25,13 @@ public class SettlementServiceImpl implements SettlementService {
     @Override
     public Settlement createSettlement(Player player, String name) {
         Settlement settlement = Settlement.create(player, name);
-        settlements.add(settlement);
         if(defaults != null) {
-            settlement.setMaxCitizens(defaults.get("members"));
-            settlement.setMaxLand(defaults.get("claims"));
-            settlement.setMaxRoles(defaults.get("roles"));
+            settlement.setMaxCitizens(defaults.getOrDefault("max-members", 10));
+            settlement.setMaxLand(defaults.getOrDefault("max-claims", 15));
+            settlement.setMaxRoles(defaults.getOrDefault("max-roles", 5));
         }
+
+        settlements.add(settlement);
         return settlement;
     }
 
@@ -58,6 +56,11 @@ public class SettlementServiceImpl implements SettlementService {
     }
 
     @Override
+    public Map<String, Integer> getDefaults() {
+        return Collections.unmodifiableMap(defaults);
+    }
+
+    @Override
     public void serialize(SettlementPlugin plugin) {
         Json.write(plugin, "data/settlements", settlements);
     }
@@ -74,6 +77,6 @@ public class SettlementServiceImpl implements SettlementService {
         }
 
         if(defaults != null) defaults.clear();
-        defaults = configService.deserializeDefaultMaximum(plugin);
+        defaults = configService.deserializeDefaults(plugin);
     }
 }

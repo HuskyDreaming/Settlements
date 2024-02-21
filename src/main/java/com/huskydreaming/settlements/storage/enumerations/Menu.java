@@ -1,6 +1,7 @@
-package com.huskydreaming.settlements.utilities;
+package com.huskydreaming.settlements.storage.enumerations;
 
 import com.google.common.base.Functions;
+import com.huskydreaming.settlements.storage.base.Parseable;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -28,6 +29,14 @@ public enum Menu implements Parseable {
     CONFIRMATION_NO_TITLE("&c&lNo"),
 
     // Settlement Menu
+    SETTLEMENT_TITLE("&e{0}. {1}"),
+    SETTLEMENT_LORE(Arrays.asList(
+            "",
+            "&7Owner: &f{0}",
+            "&7Members: &b{1}&3/&b{2}",
+            "&7Claims: &a{3}&2/&a{4}",
+            "&7Roles: &e{5}&6/&e{6}"
+    )),
     SETTLEMENT_CITIZENS_TITLE("&aMembers"),
     SETTLEMENT_CITIZENS_LORE(Collections.singletonList("&7Click to edit Members.")),
     SETTLEMENT_ROLES_TITLE("&aRoles"),

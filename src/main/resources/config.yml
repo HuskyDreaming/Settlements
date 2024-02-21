@@ -1,8 +1,17 @@
-# The default amount of claims, members and roles a settlement can have maximum
-default-maximum:
-  claims: 15
-  members: 10
-  roles: 5
+# Default configuration for when a settlement gets created
+settlement:
+  max-claims: 15
+  max-members: 10
+  max-roles: 5
+  max-name-length: 12
+  min-name-length: 4
+  max-description-length: 36
+  min-description-length: 8
+  max-tag-length: 4
+  min-tag-length: 2
+
+# When the placeholder is invalid, replace it with this string.
+placeholder-string: "-"
 
 # The default roles that get created when you make a settlement with appropriate permissions.
 # Refer to wiki for all available permissions
@@ -11,7 +20,7 @@ default-maximum:
 #  - PERMISSION_1
 #  - PERMISSION_2
 
-default-roles:
+roles:
   citizen:
     - SPAWN_TELEPORT
     - LAND_BREAK

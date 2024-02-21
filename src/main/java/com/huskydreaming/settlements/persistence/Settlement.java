@@ -2,6 +2,7 @@ package com.huskydreaming.settlements.persistence;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -12,9 +13,11 @@ public class Settlement {
 
     private UUID owner;
     private String name;
+    private String tag;
     private String description;
     private String defaultRole;
     private Location location;
+    private Material icon;
 
     private int maxLand;
     private int maxCitizens;
@@ -42,6 +45,10 @@ public class Settlement {
         this.name = name;
     }
 
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -56,6 +63,18 @@ public class Settlement {
 
     public void setMaxLand(int maxLand) {
         this.maxLand = maxLand;
+    }
+
+    public void setMaxRoles(int maxRoles) {
+        this.maxRoles = maxRoles;
+    }
+
+    public void setDefaultRole(String defaultRole) {
+        this.defaultRole = defaultRole;
+    }
+
+    public void setIcon(Material icon) {
+        this.icon = icon;
     }
 
     public boolean isOwner(OfflinePlayer offlinePlayer) {
@@ -95,15 +114,15 @@ public class Settlement {
         return defaultRole;
     }
 
-    public void setDefaultRole(String defaultRole) {
-        this.defaultRole = defaultRole;
-    }
-
     public int getMaxRoles() {
         return maxRoles;
     }
 
-    public void setMaxRoles(int maxRoles) {
-        this.maxRoles = maxRoles;
+    public Material getIcon() {
+        return icon;
+    }
+
+    public String getTag() {
+        return tag;
     }
 }

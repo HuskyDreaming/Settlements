@@ -22,7 +22,6 @@ public class RolesInventory extends InventoryPageProvider<Role> {
     private final InventoryService inventoryService;
     private final RoleService roleService;
 
-
     public RolesInventory(Settlement settlement, int rows) {
         super(settlement, rows, null);
         inventoryService = ServiceProvider.Provide(InventoryService.class);

@@ -1,12 +1,13 @@
 package com.huskydreaming.settlements.commands;
 
+import com.huskydreaming.settlements.commands.subcommands.HelpCommand;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.utilities.Locale;
+import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
@@ -25,7 +26,7 @@ public class CommandExecutor extends org.bukkit.command.Command {
 
     private final SettlementService settlementService;
 
-    protected final Set<CommandInterface> subCommands;
+    private final Set<CommandInterface> subCommands;
 
     public CommandExecutor() {
         super(CommandLabel.SETTLEMENTS.name().toLowerCase());
@@ -66,7 +67,7 @@ public class CommandExecutor extends org.bukkit.command.Command {
                         Settlement settlement = settlementService.getSettlement(member.getSettlement());
                         ServiceProvider.Provide(InventoryService.class).getSettlementInventory(settlement).open(player);
                     } else {
-                        player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+                        new HelpCommand(this).run(player, strings);
                     }
                 }
             }
@@ -99,5 +100,9 @@ public class CommandExecutor extends org.bukkit.command.Command {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Set<CommandInterface> getSubCommands() {
+        return Collections.unmodifiableSet(subCommands);
     }
 }

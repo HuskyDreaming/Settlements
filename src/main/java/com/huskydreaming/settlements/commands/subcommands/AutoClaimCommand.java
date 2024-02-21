@@ -7,7 +7,7 @@ import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.utilities.Locale;
+import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;

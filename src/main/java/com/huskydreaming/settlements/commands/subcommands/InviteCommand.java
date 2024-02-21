@@ -12,12 +12,12 @@ import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.InvitationService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.utilities.Locale;
+import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-@Command(label = CommandLabel.INVITE)
+@Command(label = CommandLabel.INVITE, arguments = " [player]")
 public class InviteCommand implements CommandInterface {
 
     private final MemberService memberService;

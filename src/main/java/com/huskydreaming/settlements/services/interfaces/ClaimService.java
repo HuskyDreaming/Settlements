@@ -6,6 +6,7 @@ import org.bukkit.Chunk;
 import org.bukkit.World;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 
 public interface ClaimService extends ServiceInterface {
 
@@ -18,6 +19,10 @@ public interface ClaimService extends ServiceInterface {
     boolean isClaim(Chunk chunk);
 
     String getClaim(Chunk chunk);
+
+    int getCount();
+
+    LinkedHashMap<String, Long> getTop(int limit);
 
     Collection<String> getChunksAsStrings(Settlement settlement);
 

@@ -1,7 +1,7 @@
 package com.huskydreaming.settlements.inventories;
 
 import com.huskydreaming.settlements.utilities.ItemBuilder;
-import com.huskydreaming.settlements.utilities.Menu;
+import com.huskydreaming.settlements.storage.enumerations.Menu;
 import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;

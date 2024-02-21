@@ -6,13 +6,15 @@ import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.utilities.Locale;
+import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
 
-@Command(label = CommandLabel.CREATE)
+import java.util.Map;
+
+@Command(label = CommandLabel.CREATE, arguments = " [name]")
 public class CreateCommand implements CommandInterface {
 
     private final BorderService borderService;
@@ -44,8 +46,23 @@ public class CreateCommand implements CommandInterface {
                 return;
             }
 
-            if (settlementService.isSettlement(strings[1])) {
+            String name = strings[1];
+            Map<String, Integer> defaults = settlementService.getDefaults();
+            int minimumNameLength = defaults.getOrDefault("min-name-length", 2);
+            int maximumNameLength = defaults.getOrDefault("max-name-length", 10);
+
+            if (settlementService.isSettlement(name)) {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_EXIST));
+                return;
+            }
+
+            if(name.length() < minimumNameLength) {
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATE_MIN_NAME_LENGTH, minimumNameLength));
+                return;
+            }
+
+            if(name.length() > maximumNameLength) {
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATE_MAX_NAME_LENGTH, maximumNameLength));
                 return;
             }
 

@@ -12,6 +12,10 @@ public interface CommandInterface {
         return getClass().getAnnotation(Command.class).aliases();
     }
 
+    default String getArguments() {
+        return getClass().getAnnotation(Command.class).arguments();
+    }
+
     default boolean requiresPermissions() {
         return getClass().getAnnotation(Command.class).requiresPermissions();
     }

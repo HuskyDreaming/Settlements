@@ -1,6 +1,6 @@
 package com.huskydreaming.settlements.inventories;
 
-import com.huskydreaming.settlements.utilities.Menu;
+import com.huskydreaming.settlements.storage.enumerations.Menu;
 
 public enum InventoryAction {
     DISBAND(Menu.DISBAND_TITLE.parse());

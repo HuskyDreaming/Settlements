@@ -8,16 +8,15 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.ClaimService;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
-import com.huskydreaming.settlements.storage.Json;
+import com.huskydreaming.settlements.storage.types.Json;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
 import java.lang.reflect.Type;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class ClaimServiceImpl implements ClaimService {
 
@@ -52,6 +51,21 @@ public class ClaimServiceImpl implements ClaimService {
     @Override
     public String getClaim(Chunk chunk) {
         return claims.get(parse(chunk));
+    }
+
+    @Override
+    public int getCount() {
+        return claims.size();
+    }
+
+    @Override
+    public LinkedHashMap<String, Long> getTop(int limit) {
+        return claims.values().stream()
+                .collect(Collectors.groupingBy(s -> s, Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(limit)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
     @Override

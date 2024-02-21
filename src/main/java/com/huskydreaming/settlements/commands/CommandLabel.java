@@ -14,11 +14,14 @@ public enum CommandLabel {
     INVITE,
     KICK,
     LEAVE,
+    LIST,
     SETDESCRIPTION,
     SETOWNER,
     SETSPAWN,
+    SETTAG,
     SETTLEMENTS,
     SPAWN,
+    TEST,
     UNCLAIM;
 
     public static boolean contains(String string) {

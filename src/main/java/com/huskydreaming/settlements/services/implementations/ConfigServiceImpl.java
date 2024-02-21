@@ -1,9 +1,9 @@
 package com.huskydreaming.settlements.services.implementations;
 
-import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
+import com.huskydreaming.settlements.storage.enumerations.Config;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
@@ -16,15 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConfigServiceImpl implements ConfigService {
 
     @Override
-    public void deserialize(SettlementPlugin plugin) {
-        plugin.saveDefaultConfig();
-    }
-
-    @Override
     public List<Role> deserializeDefaultRoles(Plugin plugin) {
         List<Role> defaultRoles = new ArrayList<>();
 
-        String path = "default-roles";
+        String path = Config.ROLES.getPath();
         FileConfiguration configuration = plugin.getConfig();
         ConfigurationSection configurationSection = configuration.getConfigurationSection(path);
         if (configurationSection != null) {
@@ -45,23 +40,26 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public List<String> deserializeDisabledWorlds(Plugin plugin) {
-        String path = "disabled-worlds";
-        FileConfiguration configuration = plugin.getConfig();
-        return configuration.getStringList(path);
+        return plugin.getConfig().getStringList(Config.DISABLED_WORLDS.getPath());
     }
 
     @Override
-    public Map<String, Integer> deserializeDefaultMaximum(Plugin plugin) {
-        String path = "default-maximum";
-        Map<String, Integer> defaultMaximums = new ConcurrentHashMap<>();
+    public String deserializeEmptyPlaceholder(Plugin plugin) {
+        return plugin.getConfig().getString(Config.PLACEHOLDER_STRING.getPath());
+    }
+
+    @Override
+    public Map<String, Integer> deserializeDefaults(Plugin plugin) {
+        Map<String, Integer> defaults = new ConcurrentHashMap<>();
         FileConfiguration configuration = plugin.getConfig();
+        String path = Config.SETTLEMENT.getPath();
         ConfigurationSection configurationSection = configuration.getConfigurationSection(path);
         if (configurationSection != null) {
             for (String key : configurationSection.getKeys(false)) {
                 int amount = configuration.getInt(path + "." + key);
-                defaultMaximums.put(key, amount);
+                defaults.put(key, amount);
             }
-            return defaultMaximums;
+            return defaults;
         }
         return null;
     }

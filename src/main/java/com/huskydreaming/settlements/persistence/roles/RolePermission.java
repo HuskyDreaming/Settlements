@@ -16,6 +16,7 @@ public enum RolePermission {
     EDIT_SPAWN(RolePermissionType.EDIT),
     EDIT_ROLES(RolePermissionType.EDIT),
     EDIT_DESCRIPTION(RolePermissionType.EDIT),
+    EDIT_TAGS(RolePermissionType.EDIT),
 
     // MEMBER
     MEMBER_KICK(RolePermissionType.MEMBER),

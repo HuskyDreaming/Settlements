@@ -14,6 +14,8 @@ public interface InventoryService extends ServiceInterface {
     SmartInventory getClaimsInventory(Settlement settlement);
     SmartInventory getRoleInventory(Settlement settlement, Role role);
 
+    SmartInventory getSettlementsInventory();
+
     SmartInventory getConfirmationInventory(Settlement settlement, InventoryAction inventoryAction);
 
     SmartInventory getRolesInventory(Settlement settlement);

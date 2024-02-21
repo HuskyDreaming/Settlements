@@ -8,12 +8,12 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.utilities.Locale;
+import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
-@Command(label = CommandLabel.SETOWNER)
+@Command(label = CommandLabel.SETOWNER, arguments = " [owner]")
 public class SetOwnerCommand implements CommandInterface {
 
     private final MemberService memberService;

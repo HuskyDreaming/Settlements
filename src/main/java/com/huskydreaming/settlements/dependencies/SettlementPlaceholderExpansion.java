@@ -4,10 +4,9 @@ import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
-import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.services.interfaces.RoleService;
-import com.huskydreaming.settlements.services.interfaces.SettlementService;
+import com.huskydreaming.settlements.services.interfaces.*;
+import com.huskydreaming.settlements.storage.enumerations.Placeholder;
+import com.huskydreaming.settlements.utilities.Remote;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.Chunk;
 import org.bukkit.OfflinePlayer;
@@ -16,19 +15,24 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public class SettlementPlaceholderExpansion extends PlaceholderExpansion {
 
     private final JavaPlugin plugin;
-
     private final ClaimService claimService;
     private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
 
+    private final String defaultString;
+
     public SettlementPlaceholderExpansion(JavaPlugin plugin) {
         this.plugin = plugin;
+
+        ConfigService configService = ServiceProvider.Provide(ConfigService.class);
+        defaultString = configService.deserializeEmptyPlaceholder(plugin);
         claimService = ServiceProvider.Provide(ClaimService.class);
         memberService = ServiceProvider.Provide(MemberService.class);
         roleService = ServiceProvider.Provide(RoleService.class);
@@ -52,68 +56,81 @@ public class SettlementPlaceholderExpansion extends PlaceholderExpansion {
 
     @Override
     public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
-        if(params.equalsIgnoreCase("name")) {
-            if(memberService.hasSettlement(player)) return memberService.getCitizen(player).getSettlement();
+        if(Placeholder.NAME.isPlaceholder(params) && memberService.hasSettlement(player)) {
+            return memberService.getCitizen(player).getSettlement();
         }
 
-        if(params.equalsIgnoreCase("owner")) {
-            if(memberService.hasSettlement(player)) {
-                Member member = memberService.getCitizen(player);
-                Settlement settlement = settlementService.getSettlement(member.getSettlement());
-                return settlement.getOwnerName();
+        if(Placeholder.TAG.isPlaceholder(params) && memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            String tag = settlement.getTag();
+            return tag == null ? defaultString : tag;
+        }
+
+        if(Placeholder.OWNER.isPlaceholder(params) && memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            return settlement.getOwnerName();
+        }
+
+        if(Placeholder.CLAIMS_COUNT.isPlaceholder(params) && memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            Collection<Chunk> chunks = claimService.getChunks(settlement);
+            return String.valueOf(chunks.size());
+        }
+
+        if(Placeholder.ROLES_COUNT.isPlaceholder(params) && memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            List<Role> roles = roleService.getRoles(settlement);
+            return String.valueOf(roles.size());
+        }
+
+        if(Placeholder.MEMBERS_COUNT.isPlaceholder(params) && memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            List<Member> members = memberService.getMembers(settlement);
+            return String.valueOf(members.size());
+        }
+
+        if(Placeholder.CLAIMS_MAX.isPlaceholder(params) && memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            return String.valueOf(settlement.getMaxLand());
+        }
+
+        if(Placeholder.ROLES_MAX.isPlaceholder(params) && memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            return String.valueOf(settlement.getMaxRoles());
+        }
+
+        if(Placeholder.MEMBERS_MAX.isPlaceholder(params) && memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            return String.valueOf(settlement.getMaxCitizens());
+        }
+
+        if(Placeholder.MEMBERS_TOP.containsPlaceholder(params)) {
+            String[] split = params.split("_");
+            if(split.length == 3 && Remote.isNumeric(split[2])) {
+                int number = Integer.parseInt(split[2]);
+                if(memberService.getCount() < number) return defaultString;
+                LinkedHashMap<String, Long> map = memberService.getTop(number);
+                return map.lastEntry().getKey();
             }
         }
 
-        if(params.equalsIgnoreCase("claims_count")) {
-            if(memberService.hasSettlement(player)) {
-                Member member = memberService.getCitizen(player);
-                Settlement settlement = settlementService.getSettlement(member.getSettlement());
-                Collection<Chunk> chunks = claimService.getChunks(settlement);
-                return String.valueOf(chunks.size());
+        if(Placeholder.CLAIMS_TOP.containsPlaceholder(params)) {
+            String[] split = params.split("_");
+            if(split.length == 3 && Remote.isNumeric(split[2])) {
+                int number = Integer.parseInt(split[2]);
+                if(claimService.getCount() < number) return defaultString;
+                LinkedHashMap<String, Long> map = claimService.getTop(number);
+                return map.lastEntry().getKey();
             }
         }
-
-        if(params.equalsIgnoreCase("roles_count")) {
-            if(memberService.hasSettlement(player)) {
-                Member member = memberService.getCitizen(player);
-                Settlement settlement = settlementService.getSettlement(member.getSettlement());
-                List<Role> roles = roleService.getRoles(settlement);
-                return String.valueOf(roles.size());
-            }
-        }
-
-        if(params.equalsIgnoreCase("members_count")) {
-            if(memberService.hasSettlement(player)) {
-                Member member = memberService.getCitizen(player);
-                Settlement settlement = settlementService.getSettlement(member.getSettlement());
-                List<Member> members = memberService.getMembers(settlement);
-                return String.valueOf(members.size());
-            }
-        }
-
-        if(params.equalsIgnoreCase("claims_max")) {
-            if(memberService.hasSettlement(player)) {
-                Member member = memberService.getCitizen(player);
-                Settlement settlement = settlementService.getSettlement(member.getSettlement());
-                return String.valueOf(settlement.getMaxLand());
-            }
-        }
-
-        if(params.equalsIgnoreCase("roles_max")) {
-            if(memberService.hasSettlement(player)) {
-                Member member = memberService.getCitizen(player);
-                Settlement settlement = settlementService.getSettlement(member.getSettlement());
-                return String.valueOf(settlement.getMaxRoles());
-            }
-        }
-
-        if(params.equalsIgnoreCase("members_max")) {
-            if(memberService.hasSettlement(player)) {
-                Member member = memberService.getCitizen(player);
-                Settlement settlement = settlementService.getSettlement(member.getSettlement());
-                return String.valueOf(settlement.getMaxCitizens());
-            }
-        }
-        return null;
+        return defaultString;
     }
 }

@@ -2,9 +2,9 @@ package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.services.interfaces.LocaleService;
-import com.huskydreaming.settlements.storage.Yaml;
-import com.huskydreaming.settlements.utilities.Locale;
-import com.huskydreaming.settlements.utilities.Menu;
+import com.huskydreaming.settlements.storage.types.Yaml;
+import com.huskydreaming.settlements.storage.enumerations.Locale;
+import com.huskydreaming.settlements.storage.enumerations.Menu;
 
 public class LocaleServiceImpl implements LocaleService {
 

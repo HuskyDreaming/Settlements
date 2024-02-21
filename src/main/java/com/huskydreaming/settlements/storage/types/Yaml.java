@@ -1,5 +1,6 @@
-package com.huskydreaming.settlements.storage;
+package com.huskydreaming.settlements.storage.types;
 
+import com.huskydreaming.settlements.storage.base.Extension;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

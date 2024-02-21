@@ -8,7 +8,7 @@ import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
-import com.huskydreaming.settlements.storage.Json;
+import com.huskydreaming.settlements.storage.types.Json;
 
 import java.lang.reflect.Type;
 import java.util.*;

@@ -1,6 +1,7 @@
-package com.huskydreaming.settlements.utilities;
+package com.huskydreaming.settlements.storage.enumerations;
 
 import com.google.common.base.Functions;
+import com.huskydreaming.settlements.storage.base.Parseable;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.Nullable;
@@ -27,9 +28,16 @@ public enum Locale implements Parseable {
     SETTLEMENT_AUTO_CLAIM_ON_MAX_LAND("You are not able to automatically claim new land as your settlement has reached the maximum number of claims."),
     SETTLEMENT_CREATE_DISABLED_WORLD("You are not able to create a settlement in this world."),
     SETTLEMENT_CREATE_WORLDGUARD("You are not able to create a settlement here as it is protected by worldguard."),
+    SETTLEMENT_CREATE_MIN_NAME_LENGTH("The name of the settlement must be at least &b{0} &7characters."),
+    SETTLEMENT_CREATE_MAX_NAME_LENGTH("The settlement name can't be longer than &b{0} &7characters."),
     SETTLEMENT_CREATED("You have created a new settlement named &b{0}&7."),
     SETTLEMENT_DESCRIPTION("You have set the settlement description to: &b{0}"),
     SETTLEMENT_DESCRIPTION_LONG("The description can't be greater than &b{0} &7characters."),
+    SETTLEMENT_DESCRIPTION_SHORT("The description has to be greater than &b{0} &7characters."),
+
+    SETTLEMENT_TAG("You have set the settlement tag to: &b{0}"),
+    SETTLEMENT_TAG_LONG("The tag can't be greater than &b{0} &7characters."),
+    SETTLEMENT_TAG_SHORT("The tag has to be greater than &b{0} &7characters."),
     SETTLEMENT_DISBAND("You have disbanded the settlement."),
     SETTLEMENT_ESTABLISHED("A settlement has already been established here."),
     SETTLEMENT_EXIST("A settlement with that name already exists."),
@@ -68,8 +76,16 @@ public enum Locale implements Parseable {
     SETTLEMENT_SET_SPAWN("You have set the spawn for the settlement at your location."),
     SETTLEMENT_SPAWN("You have been teleported to the settlement spawn."),
     SETTLEMENT_TELEPORT("You have teleported to &7x: &b{0}&7, z: &b{1}"),
+    SETTLEMENT_LIST_NULL("No settlements have been created."),
     SETTLEMENT_TITLE_HEADER("&l{0}"),
     SETTLEMENT_TITLE_FOOTER("&7{0}"),
+    HELP_PAGE_HEADER("&e&lSettlement Help: &a{0}&2/&a{1}"),
+    HELP_PAGE_FORMAT("  &b{0}. &f{1}"),
+    HELP_PAGE_LIMIT("There are only &b{0} &7pages available."),
+    HELP_PAGE_NEXT(">>"),
+    HELP_PAGE_PREVIOUS("<<"),
+    HELP_PAGE_DISABLED("&7"),
+    HELP_PAGE_ENABLED("&e"),
     INVITATION_DENIED("You have denied an invitation for &b{0}&7."),
     INVITATION_SELF("You can't invite yourself."),
     INVITATION_NULL("You do not have an invitation for &b{0}&7."),

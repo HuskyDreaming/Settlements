@@ -15,18 +15,17 @@ import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.entity.Player;
 
-import java.util.Arrays;
 import java.util.Map;
 
-@Command(label = CommandLabel.SETDESCRIPTION, arguments = " [description]")
-public class SetDescriptionCommand implements CommandInterface {
+@Command(label = CommandLabel.SETTAG, arguments = " [tag]")
+public class SetTagCommand implements CommandInterface {
 
     private final MemberService memberService;
 
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public SetDescriptionCommand() {
+    public SetTagCommand() {
         memberService = ServiceProvider.Provide(MemberService.class);
         roleService = ServiceProvider.Provide(RoleService.class);
         settlementService = ServiceProvider.Provide(SettlementService.class);
@@ -34,7 +33,7 @@ public class SetDescriptionCommand implements CommandInterface {
 
     @Override
     public void run(Player player, String[] strings) {
-        if (strings.length > 1) {
+        if (strings.length == 2) {
             if (!memberService.hasSettlement(player)) {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
                 return;
@@ -44,26 +43,25 @@ public class SetDescriptionCommand implements CommandInterface {
             Settlement settlement = settlementService.getSettlement(member.getSettlement());
             Role role = roleService.getRole(settlement, member);
 
-            if (role.hasPermission(RolePermission.EDIT_DESCRIPTION) || settlement.isOwner(player)) {
-                String[] array = Arrays.copyOfRange(strings, 1, strings.length);
-                String string = String.join(" ", array);
+            if (role.hasPermission(RolePermission.EDIT_TAGS) || settlement.isOwner(player)) {
+                String string = strings[1];
 
                 Map<String, Integer> defaults = settlementService.getDefaults();
-                int minimumDescriptionLength = defaults.getOrDefault("min-description-length", 8);
-                int maximumDescriptionLength = defaults.getOrDefault("max-description-length", 36);
+                int minimumTagLength = defaults.getOrDefault("min-tag-length", 2);
+                int maximumTagLength = defaults.getOrDefault("max-tag-length", 4);
 
-                if(string.length() > maximumDescriptionLength) {
-                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DESCRIPTION_LONG, maximumDescriptionLength));
+                if(string.length() > maximumTagLength) {
+                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_TAG_LONG, maximumTagLength));
                     return;
                 }
 
-                if(string.length() < minimumDescriptionLength) {
-                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DESCRIPTION_SHORT, minimumDescriptionLength));
+                if(string.length() < minimumTagLength) {
+                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_TAG_SHORT, minimumTagLength));
                     return;
                 }
 
-                settlement.setDescription(string);
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DESCRIPTION, string));
+                settlement.setTag(string);
+                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_TAG, string));
             } else {
                 player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS, RolePermission.LAND_CLAIM.getName()));
             }

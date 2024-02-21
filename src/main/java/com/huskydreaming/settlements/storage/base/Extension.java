@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.storage;
+package com.huskydreaming.settlements.storage.base;
 
 public enum Extension {
     JSON(".json"),

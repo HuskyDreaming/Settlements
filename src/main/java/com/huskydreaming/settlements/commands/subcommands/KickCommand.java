@@ -12,7 +12,7 @@ import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.utilities.Locale;
+import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
@@ -20,7 +20,7 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-@Command(label = CommandLabel.KICK)
+@Command(label = CommandLabel.KICK, arguments = " [player]")
 public class KickCommand implements CommandInterface {
 
     private final BorderService borderService;

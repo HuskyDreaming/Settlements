@@ -7,10 +7,7 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.base.ServiceProvider;
-import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
-import com.huskydreaming.settlements.services.interfaces.InventoryService;
-import com.huskydreaming.settlements.services.interfaces.RoleService;
+import com.huskydreaming.settlements.services.interfaces.*;
 import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.SmartInventory;
 import org.bukkit.OfflinePlayer;
@@ -44,6 +41,21 @@ public class InventoryServiceImpl implements InventoryService {
                 .size(3, 9)
                 .provider(settlementInventory)
                 .title("Editing: " + settlement.getName())
+                .build();
+    }
+
+    @Override
+    public SmartInventory getSettlementsInventory() {
+        SettlementService settlementService = ServiceProvider.Provide(SettlementService.class);
+        Settlement[] settlements =  settlementService.getSettlements().toArray(new Settlement[0]);
+        int rows = (int) Math.ceil((double) settlements.length / 9);
+        SettlementsInventory settlementsInventory = new SettlementsInventory(rows, settlements);
+        return SmartInventory.builder()
+                .manager(inventoryManager)
+                .id("settlementsInventory")
+                .size(Math.min(rows + 2, 5), 9)
+                .provider(settlementsInventory)
+                .title("Settlements")
                 .build();
     }
 

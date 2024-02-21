@@ -7,7 +7,7 @@ import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
-import com.huskydreaming.settlements.utilities.Menu;
+import com.huskydreaming.settlements.storage.enumerations.Menu;
 import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.OfflinePlayer;

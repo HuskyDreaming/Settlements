@@ -8,10 +8,10 @@ import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.InvitationService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.utilities.Remote;
-import com.huskydreaming.settlements.utilities.Locale;
+import com.huskydreaming.settlements.storage.enumerations.Locale;
 import org.bukkit.entity.Player;
 
-@Command(label = CommandLabel.DENY)
+@Command(label = CommandLabel.DENY, arguments = " [settlement]")
 public class DenyCommand implements CommandInterface {
 
     private final InvitationService invitationService;

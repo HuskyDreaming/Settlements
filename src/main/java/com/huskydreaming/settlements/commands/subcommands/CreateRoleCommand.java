@@ -11,11 +11,11 @@ import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.utilities.Locale;
+import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.entity.Player;
 
-@Command(label = CommandLabel.CREATEROLE)
+@Command(label = CommandLabel.CREATEROLE, arguments = " [name]")
 public class CreateRoleCommand implements CommandInterface {
 
     private final MemberService memberService;

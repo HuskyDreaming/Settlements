@@ -6,6 +6,7 @@ import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.base.ServiceInterface;
 import org.bukkit.OfflinePlayer;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 
 public interface MemberService extends ServiceInterface {
@@ -18,9 +19,13 @@ public interface MemberService extends ServiceInterface {
 
     void clean(Settlement settlement);
 
+    int getCount();
+
     Member getCitizen(OfflinePlayer offlinePlayer);
 
     List<Member> getMembers(Settlement settlement);
+
+    LinkedHashMap<String, Long> getTop(int limit);
 
     List<OfflinePlayer> getOfflinePlayers(Settlement settlement);
 

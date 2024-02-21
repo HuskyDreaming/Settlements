@@ -4,6 +4,7 @@ import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.base.ServiceInterface;
 import org.bukkit.entity.Player;
 
+import java.util.Map;
 import java.util.Set;
 
 public interface SettlementService extends ServiceInterface {
@@ -17,4 +18,6 @@ public interface SettlementService extends ServiceInterface {
     Settlement getSettlement(String string);
 
     Set<Settlement> getSettlements();
+
+    Map<String, Integer> getDefaults();
 }

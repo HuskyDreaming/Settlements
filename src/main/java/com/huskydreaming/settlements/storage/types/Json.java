@@ -1,9 +1,10 @@
-package com.huskydreaming.settlements.storage;
+package com.huskydreaming.settlements.storage.types;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonReader;
 import com.huskydreaming.settlements.serializers.LocationSerializer;
+import com.huskydreaming.settlements.storage.base.Extension;
 import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Location;
 import org.bukkit.plugin.Plugin;
@@ -27,7 +28,7 @@ public class Json {
         try (BufferedWriter bufferedWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             GSON.toJson(object, bufferedWriter);
         } catch (IOException e) {
-            e.printStackTrace();
+            plugin.getLogger().severe(e.getMessage());
         }
     }
 

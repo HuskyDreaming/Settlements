@@ -16,10 +16,15 @@ public class SettlementPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+        getConfig().options().copyDefaults(true);
+        saveConfig();
+
         ServiceProvider.Initialize();
         ServiceProvider.Deserialize(this);
 
-        new CommandExecutor().setup(
+        CommandExecutor commandExecutor = new CommandExecutor();
+        commandExecutor.setup(
                 new AcceptCommand(),
                 new AdminCommand(),
                 new AutoClaimCommand(),
@@ -30,11 +35,14 @@ public class SettlementPlugin extends JavaPlugin {
                 new DenyCommand(),
                 new DisbandCommand(),
                 new InviteCommand(),
+                new HelpCommand(commandExecutor),
                 new KickCommand(),
                 new LeaveCommand(),
+                new ListCommand(),
                 new SetDescriptionCommand(),
                 new SetOwnerCommand(),
                 new SetSpawnCommand(),
+                new SetTagCommand(),
                 new SpawnCommand(),
                 new UnclaimCommand()
         );

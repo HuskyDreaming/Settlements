@@ -6,14 +6,12 @@ import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.storage.Json;
+import com.huskydreaming.settlements.storage.types.Json;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
@@ -42,6 +40,11 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    public int getCount() {
+        return members.size();
+    }
+
+    @Override
     public Member getCitizen(OfflinePlayer offlinePlayer) {
         return members.get(offlinePlayer.getUniqueId());
     }
@@ -51,6 +54,16 @@ public class MemberServiceImpl implements MemberService {
         return members.values().stream()
                 .filter(member -> member.getSettlement().equalsIgnoreCase(settlement.getName()))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public LinkedHashMap<String, Long> getTop(int limit) {
+        return members.values().stream()
+                .collect(Collectors.groupingBy(Member::getSettlement, Collectors.counting()))
+                .entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(limit)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, LinkedHashMap::new));
     }
 
     @Override

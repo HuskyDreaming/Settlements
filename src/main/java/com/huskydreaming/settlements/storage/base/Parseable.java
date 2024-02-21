@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.utilities;
+package com.huskydreaming.settlements.storage.base;
 
 import java.util.List;
 

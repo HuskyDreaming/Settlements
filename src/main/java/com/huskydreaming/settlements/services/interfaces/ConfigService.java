@@ -13,5 +13,7 @@ public interface ConfigService extends ServiceInterface {
 
     List<String> deserializeDisabledWorlds(Plugin plugin);
 
-    Map<String, Integer> deserializeDefaultMaximum(Plugin plugin);
+    String deserializeEmptyPlaceholder(Plugin plugin);
+
+    Map<String, Integer> deserializeDefaults(Plugin plugin);
 }
