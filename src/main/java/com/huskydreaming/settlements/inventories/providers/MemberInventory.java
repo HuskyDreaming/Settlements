@@ -1,14 +1,15 @@
 package com.huskydreaming.settlements.inventories.providers;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.inventories.InventoryItem;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
+import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.storage.enumerations.Menu;
@@ -22,19 +23,24 @@ import org.bukkit.entity.Player;
 
 public class MemberInventory implements InventoryProvider {
 
+    private final SettlementPlugin plugin;
     private final InventoryService inventoryService;
     private final MemberService memberService;
     private final RoleService roleService;
-
-    private final Settlement settlement;
+    private final SettlementService settlementService;
     private final OfflinePlayer offlinePlayer;
 
-    public MemberInventory(Settlement settlement, OfflinePlayer offlinePlayer) {
-        inventoryService = ServiceProvider.Provide(InventoryService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
+    private final String settlementName;
 
-        this.settlement = settlement;
+    public MemberInventory(SettlementPlugin plugin, String settlementName, OfflinePlayer offlinePlayer) {
+        this.plugin = plugin;
+
+        inventoryService = plugin.provide(InventoryService.class);
+        memberService = plugin.provide(MemberService.class);
+        roleService = plugin.provide(RoleService.class);
+        settlementService = plugin.provide(SettlementService.class);
+
+        this.settlementName = settlementName;
         this.offlinePlayer = offlinePlayer;
     }
 
@@ -42,11 +48,14 @@ public class MemberInventory implements InventoryProvider {
     @Override
     public void init(Player player, InventoryContents contents) {
 
+        Member member = memberService.getCitizen(player);
+        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+
         contents.fillBorders(InventoryItem.border());
-        contents.set(0, 0, InventoryItem.back(player, inventoryService.getCitizensInventory(settlement)));
-        contents.set(1, 3, setOwner(player, contents));
-        contents.set(1, 4, roleItem(player, contents));
-        contents.set(1, 5, kickItem(player, contents));
+        contents.set(0, 0, InventoryItem.back(player, inventoryService.getCitizensInventory(plugin, settlementName)));
+        contents.set(1, 3, setOwner(player, settlement, contents));
+        contents.set(1, 4, roleItem(player, settlement.getDefaultRole(), contents));
+        contents.set(1, 5, kickItem(player, settlement, contents));
     }
 
     @Override
@@ -54,7 +63,7 @@ public class MemberInventory implements InventoryProvider {
 
     }
 
-    private ClickableItem setOwner(Player player, InventoryContents contents) {
+    private ClickableItem setOwner(Player player, Settlement settlement, InventoryContents contents) {
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_SET_OWNER_TITLE.parse())
                 .setLore(Menu.MEMBER_SET_OWNER_LORE.parseList())
@@ -79,41 +88,43 @@ public class MemberInventory implements InventoryProvider {
         });
     }
 
-    private ClickableItem roleItem(Player player, InventoryContents contents) {
+    private ClickableItem roleItem(Player player, String defaultRole, InventoryContents contents) {
         Member member = memberService.getCitizen(offlinePlayer);
-        int index = roleService.getIndex(settlement, member);
+        int index = roleService.getIndex(settlementName, member);
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_SET_ROLE_TITLE.parse())
                 .setLore(Remote.parameterizeList(Menu.MEMBER_SET_ROLE_LORE, index, member.getRole()))
                 .setMaterial(Material.WRITABLE_BOOK)
                 .build(), e-> {
+
+            Role role = roleService.sync(member, defaultRole);
             if(e.isRightClick()) {
-                if(roleService.demote(settlement, member)) {
+                if(roleService.demote(settlementName, role, member)) {
                     contents.inventory().open(player);
                 }
             } else if(e.isLeftClick()) {
-                if(roleService.promote(settlement, member)) {
+                if(roleService.promote(settlementName, role, member)) {
                     contents.inventory().open(player);
                 }
             }
         });
     }
 
-    private ClickableItem kickItem(Player player, InventoryContents contents) {
+    private ClickableItem kickItem(Player player, Settlement settlement, InventoryContents contents) {
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_KICK_TITLE.parse())
                 .setLore(Menu.MEMBER_KICK_LORE.parseList())
                 .setMaterial(Material.ANVIL)
                 .build(), e-> {
             Member member = memberService.getCitizen(offlinePlayer);
-            Role role = roleService.getRole(settlement, member);
+            Role role = roleService.getRole(member);
 
             if(settlement.isOwner(offlinePlayer) || role.hasPermission(RolePermission.MEMBER_KICK_EXEMPT)) {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK_EXEMPT));
             } else {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK_PLAYER, offlinePlayer.getName()));
                 Player target = offlinePlayer.getPlayer();
-                if(target != null) target.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK, settlement.getName()));
+                if(target != null) target.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK, settlementName));
                 memberService.remove(offlinePlayer);
             }
             contents.inventory().close(player);

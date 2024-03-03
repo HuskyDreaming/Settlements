@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services.implementations;
+package com.huskydreaming.settlements.services.providers;
 
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
@@ -19,7 +19,7 @@ public class ConfigServiceImpl implements ConfigService {
     public List<Role> deserializeDefaultRoles(Plugin plugin) {
         List<Role> defaultRoles = new ArrayList<>();
 
-        String path = Config.ROLES.getPath();
+        String path = Config.ROLES.toString();
         FileConfiguration configuration = plugin.getConfig();
         ConfigurationSection configurationSection = configuration.getConfigurationSection(path);
         if (configurationSection != null) {
@@ -40,19 +40,19 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public List<String> deserializeDisabledWorlds(Plugin plugin) {
-        return plugin.getConfig().getStringList(Config.DISABLED_WORLDS.getPath());
+        return plugin.getConfig().getStringList(Config.DISABLED_WORLDS.toString());
     }
 
     @Override
     public String deserializeEmptyPlaceholder(Plugin plugin) {
-        return plugin.getConfig().getString(Config.PLACEHOLDER_STRING.getPath());
+        return plugin.getConfig().getString(Config.PLACEHOLDER_STRING.toString());
     }
 
     @Override
     public Map<String, Integer> deserializeDefaults(Plugin plugin) {
         Map<String, Integer> defaults = new ConcurrentHashMap<>();
         FileConfiguration configuration = plugin.getConfig();
-        String path = Config.SETTLEMENT.getPath();
+        String path = Config.SETTLEMENT.toString();
         ConfigurationSection configurationSection = configuration.getConfigurationSection(path);
         if (configurationSection != null) {
             for (String key : configurationSection.getKeys(false)) {

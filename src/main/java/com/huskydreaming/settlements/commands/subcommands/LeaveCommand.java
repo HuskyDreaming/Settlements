@@ -1,11 +1,11 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
@@ -24,10 +24,10 @@ public class LeaveCommand implements CommandInterface {
     private final MemberService memberService;
     private final SettlementService settlementService;
 
-    public LeaveCommand() {
-        borderService = ServiceProvider.Provide(BorderService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+    public LeaveCommand(SettlementPlugin plugin) {
+        borderService = plugin.provide(BorderService.class);
+        memberService = plugin.provide(MemberService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override
@@ -43,14 +43,13 @@ public class LeaveCommand implements CommandInterface {
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LEAVE_OWNER));
             return;
         }
-        String settlementName = settlement.getName();
 
         memberService.remove(player);
         borderService.removePlayer(player);
-        borderService.addPlayer(player, settlementName, Color.RED);
+        borderService.addPlayer(player, member.getSettlement(), Color.RED);
         player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LEAVE));
 
-        List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(settlement);
+        List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(member.getSettlement());
         offlinePlayers.forEach(offlinePlayer ->  {
             if(offlinePlayer.isOnline()) {
                 Player onlinePlayer = offlinePlayer.getPlayer();

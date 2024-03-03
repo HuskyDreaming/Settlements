@@ -8,8 +8,8 @@ public class Member {
 
     private boolean autoClaim;
 
-    public static Member create(Settlement settlement, String role) {
-        return new Member(settlement.getName(), role);
+    public static Member create(String name, String role) {
+        return new Member(name, role);
     }
 
     public Member(String settlement, String role) {

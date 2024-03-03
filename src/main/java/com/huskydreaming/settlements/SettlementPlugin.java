@@ -1,67 +1,44 @@
 package com.huskydreaming.settlements;
 
-import com.huskydreaming.settlements.commands.CommandExecutor;
-import com.huskydreaming.settlements.commands.subcommands.*;
-import com.huskydreaming.settlements.listeners.LandListener;
-import com.huskydreaming.settlements.listeners.MemberListener;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
-import com.huskydreaming.settlements.services.interfaces.BorderService;
-import org.bukkit.event.Listener;
-import org.bukkit.plugin.PluginManager;
+import com.huskydreaming.settlements.registries.CommandRegistry;
+import com.huskydreaming.settlements.registries.ListenerRegistry;
+import com.huskydreaming.settlements.registries.ServiceRegistry;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.Arrays;
+import org.jetbrains.annotations.NotNull;
 
 public class SettlementPlugin extends JavaPlugin {
+
+    private CommandRegistry commandRegistry;
+    private ServiceRegistry serviceRegistry;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
         getConfig().options().copyDefaults(true);
+        getLogger().info("Loaded config.yml");
         saveConfig();
 
-        ServiceProvider.Initialize();
-        ServiceProvider.Deserialize(this);
+        serviceRegistry = new ServiceRegistry();
+        serviceRegistry.register(this);
 
-        CommandExecutor commandExecutor = new CommandExecutor();
-        commandExecutor.setup(
-                new AcceptCommand(),
-                new AdminCommand(),
-                new AutoClaimCommand(),
-                new ClaimCommand(),
-                new CreateCommand(),
-                new CreateRoleCommand(),
-                new DeleteRoleCommand(),
-                new DenyCommand(),
-                new DisbandCommand(),
-                new InviteCommand(),
-                new HelpCommand(commandExecutor),
-                new KickCommand(),
-                new LeaveCommand(),
-                new ListCommand(),
-                new SetDescriptionCommand(),
-                new SetOwnerCommand(),
-                new SetSpawnCommand(),
-                new SetTagCommand(),
-                new SpawnCommand(),
-                new UnclaimCommand()
-        );
+        commandRegistry = new CommandRegistry();
+        commandRegistry.register(this);
 
-        registerListeners(
-                new LandListener(),
-                new MemberListener()
-        );
-
-        ServiceProvider.Provide(BorderService.class).run(this);
+        ListenerRegistry listenerRegistry = new ListenerRegistry();
+        listenerRegistry.register(this);
     }
 
     @Override
     public void onDisable() {
-        ServiceProvider.Serialize(this);
+        serviceRegistry.unregister(this);
     }
 
-    private void registerListeners(Listener... listeners) {
-        PluginManager pluginManager = getServer().getPluginManager();
-        Arrays.asList(listeners).forEach(listener -> pluginManager.registerEvents(listener, this));
+    @NotNull
+    public <T> T provide(Class<T> tClass) {
+        return tClass.cast(serviceRegistry.getServices().get(tClass));
+    }
+
+    public CommandRegistry getCommandRegistry() {
+        return commandRegistry;
     }
 }

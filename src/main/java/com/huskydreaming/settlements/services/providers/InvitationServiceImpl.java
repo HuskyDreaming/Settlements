@@ -1,9 +1,8 @@
-package com.huskydreaming.settlements.services.implementations;
+package com.huskydreaming.settlements.services.providers;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.InvitationService;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
@@ -22,19 +21,19 @@ public class InvitationServiceImpl implements InvitationService {
     private Cache<UUID, Set<String>> cache;
 
     @Override
-    public void sendInvitation(Player player, Settlement settlement) {
+    public void sendInvitation(Player player, String name) {
         try {
-            cache.get(player.getUniqueId(), HashSet::new).add(settlement.getName());
+            cache.get(player.getUniqueId(), HashSet::new).add(name);
 
             TextComponent accept = new TextComponent(Locale.INVITATION_ACCEPT.parse());
-            accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/settlement accept " + settlement.getName()));
+            accept.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/settlement accept " + name));
 
             TextComponent deny = new TextComponent(Locale.INVITATION_DENY.parse());
-            deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/settlement deny " + settlement.getName()));
+            deny.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/settlement deny " + name));
 
             TextComponent spacer = new TextComponent(" ");
 
-            player.sendMessage(Remote.prefix(Locale.INVITATION_DENIED, settlement.getName()));
+            player.sendMessage(Remote.prefix(Locale.INVITATION_DENIED, name));
             player.spigot().sendMessage(accept, spacer, deny);
 
         } catch (ExecutionException e) {

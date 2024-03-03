@@ -1,11 +1,11 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
@@ -19,9 +19,9 @@ public class SetOwnerCommand implements CommandInterface {
     private final MemberService memberService;
     private final SettlementService settlementService;
 
-    public SetOwnerCommand() {
-        memberService = ServiceProvider.Provide(MemberService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+    public SetOwnerCommand(SettlementPlugin plugin) {
+        memberService = plugin.provide(MemberService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override

@@ -1,7 +1,7 @@
 package com.huskydreaming.settlements.listeners;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.ClaimService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
@@ -23,10 +23,10 @@ public class MemberListener implements Listener {
     private final ClaimService claimService;
     private final MemberService memberService;
 
-    public MemberListener() {
-        borderService = ServiceProvider.Provide(BorderService.class);
-        claimService = ServiceProvider.Provide(ClaimService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
+    public MemberListener(SettlementPlugin plugin) {
+        borderService = plugin.provide(BorderService.class);
+        claimService = plugin.provide(ClaimService.class);
+        memberService = plugin.provide(MemberService.class);
     }
 
     @EventHandler

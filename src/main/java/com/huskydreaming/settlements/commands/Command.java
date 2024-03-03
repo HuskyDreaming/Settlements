@@ -10,6 +10,5 @@ public @interface Command {
     CommandLabel label();
     String arguments() default "";
     String[] aliases() default {};
-    boolean requiresPermissions() default false;
     boolean debug() default false;
 }

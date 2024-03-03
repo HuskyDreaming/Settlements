@@ -2,6 +2,7 @@ package com.huskydreaming.settlements.storage.types;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
 import com.huskydreaming.settlements.serializers.LocationSerializer;
 import com.huskydreaming.settlements.storage.base.Extension;
@@ -34,11 +35,17 @@ public class Json {
 
     public static <T> T read(Plugin plugin, String fileName, Type type) {
         Path path = Remote.create(plugin, fileName, Extension.JSON);
+        BufferedReader bufferedReader;
         try {
-            BufferedReader bufferedReader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
-            JsonReader jsonReader = new JsonReader(bufferedReader);
-            return GSON.fromJson(jsonReader, type);
+            bufferedReader = Files.newBufferedReader(path, StandardCharsets.UTF_8);
         } catch (IOException e) {
+            return null;
+        }
+
+        JsonReader jsonReader = new JsonReader(bufferedReader);
+        try {
+            return GSON.fromJson(jsonReader, type);
+        } catch (JsonSyntaxException e) {
             return null;
         }
     }

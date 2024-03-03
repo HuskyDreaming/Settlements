@@ -1,7 +1,7 @@
 package com.huskydreaming.settlements.services.interfaces;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.inventories.InventoryAction;
-import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.base.ServiceInterface;
 import fr.minuskube.inv.SmartInventory;
@@ -9,16 +9,19 @@ import org.bukkit.OfflinePlayer;
 
 public interface InventoryService extends ServiceInterface {
 
-    SmartInventory getCitizenInventory(Settlement settlement, OfflinePlayer offlinePlayer);
-    SmartInventory getCitizensInventory(Settlement settlement);
-    SmartInventory getClaimsInventory(Settlement settlement);
-    SmartInventory getRoleInventory(Settlement settlement, Role role);
+    SmartInventory getRoleInventory(SettlementPlugin plugin, String name, Role role);
 
-    SmartInventory getSettlementsInventory();
+    SmartInventory getSettlementInventory(SettlementPlugin plugin, String name);
 
-    SmartInventory getConfirmationInventory(Settlement settlement, InventoryAction inventoryAction);
+    SmartInventory getSettlementsInventory(SettlementPlugin plugin);
 
-    SmartInventory getRolesInventory(Settlement settlement);
-    SmartInventory getSettlementInventory(Settlement settlement);
+    SmartInventory getConfirmationInventory(SettlementPlugin plugin, String settlementName, InventoryAction inventoryAction);
 
+    SmartInventory getRolesInventory(SettlementPlugin plugin, String settlementName);
+
+    SmartInventory getClaimsInventory(SettlementPlugin plugin, String settlementName);
+
+    SmartInventory getCitizensInventory(SettlementPlugin plugin, String settlementName);
+
+    SmartInventory getCitizenInventory(SettlementPlugin plugin, String settlementName, OfflinePlayer offlinePlayer);
 }

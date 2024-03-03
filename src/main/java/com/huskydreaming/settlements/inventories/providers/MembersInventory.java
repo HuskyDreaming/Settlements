@@ -1,9 +1,8 @@
 package com.huskydreaming.settlements.inventories.providers;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
@@ -20,15 +19,19 @@ import java.util.Locale;
 
 public class MembersInventory extends InventoryPageProvider<OfflinePlayer> {
 
+    private final SettlementPlugin plugin;
     private final InventoryService inventoryService;
     private final MemberService memberService;
+    private final String settlementName;
 
-    public MembersInventory(Settlement settlement, int rows, OfflinePlayer[] offlinePlayers) {
-        super(settlement, rows, offlinePlayers);
+    public MembersInventory(SettlementPlugin plugin, String settlementName, int rows, OfflinePlayer[] offlinePlayers) {
+        super(rows, offlinePlayers);
+        this.plugin = plugin;
 
-        inventoryService = ServiceProvider.Provide(InventoryService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        this.smartInventory = inventoryService.getSettlementInventory(settlement);
+        inventoryService = plugin.provide(InventoryService.class);
+        memberService = plugin.provide(MemberService.class);
+        this.settlementName = settlementName;
+        this.smartInventory = inventoryService.getSettlementInventory(plugin, settlementName);
     }
 
     @Override
@@ -50,7 +53,7 @@ public class MembersInventory extends InventoryPageProvider<OfflinePlayer> {
     @Override
     public void run(InventoryClickEvent event, OfflinePlayer offlinePlayer, InventoryContents contents) {
         if(event.getWhoClicked() instanceof Player player) {
-           inventoryService.getCitizenInventory(settlement, offlinePlayer).open(player);
+           inventoryService.getCitizenInventory(plugin, settlementName, offlinePlayer).open(player);
         }
     }
 }

@@ -24,6 +24,7 @@ public class Yaml {
     public void load(Plugin plugin) {
         path = Remote.create(plugin, name, Extension.YAML);
         configuration = YamlConfiguration.loadConfiguration(path.toFile());
+        plugin.getLogger().info("Loaded " + path.getFileName());
     }
 
     public void save() {
@@ -44,6 +45,7 @@ public class Yaml {
         Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         YamlConfiguration defaultConfiguration = YamlConfiguration.loadConfiguration(reader);
         configuration.setDefaults(defaultConfiguration);
+        plugin.getLogger().info("Reloaded " + path.getFileName());
 
     }
 

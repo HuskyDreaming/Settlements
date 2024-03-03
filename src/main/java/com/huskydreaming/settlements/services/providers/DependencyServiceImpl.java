@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services.implementations;
+package com.huskydreaming.settlements.services.providers;
 
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.dependencies.SettlementPlaceholderExpansion;

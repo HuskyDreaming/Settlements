@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -7,7 +8,6 @@ import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
@@ -26,10 +26,10 @@ public class SetDescriptionCommand implements CommandInterface {
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public SetDescriptionCommand() {
-        memberService = ServiceProvider.Provide(MemberService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+    public SetDescriptionCommand(SettlementPlugin plugin) {
+        memberService = plugin.provide(MemberService.class);
+        roleService = plugin.provide(RoleService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class SetDescriptionCommand implements CommandInterface {
 
             Member member = memberService.getCitizen(player);
             Settlement settlement = settlementService.getSettlement(member.getSettlement());
-            Role role = roleService.getRole(settlement, member);
+            Role role = roleService.getRole(member);
 
             if (role.hasPermission(RolePermission.EDIT_DESCRIPTION) || settlement.isOwner(player)) {
                 String[] array = Arrays.copyOfRange(strings, 1, strings.length);

@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -7,7 +8,6 @@ import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
@@ -28,11 +28,11 @@ public class KickCommand implements CommandInterface {
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public KickCommand() {
-        borderService = ServiceProvider.Provide(BorderService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+    public KickCommand(SettlementPlugin plugin) {
+        borderService = plugin.provide(BorderService.class);
+        memberService = plugin.provide(MemberService.class);
+        roleService = plugin.provide(RoleService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override
@@ -52,7 +52,7 @@ public class KickCommand implements CommandInterface {
 
             Member member = memberService.getCitizen(player);
             Settlement settlement = settlementService.getSettlement(member.getSettlement());
-            Role role = roleService.getRole(settlement, member);
+            Role role = roleService.getRole(member);
 
             if (!(role.hasPermission(RolePermission.MEMBER_KICK) || settlement.isOwner(player))) {
                 player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS, RolePermission.MEMBER_KICK.getName()));
@@ -62,16 +62,14 @@ public class KickCommand implements CommandInterface {
             if(role.hasPermission(RolePermission.MEMBER_KICK_EXEMPT) || settlement.isOwner(offlinePlayer)) {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK_EXEMPT));
             } else {
-                String settlementName = settlement.getName();
-
                 memberService.remove(offlinePlayer);
                 borderService.removePlayer(player);
-                borderService.addPlayer(player, settlementName, Color.RED);
+                borderService.addPlayer(player, member.getSettlement(), Color.RED);
 
                 Player onlinePlayer = offlinePlayer.getPlayer();
                 if(onlinePlayer != null) onlinePlayer.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK));
 
-                List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(settlement);
+                List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(member.getSettlement());
                 offlinePlayers.forEach(off ->  {
                     if(off.isOnline()) {
                         Player on = off.getPlayer();

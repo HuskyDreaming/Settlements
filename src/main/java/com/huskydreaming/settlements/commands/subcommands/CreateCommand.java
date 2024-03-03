@@ -1,10 +1,10 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
@@ -24,13 +24,13 @@ public class CreateCommand implements CommandInterface {
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public CreateCommand() {
-        borderService = ServiceProvider.Provide(BorderService.class);
-        claimService = ServiceProvider.Provide(ClaimService.class);
-        dependencyService = ServiceProvider.Provide(DependencyService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+    public CreateCommand(SettlementPlugin plugin) {
+        borderService = plugin.provide(BorderService.class);
+        claimService = plugin.provide(ClaimService.class);
+        dependencyService = plugin.provide(DependencyService.class);
+        memberService = plugin.provide(MemberService.class);
+        roleService = plugin.provide(RoleService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override
@@ -77,14 +77,14 @@ public class CreateCommand implements CommandInterface {
                 return;
             }
 
-            Settlement settlement = settlementService.createSettlement(player, strings[1]);
-            roleService.setup(settlement);
-            memberService.add(player, settlement);
-            claimService.setClaim(chunk, settlement);
+            Settlement settlement = settlementService.createSettlement(player, name);
+            roleService.setup(name, settlement);
+            memberService.add(player, name, settlement.getDefaultRole());
+            claimService.setClaim(chunk, name);
 
-            borderService.addPlayer(player, settlement.getName(), Color.AQUA);
+            borderService.addPlayer(player, name, Color.AQUA);
 
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATED, strings[1]));
+            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATED, name));
         }
     }
 }

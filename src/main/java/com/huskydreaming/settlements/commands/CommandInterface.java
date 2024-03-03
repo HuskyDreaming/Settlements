@@ -16,10 +16,6 @@ public interface CommandInterface {
         return getClass().getAnnotation(Command.class).arguments();
     }
 
-    default boolean requiresPermissions() {
-        return getClass().getAnnotation(Command.class).requiresPermissions();
-    }
-
     default boolean isDebug() {
         return getClass().getAnnotation(Command.class).debug();
     }

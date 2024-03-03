@@ -1,11 +1,12 @@
 package com.huskydreaming.settlements.inventories.providers;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
+import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.ChatColor;
@@ -19,16 +20,23 @@ import java.util.List;
 
 public class RolesInventory extends InventoryPageProvider<Role> {
 
+    private final SettlementPlugin plugin;
     private final InventoryService inventoryService;
+    private final SettlementService settlementService;
     private final RoleService roleService;
+    private final String settlementName;
 
-    public RolesInventory(Settlement settlement, int rows) {
-        super(settlement, rows, null);
-        inventoryService = ServiceProvider.Provide(InventoryService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
+    public RolesInventory(SettlementPlugin plugin, String settlementName, int rows) {
+        super(rows, null);
+        this.plugin = plugin;
 
-        this.array = roleService.getRoles(settlement).toArray(new Role[0]);
-        this.smartInventory = inventoryService.getSettlementInventory(settlement);
+        inventoryService = plugin.provide(InventoryService.class);
+        settlementService = plugin.provide(SettlementService.class);
+        roleService = plugin.provide(RoleService.class);
+
+        this.settlementName = settlementName;
+        this.array = roleService.getRoles(settlementName).toArray(new Role[0]);
+        this.smartInventory = inventoryService.getSettlementInventory(plugin, settlementName);
     }
 
     @Override
@@ -38,6 +46,7 @@ public class RolesInventory extends InventoryPageProvider<Role> {
 
     @Override
     public ItemStack construct(int index, Role role) {
+        Settlement settlement = settlementService.getSettlement(settlementName);
         boolean isDefault = settlement.getDefaultRole().equalsIgnoreCase(role.getName());
 
         Material material = isDefault ? Material.BOOK : Material.PAPER;
@@ -58,10 +67,10 @@ public class RolesInventory extends InventoryPageProvider<Role> {
     public void run(InventoryClickEvent event, Role role, InventoryContents contents) {
         if (event.getWhoClicked() instanceof Player player) {
             if(event.isLeftClick()) {
-                inventoryService.getRoleInventory(settlement, role).open(player);
+                inventoryService.getRoleInventory(plugin, settlementName, role).open(player);
             } else if(event.isRightClick()) {
-                List<Role> roles = roleService.getRoles(settlement);
-                int index = roleService.getIndex(settlement, role.getName());
+                List<Role> roles = roleService.getRoles(settlementName);
+                int index = roleService.getIndex(settlementName, role.getName());
                 if(index < roles.size() - 1) Collections.swap(roles, index, index + 1);
                 contents.inventory().open(player);
             }

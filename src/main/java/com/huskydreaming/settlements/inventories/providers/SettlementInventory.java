@@ -1,12 +1,12 @@
 package com.huskydreaming.settlements.inventories.providers;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.inventories.InventoryAction;
 import com.huskydreaming.settlements.inventories.InventoryItem;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
@@ -21,28 +21,33 @@ import org.bukkit.inventory.ItemStack;
 
 public class SettlementInventory implements InventoryProvider {
 
+    private final SettlementPlugin plugin;
     private final MemberService memberService;
     private final ClaimService claimService;
     private final InventoryService inventoryService;
 
     private final RoleService roleService;
+    private final SettlementService settlementService;
+    private final String settlementName;
 
-    private final Settlement settlement;
+    public SettlementInventory(SettlementPlugin plugin, String settlementName) {
+        this.plugin = plugin;
 
-    public SettlementInventory(Settlement settlement) {
-        claimService = ServiceProvider.Provide(ClaimService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
-        inventoryService = ServiceProvider.Provide(InventoryService.class);
+        claimService = plugin.provide(ClaimService.class);
+        memberService = plugin.provide(MemberService.class);
+        roleService = plugin.provide(RoleService.class);
+        inventoryService = plugin.provide(InventoryService.class);
+        settlementService = plugin.provide(SettlementService.class);
 
-        this.settlement = settlement;
+        this.settlementName = settlementName;
     }
 
     @Override
     public void init(Player player, InventoryContents contents) {
 
         Member member = memberService.getCitizen(player);
-        Role role = roleService.getRole(settlement, member);
+        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Role role = roleService.getRole(member);
 
         contents.fillBorders(InventoryItem.border());
 
@@ -67,7 +72,7 @@ public class SettlementInventory implements InventoryProvider {
                 .build();
 
         boolean permission = role.hasPermission(RolePermission.EDIT_CITIZENS) || settlement.isOwner(player);
-        return InventoryItem.of(permission, itemStack, e -> inventoryService.getCitizensInventory(settlement).open(player));
+        return InventoryItem.of(permission, itemStack, e -> inventoryService.getCitizensInventory(plugin, settlementName).open(player));
     }
 
     private ClickableItem roleItem(Player player, Settlement settlement, Role role) {
@@ -78,7 +83,7 @@ public class SettlementInventory implements InventoryProvider {
                 .build();
 
         boolean permission = role.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player);
-        return InventoryItem.of(permission, itemStack, e -> inventoryService.getRolesInventory(settlement).open(player));
+        return InventoryItem.of(permission, itemStack, e -> inventoryService.getRolesInventory(plugin, settlementName).open(player));
     }
 
 
@@ -90,13 +95,13 @@ public class SettlementInventory implements InventoryProvider {
                 .build();
 
         boolean permission = role.hasPermission(RolePermission.EDIT_LAND) || settlement.isOwner(player);
-        return InventoryItem.of(permission, itemStack, e -> inventoryService.getClaimsInventory(settlement).open(player));
+        return InventoryItem.of(permission, itemStack, e -> inventoryService.getClaimsInventory(plugin, settlementName).open(player));
     }
 
     private ClickableItem info(Settlement settlement) {
-        int roles = roleService.getRoles(settlement).size();
-        int claims = claimService.getChunks(settlement).size();
-        int members = memberService.getMembers(settlement).size();
+        int roles = roleService.getRoles(settlementName).size();
+        int claims = claimService.getChunks(settlementName).size();
+        int members = memberService.getMembers(settlementName).size();
 
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(Menu.SETTLEMENT_INFO_TITLE.parse())
@@ -137,6 +142,6 @@ public class SettlementInventory implements InventoryProvider {
                 .setMaterial(Material.TNT_MINECART)
                 .build();
 
-        return InventoryItem.of(settlement.isOwner(player), itemStack, e -> inventoryService.getConfirmationInventory(settlement, InventoryAction.DISBAND).open(player));
+        return InventoryItem.of(settlement.isOwner(player), itemStack, e -> inventoryService.getConfirmationInventory(plugin, settlementName, InventoryAction.DISBAND).open(player));
     }
 }

@@ -15,6 +15,7 @@ public enum CommandLabel {
     KICK,
     LEAVE,
     LIST,
+    RELOAD,
     SETDESCRIPTION,
     SETOWNER,
     SETSPAWN,

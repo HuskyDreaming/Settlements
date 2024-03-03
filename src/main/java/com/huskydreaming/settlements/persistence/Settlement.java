@@ -23,13 +23,12 @@ public class Settlement {
     private int maxCitizens;
     private int maxRoles;
 
-    public static Settlement create(Player player, String name) {
-        return new Settlement(player, name);
+    public static Settlement create(Player player) {
+        return new Settlement(player);
     }
 
-    public Settlement(Player player, String name) {
+    public Settlement(Player player) {
         this.owner = player.getUniqueId();
-        this.name = name;
         this.maxCitizens = 10;
         this.maxLand = 15;
         this.maxRoles = 5;
@@ -39,10 +38,6 @@ public class Settlement {
 
     public void setOwner(OfflinePlayer offlinePlayer) {
         this.owner = offlinePlayer.getUniqueId();
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public void setTag(String tag) {
@@ -81,13 +76,8 @@ public class Settlement {
         return owner.equals(offlinePlayer.getUniqueId());
     }
 
-
     public Location getLocation() {
         return location;
-    }
-
-    public String getName() {
-        return name;
     }
 
     public String getDescription() {
@@ -124,5 +114,10 @@ public class Settlement {
 
     public String getTag() {
         return tag;
+    }
+
+    @Deprecated
+    public String getName() {
+        return name;
     }
 }

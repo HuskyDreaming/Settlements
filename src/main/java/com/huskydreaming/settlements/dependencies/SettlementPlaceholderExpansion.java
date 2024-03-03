@@ -1,9 +1,9 @@
 package com.huskydreaming.settlements.dependencies;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.enumerations.Placeholder;
 import com.huskydreaming.settlements.utilities.Remote;
@@ -20,7 +20,7 @@ import java.util.List;
 
 public class SettlementPlaceholderExpansion extends PlaceholderExpansion {
 
-    private final JavaPlugin plugin;
+    private final SettlementPlugin plugin;
     private final ClaimService claimService;
     private final MemberService memberService;
     private final RoleService roleService;
@@ -28,15 +28,15 @@ public class SettlementPlaceholderExpansion extends PlaceholderExpansion {
 
     private final String defaultString;
 
-    public SettlementPlaceholderExpansion(JavaPlugin plugin) {
+    public SettlementPlaceholderExpansion(SettlementPlugin plugin) {
         this.plugin = plugin;
 
-        ConfigService configService = ServiceProvider.Provide(ConfigService.class);
+        ConfigService configService = plugin.provide(ConfigService.class);
         defaultString = configService.deserializeEmptyPlaceholder(plugin);
-        claimService = ServiceProvider.Provide(ClaimService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+        claimService = plugin.provide(ClaimService.class);
+        memberService = plugin.provide(MemberService.class);
+        roleService = plugin.provide(RoleService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override
@@ -75,22 +75,19 @@ public class SettlementPlaceholderExpansion extends PlaceholderExpansion {
 
         if(Placeholder.CLAIMS_COUNT.isPlaceholder(params) && memberService.hasSettlement(player)) {
             Member member = memberService.getCitizen(player);
-            Settlement settlement = settlementService.getSettlement(member.getSettlement());
-            Collection<Chunk> chunks = claimService.getChunks(settlement);
+            Collection<Chunk> chunks = claimService.getChunks(member.getSettlement());
             return String.valueOf(chunks.size());
         }
 
         if(Placeholder.ROLES_COUNT.isPlaceholder(params) && memberService.hasSettlement(player)) {
             Member member = memberService.getCitizen(player);
-            Settlement settlement = settlementService.getSettlement(member.getSettlement());
-            List<Role> roles = roleService.getRoles(settlement);
+            List<Role> roles = roleService.getRoles(member.getSettlement());
             return String.valueOf(roles.size());
         }
 
         if(Placeholder.MEMBERS_COUNT.isPlaceholder(params) && memberService.hasSettlement(player)) {
             Member member = memberService.getCitizen(player);
-            Settlement settlement = settlementService.getSettlement(member.getSettlement());
-            List<Member> members = memberService.getMembers(settlement);
+            List<Member> members = memberService.getMembers(member.getSettlement());
             return String.valueOf(members.size());
         }
 
@@ -118,7 +115,15 @@ public class SettlementPlaceholderExpansion extends PlaceholderExpansion {
                 int number = Integer.parseInt(split[2]);
                 if(memberService.getCount() < number) return defaultString;
                 LinkedHashMap<String, Long> map = memberService.getTop(number);
-                return map.lastEntry().getKey();
+
+                if(map.isEmpty()) return defaultString;
+
+                String last = null;
+                for(String key : map.keySet()){
+                    last = key;
+                }
+
+                return last;
             }
         }
 
@@ -128,7 +133,15 @@ public class SettlementPlaceholderExpansion extends PlaceholderExpansion {
                 int number = Integer.parseInt(split[2]);
                 if(claimService.getCount() < number) return defaultString;
                 LinkedHashMap<String, Long> map = claimService.getTop(number);
-                return map.lastEntry().getKey();
+
+                if(map.isEmpty()) return defaultString;
+
+                String last = null;
+                for(String key : map.keySet()){
+                    last = key;
+                }
+
+                return last;
             }
         }
         return defaultString;

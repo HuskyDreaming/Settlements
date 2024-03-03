@@ -13,21 +13,21 @@ public interface MemberService extends ServiceInterface {
 
     boolean hasSettlement(OfflinePlayer offlinePlayer);
 
-    void add(OfflinePlayer offlinePlayer, Settlement settlement);
+    void add(OfflinePlayer offlinePlayer, String name, String defaultRole);
 
     void remove(OfflinePlayer offlinePlayer);
 
-    void clean(Settlement settlement);
+    void clean(String settlementName);
 
     int getCount();
 
     Member getCitizen(OfflinePlayer offlinePlayer);
 
-    List<Member> getMembers(Settlement settlement);
+    List<Member> getMembers(String settlementName);
 
     LinkedHashMap<String, Long> getTop(int limit);
 
-    List<OfflinePlayer> getOfflinePlayers(Settlement settlement);
+    List<OfflinePlayer> getOfflinePlayers(String settlementName);
 
-    void sync(Settlement settlement, Role role);
+    void sync(String settlementName, String defaultRole, Role role);
 }

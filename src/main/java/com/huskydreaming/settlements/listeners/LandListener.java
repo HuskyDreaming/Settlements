@@ -1,10 +1,10 @@
 package com.huskydreaming.settlements.listeners;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
@@ -33,13 +33,13 @@ public class LandListener implements Listener {
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public LandListener() {
-        borderService = ServiceProvider.Provide(BorderService.class);
-        claimService = ServiceProvider.Provide(ClaimService.class);
-        dependencyService = ServiceProvider.Provide(DependencyService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+    public LandListener(SettlementPlugin plugin) {
+        borderService = plugin.provide(BorderService.class);
+        claimService = plugin.provide(ClaimService.class);
+        dependencyService = plugin.provide(DependencyService.class);
+        memberService = plugin.provide(MemberService.class);
+        roleService = plugin.provide(RoleService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @EventHandler
@@ -134,13 +134,13 @@ public class LandListener implements Listener {
         }
 
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
-        Collection<Chunk> chunks = claimService.getChunks(settlement);
+        Collection<Chunk> chunks = claimService.getChunks(member.getSettlement());
         if (chunks.size() >= settlement.getMaxLand()) {
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_AUTO_CLAIM_OFF_MAX_LAND));
             member.setAutoClaim(false);
             return false;
         }
-        claimService.setClaim(chunk, settlement);
+        claimService.setClaim(chunk, member.getSettlement());
 
         borderService.removePlayer(player);
         borderService.addPlayer(player, member.getSettlement(), Color.AQUA);
@@ -168,7 +168,7 @@ public class LandListener implements Listener {
 
             if (memberSettlement.equalsIgnoreCase(currentSettlement)) {
                 Settlement settlement = settlementService.getSettlement(memberSettlement);
-                Role role = roleService.getRole(settlement, member);
+                Role role = roleService.getRole(member);
                 return !role.hasPermission(rolePermission) && !settlement.isOwner(player);
             }
         }

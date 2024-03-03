@@ -1,9 +1,8 @@
-package com.huskydreaming.settlements.services.implementations;
+package com.huskydreaming.settlements.services.providers;
 
 import com.google.gson.reflect.TypeToken;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.storage.types.Json;
@@ -25,8 +24,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void add(OfflinePlayer offlinePlayer, Settlement settlement) {
-        members.put(offlinePlayer.getUniqueId(), Member.create(settlement, settlement.getDefaultRole()));
+    public void add(OfflinePlayer offlinePlayer, String name, String defaultRole) {
+        members.put(offlinePlayer.getUniqueId(), Member.create(name, defaultRole));
     }
 
     @Override
@@ -35,8 +34,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public void clean(Settlement settlement) {
-        members.values().removeIf(member -> member.getSettlement().equalsIgnoreCase(settlement.getName()));
+    public void clean(String settlementName) {
+        members.values().removeIf(member -> member.getSettlement().equalsIgnoreCase(settlementName));
     }
 
     @Override
@@ -50,9 +49,9 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public List<Member> getMembers(Settlement settlement) {
+    public List<Member> getMembers(String settlementName) {
         return members.values().stream()
-                .filter(member -> member.getSettlement().equalsIgnoreCase(settlement.getName()))
+                .filter(member -> member.getSettlement().equalsIgnoreCase(settlementName))
                 .collect(Collectors.toList());
     }
 
@@ -67,18 +66,18 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
-    public List<OfflinePlayer> getOfflinePlayers(Settlement settlement) {
+    public List<OfflinePlayer> getOfflinePlayers(String settlementName) {
         return members.entrySet().stream()
-                .filter(entry -> entry.getValue().getSettlement().equalsIgnoreCase(settlement.getName()))
+                .filter(entry -> entry.getValue().getSettlement().equalsIgnoreCase(settlementName))
                 .map(entry -> Bukkit.getOfflinePlayer(entry.getKey()))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public void sync(Settlement settlement, Role role) {
-        for(Member member : getMembers(settlement)) {
+    public void sync(String settlementName, String defaultRole, Role role) {
+        for(Member member : getMembers(settlementName)) {
             if(member.getRole().equalsIgnoreCase(role.getName())) {
-                member.setRole(settlement.getDefaultRole());
+                member.setRole(defaultRole);
             }
         }
     }
@@ -86,6 +85,7 @@ public class MemberServiceImpl implements MemberService {
     @Override
     public void serialize(SettlementPlugin plugin) {
         Json.write(plugin, "data/members", members);
+        plugin.getLogger().info("Saved " + members.size() + " members(s).");
     }
 
     @Override

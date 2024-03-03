@@ -1,11 +1,9 @@
-package com.huskydreaming.settlements.services.implementations;
+package com.huskydreaming.settlements.services.providers;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.gson.reflect.TypeToken;
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.ClaimService;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.storage.types.Json;
@@ -24,13 +22,13 @@ public class ClaimServiceImpl implements ClaimService {
     private Map<String, String> claims = new ConcurrentHashMap<>();
     private List<String> disabledWorlds;
 
-    public ClaimServiceImpl() {
-        configService = ServiceProvider.Provide(ConfigService.class);
+    public ClaimServiceImpl(SettlementPlugin settlementPlugin) {
+        configService = settlementPlugin.provide(ConfigService.class);
     }
 
     @Override
-    public void setClaim(Chunk chunk, Settlement settlement) {
-        claims.put(parse(chunk), settlement.getName());
+    public void setClaim(Chunk chunk, String name) {
+        claims.put(parse(chunk), name);
     }
 
     @Override
@@ -39,8 +37,8 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public void clean(Settlement settlement) {
-        getChunksAsStrings(settlement).forEach(s -> claims.remove(s));
+    public void clean(String name) {
+        getChunksAsStrings(name).forEach(s -> claims.remove(s));
     }
 
     @Override
@@ -69,21 +67,21 @@ public class ClaimServiceImpl implements ClaimService {
     }
 
     @Override
-    public Collection<String> getChunksAsStrings(Settlement settlement) {
+    public Collection<String> getChunksAsStrings(String name) {
         Multimap<String, String> multiMap = HashMultimap.create();
         for(Map.Entry<String, String> entry : claims.entrySet()) {
             multiMap.put(entry.getValue(), entry.getKey());
         }
-        return multiMap.get(settlement.getName());
+        return multiMap.get(name);
     }
 
     @Override
-    public Collection<Chunk> getChunks(Settlement settlement) {
+    public Collection<Chunk> getChunks(String name) {
         Multimap<String, Chunk> multiMap = HashMultimap.create();
         for(Map.Entry<String, String> entry : claims.entrySet()) {
             multiMap.put(entry.getValue(), serialize(entry.getKey()));
         }
-        return multiMap.get(settlement.getName());
+        return multiMap.get(name);
     }
 
     @Override
@@ -95,6 +93,7 @@ public class ClaimServiceImpl implements ClaimService {
     @Override
     public void serialize(SettlementPlugin plugin) {
         Json.write(plugin, "data/claims", claims);
+        plugin.getLogger().info("Saved " + claims.size() + " claim(s).");
     }
 
     @Override

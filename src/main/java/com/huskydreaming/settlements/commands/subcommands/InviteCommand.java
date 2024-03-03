@@ -1,5 +1,6 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -7,7 +8,6 @@ import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.InvitationService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
@@ -25,11 +25,11 @@ public class InviteCommand implements CommandInterface {
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public InviteCommand() {
-        memberService = ServiceProvider.Provide(MemberService.class);
-        invitationService = ServiceProvider.Provide(InvitationService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+    public InviteCommand(SettlementPlugin plugin) {
+        memberService = plugin.provide(MemberService.class);
+        invitationService = plugin.provide(InvitationService.class);
+        roleService = plugin.provide(RoleService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override
@@ -59,14 +59,14 @@ public class InviteCommand implements CommandInterface {
 
             Member member = memberService.getCitizen(player);
             Settlement settlement = settlementService.getSettlement(member.getSettlement());
-            Role role = roleService.getRole(settlement, member);
+            Role role = roleService.getRole(member);
 
             if (!(role.hasPermission(RolePermission.MEMBER_INVITE) || settlement.isOwner(player))) {
                 player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS, RolePermission.MEMBER_INVITE.getName()));
                 return;
             }
 
-            invitationService.sendInvitation(target, settlement);
+            invitationService.sendInvitation(target, member.getSettlement());
             player.sendMessage(Remote.prefix(Locale.INVITATION_SENT, target.getName()));
         }
     }

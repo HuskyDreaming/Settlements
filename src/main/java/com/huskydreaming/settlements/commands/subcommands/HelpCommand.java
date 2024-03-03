@@ -1,9 +1,10 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
-import com.huskydreaming.settlements.commands.CommandExecutor;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
+import com.huskydreaming.settlements.registries.CommandRegistry;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -18,10 +19,10 @@ import java.util.Set;
 @Command(label = CommandLabel.HELP, arguments = " [page]")
 public class HelpCommand implements CommandInterface {
 
-    private final CommandExecutor commandExecutor;
+    private final CommandRegistry commandRegistry;
 
-    public HelpCommand(CommandExecutor commandExecutor) {
-        this.commandExecutor = commandExecutor;
+    public HelpCommand(SettlementPlugin plugin) {
+        commandRegistry = plugin.getCommandRegistry();
     }
 
     @Override
@@ -33,7 +34,7 @@ public class HelpCommand implements CommandInterface {
             if (strings[1].equals("0")) index = 1;
         }
 
-        Set<CommandInterface> commandInterfaces = commandExecutor.getSubCommands();
+        Set<CommandInterface> commandInterfaces = commandRegistry.getCommands();
         int page = (int) Math.ceil((double) commandInterfaces.size() / 6);
 
         if (index > page) {

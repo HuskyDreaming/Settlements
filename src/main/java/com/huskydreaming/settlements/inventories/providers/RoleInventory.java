@@ -1,13 +1,15 @@
 package com.huskydreaming.settlements.inventories.providers;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
+import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
+import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.storage.enumerations.Menu;
@@ -22,28 +24,38 @@ import org.bukkit.inventory.ItemStack;
 
 public class RoleInventory extends InventoryPageProvider<RolePermission> {
 
+    private final SettlementPlugin plugin;
     private final InventoryService inventoryService;
     private final MemberService memberService;
+    private final SettlementService settlementService;
     private final RoleService roleService;
-    private final Settlement settlement;
     private final Role role;
 
-    public RoleInventory(Settlement settlement, int rows, Role role) {
-        super(settlement, rows, RolePermission.values());
-        inventoryService = ServiceProvider.Provide(InventoryService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
+    private final String settlementName;
 
-        this.smartInventory = inventoryService.getRolesInventory(settlement);
-        this.settlement = settlement;
+    public RoleInventory(SettlementPlugin plugin, String settlementName, int rows, Role role) {
+        super(rows, RolePermission.values());
+        this.plugin = plugin;
+
+        inventoryService = plugin.provide(InventoryService.class);
+        memberService = plugin.provide(MemberService.class);
+        settlementService = plugin.provide(SettlementService.class);
+        roleService = plugin.provide(RoleService.class);
+
         this.role = role;
+        this.settlementName = settlementName;
+        this.smartInventory = inventoryService.getRolesInventory(plugin, settlementName);
     }
 
     @Override
     public void init(Player player, InventoryContents contents) {
         super.init(player, contents);
-        contents.set(0, 1, defaultItem(player));
-        contents.set(0, 2, deleteItem(player));
+
+        Member member = memberService.getCitizen(player);
+        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+
+        contents.set(0, 1, defaultItem(player, settlement));
+        contents.set(0, 2, deleteItem(player, settlement));
     }
 
     @Override
@@ -76,35 +88,35 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
         }
     }
 
-    private ClickableItem deleteItem(Player player) {
+    private ClickableItem deleteItem(Player player, Settlement settlement) {
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.ROLE_DELETE_TITLE.parse())
                 .setLore(Menu.ROLE_DELETE_LORE.parseList())
                 .setMaterial(Material.TNT_MINECART)
                 .build(), e -> {
-            if(roleService.getRoles(settlement).size() > 1) {
+            if(roleService.getRoles(settlementName).size() > 1) {
                 if(settlement.getDefaultRole().equalsIgnoreCase(role.getName())) {
-                    Role defaultRole = roleService.getOtherRole(settlement, role.getName());
+                    Role defaultRole = roleService.getOtherRole(settlementName, role.getName());
                     settlement.setDefaultRole(defaultRole.getName());
                 }
 
-                memberService.sync(settlement, role);
-                roleService.remove(settlement, role);
-                inventoryService.getRolesInventory(settlement).open(player);
+                memberService.sync(settlementName, settlement.getDefaultRole(), role);
+                roleService.remove(settlementName, role);
+                inventoryService.getRolesInventory(plugin, settlementName).open(player);
             } else {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_ROLE_ONE));
             }
         });
     }
 
-    private ClickableItem defaultItem(Player player) {
+    private ClickableItem defaultItem(Player player, Settlement settlement) {
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.ROLE_DEFAULT_TITLE.parse())
                 .setLore(Menu.ROLE_DEFAULT_LORE.parseList())
                 .setMaterial(Material.DIAMOND)
                 .build(), e-> {
             settlement.setDefaultRole(role.getName());
-            inventoryService.getRolesInventory(settlement).open(player);
+            inventoryService.getRolesInventory(plugin, settlementName).open(player);
         });
     }
 }

@@ -1,10 +1,9 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.ClaimService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
@@ -16,17 +15,17 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-@Command(label = CommandLabel.ADMIN, requiresPermissions = true)
+@Command(label = CommandLabel.ADMIN)
 public class AdminCommand implements CommandInterface {
 
     private final ClaimService claimService;
     private final MemberService memberService;
     private final SettlementService settlementService;
 
-    public AdminCommand() {
-        claimService = ServiceProvider.Provide(ClaimService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+    public AdminCommand(SettlementPlugin plugin) {
+        claimService = plugin.provide(ClaimService.class);
+        memberService = plugin.provide(MemberService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override
@@ -60,10 +59,9 @@ public class AdminCommand implements CommandInterface {
     private void sendClaim(Player player, String string) {
         Chunk chunk = player.getLocation().getChunk();
         if(settlementService.isSettlement(string)) {
-            Settlement settlement = settlementService.getSettlement(string);
 
             boolean isAdjacent = false;
-            for(Chunk c : claimService.getChunks(settlement)) {
+            for(Chunk c : claimService.getChunks(string)) {
                 if (Remote.areAdjacentChunks(chunk, c)) isAdjacent = true;
             }
 
@@ -72,7 +70,7 @@ public class AdminCommand implements CommandInterface {
                 String z = String.valueOf(chunk.getZ());
 
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_CLAIM, x, z));
-                claimService.setClaim(chunk, settlement);
+                claimService.setClaim(chunk, string);
             } else {
                 player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_ADJACENT));
             }
@@ -90,8 +88,7 @@ public class AdminCommand implements CommandInterface {
             return;
         }
 
-        Settlement settlement = settlementService.getSettlement(claimService.getClaim(chunk));
-        if(claimService.getChunks(settlement).size() == 1) {
+        if(claimService.getChunks(claimService.getClaim(chunk)).size() == 1) {
             player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_UNCLAIM_ONE));
         } else {
             claimService.removeClaim(chunk);
@@ -105,11 +102,9 @@ public class AdminCommand implements CommandInterface {
             return;
         }
 
-        Settlement settlement = settlementService.getSettlement(string);
-
-        claimService.clean(settlement);
-        memberService.clean(settlement);
-        settlementService.disbandSettlement(settlement);
+        claimService.clean(string);
+        memberService.clean(string);
+        settlementService.disbandSettlement(string);
 
         player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DISBAND));
     }

@@ -17,15 +17,8 @@ import java.util.function.Consumer;
 public abstract class InventoryPageProvider<E> implements InventoryProvider {
 
     protected SmartInventory smartInventory;
-    protected Settlement settlement;
     protected final int rows;
     protected E[] array;
-
-    public InventoryPageProvider(Settlement settlement, int rows, E[] array) {
-        this.settlement = settlement;
-        this.rows = rows;
-        this.array = array;
-    }
 
     public InventoryPageProvider(int rows, E[] array) {
         this.rows = rows;

@@ -1,8 +1,7 @@
 package com.huskydreaming.settlements.inventories.providers;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.inventories.InventoryPageProvider;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
@@ -16,10 +15,10 @@ import org.bukkit.inventory.ItemStack;
 
 public class ClaimsInventory extends InventoryPageProvider<String> {
 
-    public ClaimsInventory(Settlement settlement, int rows, String[] chunks) {
-        super(settlement, rows, chunks);
-        InventoryService inventoryService = ServiceProvider.Provide(InventoryService.class);
-        this.smartInventory =  inventoryService.getSettlementInventory(settlement);
+    public ClaimsInventory(SettlementPlugin plugin, String name, int rows, String[] chunks) {
+        super(rows, chunks);
+        InventoryService inventoryService = plugin.provide(InventoryService.class);
+        this.smartInventory =  inventoryService.getSettlementInventory(plugin, name);
     }
 
     @Override

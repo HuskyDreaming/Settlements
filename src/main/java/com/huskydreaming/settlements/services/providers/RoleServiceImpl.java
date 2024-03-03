@@ -1,11 +1,10 @@
-package com.huskydreaming.settlements.services.implementations;
+package com.huskydreaming.settlements.services.providers;
 
 import com.google.gson.reflect.TypeToken;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.storage.types.Json;
@@ -21,19 +20,21 @@ public class RoleServiceImpl implements RoleService {
     private Map<String, List<Role>> roles = new HashMap<>();
     private List<Role> defaultRoles;
 
-    public RoleServiceImpl() {
-        configService = ServiceProvider.Provide(ConfigService.class);
+    public RoleServiceImpl(SettlementPlugin plugin) {
+        configService = plugin.provide(ConfigService.class);
     }
 
     @Override
     public void serialize(SettlementPlugin plugin) {
         Json.write(plugin, "data/roles", roles);
+        plugin.getLogger().info("Saved " + roles.size() + " roles(s).");
     }
 
     @Override
     public void deserialize(SettlementPlugin plugin) {
         Type type = new TypeToken<Map<String, List<Role>>>() {}.getType();
         roles = Json.read(plugin, "data/roles", type);
+
         if (roles == null) roles = new ConcurrentHashMap<>();
 
         int rolesSize = roles.size();
@@ -46,77 +47,58 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void clean(Settlement settlement) {
-        roles.remove(settlement.getName());
+    public void clean(String settlementName) {
+        roles.remove(settlementName);
     }
 
     @Override
-    public void setup(Settlement settlement) {
-        this.roles.put(settlement.getName(), defaultRoles);
+    public void setup(String settlementName, Settlement settlement) {
+        this.roles.put(settlementName, defaultRoles);
         settlement.setDefaultRole(defaultRoles.stream().findFirst().map(Role::getName).orElse(null));
     }
 
     @Override
-    public List<Role> getRoles(Settlement settlement) {
-        return roles.get(settlement.getName());
+    public List<Role> getRoles(String settlementName) {
+        return roles.get(settlementName);
     }
 
     @Override
-    public Role getRole(Settlement settlement, Member member) {
-        if(!hasRole(settlement, member.getRole()) || member.getRole() == null) {
-            Role defaultRole = getDefaultRole(settlement);
-            List<Role> roles = getRoles(settlement);
-            if(defaultRole == null) {
-                settlement.setDefaultRole(roles.stream().map(Role::getName).findFirst().orElse(null));
-            }
-
-            member.setRole(settlement.getDefaultRole());
-        }
-
-        return roles.get(settlement.getName()).stream()
+    public Role getRole(Member member) {
+        return roles.get(member.getSettlement()).stream()
                 .filter(role -> role.getName().equalsIgnoreCase(member.getRole()))
                 .findFirst()
                 .orElse(null);
     }
 
     @Override
-    public Role getRole(Settlement settlement, String name) {
-        return roles.get(settlement.getName()).stream()
+    public Role getRole(String settlementName, String name) {
+        return roles.get(settlementName).stream()
                 .filter(role -> role.getName().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
     }
 
     @Override
-    public Role getDefaultRole(Settlement settlement) {
-        return roles.get(settlement.getName()).stream()
-                .filter(role -> role.getName().equalsIgnoreCase(settlement.getDefaultRole()))
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public Role getOtherRole(Settlement settlement, String name) {
-        return roles.get(settlement.getName()).stream()
+    public Role getOtherRole(String settlementName, String name) {
+        return roles.get(settlementName).stream()
                 .filter(role -> !role.getName().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
     }
 
     @Override
-    public void remove(Settlement settlement, Role role) {
-        roles.get(settlement.getName()).removeIf(r -> r.getName().equalsIgnoreCase(role.getName()));
+    public void remove(String settlementName, Role role) {
+        roles.get(settlementName).removeIf(r -> r.getName().equalsIgnoreCase(role.getName()));
     }
 
     @Override
-    public void add(Settlement settlement, String name) {
-        roles.get(settlement.getName()).add(Role.create(name));
+    public void add(String settlementName, String name) {
+        roles.get(settlementName).add(Role.create(name));
     }
 
     @Override
-    public boolean promote(Settlement settlement, Member member) {
-        List<Role> list = roles.get(settlement.getName());
-        Role role = sync(list, settlement, member);
+    public boolean promote(String settlementName, Role role, Member member) {
+        List<Role> list = roles.get(settlementName);
         int index = list.indexOf(role);
         if(index < list.size() - 1) {
             role = list.get(index + 1);
@@ -129,9 +111,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public boolean demote(Settlement settlement, Member member) {
-        List<Role> list = roles.get(settlement.getName());
-        Role role = sync(list, settlement, member);
+    public boolean demote(String settlementName, Role role, Member member) {
+        List<Role> list = roles.get(settlementName);
         int index = list.indexOf(role);
         if(index >= 1) {
             role = list.get(index - 1);
@@ -144,30 +125,31 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public boolean hasRole(Settlement settlement, String name) {
-        return roles.get(settlement.getName()).stream().anyMatch(role -> role.getName().equalsIgnoreCase(name));
+    public boolean hasRole(String settlementName, String name) {
+        return roles.get(settlementName).stream().anyMatch(role -> role.getName().equalsIgnoreCase(name));
     }
 
     @Override
-    public int getIndex(Settlement settlement, Member member) {
-        Role role = getRole(settlement, member);
-        return roles.get(settlement.getName()).indexOf(role) + 1;
+    public int getIndex(String settlementName, Member member) {
+        Role role = getRole(member);
+        return roles.get(settlementName).indexOf(role) + 1;
     }
 
     @Override
-    public int getIndex(Settlement settlement, String name) {
-        Role finalRole = roles.get(settlement.getName()).stream()
+    public int getIndex(String settlementName, String name) {
+        Role finalRole = roles.get(settlementName).stream()
                 .filter(role -> role.getName().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
 
-        return roles.get(settlement.getName()).indexOf(finalRole);
+        return roles.get(settlementName).indexOf(finalRole);
     }
 
     @Override
-    public Role sync(List<Role> roles, Settlement settlement, Member member) {
+    public Role sync(Member member, String defaultRole) {
+        List<Role> roles = getRoles(member.getSettlement());
         if(roles.stream().noneMatch(role -> role.getName().equalsIgnoreCase(member.getRole()))) {
-            member.setRole(settlement.getDefaultRole());
+            member.setRole(defaultRole);
         }
         return roles.stream()
                 .filter(role -> role.getName().equalsIgnoreCase(member.getRole()))

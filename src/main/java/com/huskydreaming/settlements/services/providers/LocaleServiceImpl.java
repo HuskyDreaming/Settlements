@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services.implementations;
+package com.huskydreaming.settlements.services.providers;
 
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.services.interfaces.LocaleService;
@@ -8,10 +8,14 @@ import com.huskydreaming.settlements.storage.enumerations.Menu;
 
 public class LocaleServiceImpl implements LocaleService {
 
+    private Yaml locale;
+    private Yaml menu;
+
     @Override
     public void deserialize(SettlementPlugin plugin) {
+
         // Localization for general messages
-        Yaml locale = new Yaml("localisation/locale");
+        locale = new Yaml("localisation/locale");
         locale.load(plugin);
         Locale.setConfiguration(locale.getConfiguration());
 
@@ -21,7 +25,7 @@ public class LocaleServiceImpl implements LocaleService {
         locale.save();
 
         // Localization for menus
-        Yaml menu = new Yaml("localisation/menu");
+        menu = new Yaml("localisation/menu");
         menu.load(plugin);
         Menu.setConfiguration(menu.getConfiguration());
 
@@ -29,5 +33,15 @@ public class LocaleServiceImpl implements LocaleService {
             menu.getConfiguration().set(message.toString(), message.parseList() != null ? message.parseList() : message.parse());
         }
         menu.save();
+    }
+
+    @Override
+    public Yaml getLocale() {
+        return locale;
+    }
+
+    @Override
+    public Yaml getMenu() {
+        return menu;
     }
 }

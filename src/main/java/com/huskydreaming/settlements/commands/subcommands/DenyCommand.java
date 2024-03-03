@@ -1,10 +1,10 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.InvitationService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.utilities.Remote;
@@ -17,9 +17,9 @@ public class DenyCommand implements CommandInterface {
     private final InvitationService invitationService;
     private final SettlementService settlementService;
 
-    public DenyCommand() {
-        invitationService = ServiceProvider.Provide(InvitationService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+    public DenyCommand(SettlementPlugin plugin) {
+        invitationService = plugin.provide(InvitationService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override

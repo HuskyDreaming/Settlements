@@ -1,10 +1,10 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
@@ -24,12 +24,12 @@ public class AcceptCommand implements CommandInterface {
     private final InvitationService invitationService;
     private final SettlementService settlementService;
 
-    public AcceptCommand() {
-        borderService = ServiceProvider.Provide(BorderService.class);
-        claimService = ServiceProvider.Provide(ClaimService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        invitationService = ServiceProvider.Provide(InvitationService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+    public AcceptCommand(SettlementPlugin plugin) {
+        borderService = plugin.provide(BorderService.class);
+        claimService = plugin.provide(ClaimService.class);
+        memberService = plugin.provide(MemberService.class);
+        invitationService = plugin.provide(InvitationService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override
@@ -47,7 +47,7 @@ public class AcceptCommand implements CommandInterface {
                 return;
             }
 
-            List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(settlement);
+            List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(string);
             offlinePlayers.forEach(offlinePlayer ->  {
                 if(offlinePlayer.isOnline()) {
                     Player onlinePlayer = offlinePlayer.getPlayer();
@@ -56,13 +56,13 @@ public class AcceptCommand implements CommandInterface {
             });
 
             invitationService.removeInvitation(player, string);
-            memberService.add(player, settlement);
+            memberService.add(player, string, settlement.getDefaultRole());
             borderService.removePlayer(player);
 
             Chunk chunk = player.getLocation().getChunk();
             if(claimService.isClaim(chunk)) {
                 String claim = claimService.getClaim(player.getLocation().getChunk());
-                if(claim.equalsIgnoreCase(settlement.getName())) {
+                if(claim.equalsIgnoreCase(string)) {
                     borderService.addPlayer(player, claim, Color.AQUA);
                 } else {
                     borderService.addPlayer(player, claim, Color.RED);

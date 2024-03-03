@@ -1,11 +1,11 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.ServiceProvider;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.utilities.Remote;
@@ -20,12 +20,12 @@ public class DisbandCommand implements CommandInterface {
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public DisbandCommand() {
-        borderService = ServiceProvider.Provide(BorderService.class);
-        memberService = ServiceProvider.Provide(MemberService.class);
-        claimService = ServiceProvider.Provide(ClaimService.class);
-        roleService = ServiceProvider.Provide(RoleService.class);
-        settlementService = ServiceProvider.Provide(SettlementService.class);
+    public DisbandCommand(SettlementPlugin plugin) {
+        borderService = plugin.provide(BorderService.class);
+        memberService = plugin.provide(MemberService.class);
+        claimService = plugin.provide(ClaimService.class);
+        roleService = plugin.provide(RoleService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override
@@ -42,10 +42,10 @@ public class DisbandCommand implements CommandInterface {
             return;
         }
 
-        claimService.clean(settlement);
-        memberService.clean(settlement);
-        roleService.clean(settlement);
-        settlementService.disbandSettlement(settlement);
+        claimService.clean(member.getSettlement());
+        memberService.clean(member.getSettlement());
+        roleService.clean(member.getSettlement());
+        settlementService.disbandSettlement(member.getSettlement());
         borderService.removePlayer(player);
 
         player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DISBAND));

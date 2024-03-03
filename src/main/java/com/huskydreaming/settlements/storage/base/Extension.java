@@ -1,17 +1,11 @@
 package com.huskydreaming.settlements.storage.base;
 
 public enum Extension {
-    JSON(".json"),
-    YAML(".yml");
-
-    private final String string;
-
-    Extension(String string) {
-        this.string = string;
-    }
+    JSON,
+    YAML;
 
     @Override
     public String toString() {
-        return string;
+        return "." + name().toLowerCase();
     }
 }
