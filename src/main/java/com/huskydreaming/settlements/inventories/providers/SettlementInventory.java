@@ -11,7 +11,6 @@ import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.storage.enumerations.Menu;
-import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
@@ -99,19 +98,21 @@ public class SettlementInventory implements InventoryProvider {
     }
 
     private ClickableItem info(Settlement settlement) {
+
         int roles = roleService.getRoles(settlementName).size();
-        int claims = claimService.getChunks(settlementName).size();
+        int claims = claimService.getClaims(settlementName).size();
         int members = memberService.getMembers(settlementName).size();
 
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(Menu.SETTLEMENT_INFO_TITLE.parse())
-                .setLore(Remote.parameterizeList(Menu.SETTLEMENT_INFO_LORE,
+                .setLore(Menu.SETTLEMENT_INFO_LORE.parameterizeList(
                         settlement.getDescription(),
                         settlement.getOwnerName(),
                         members, settlement.getMaxCitizens(),
                         claims, settlement.getMaxLand(),
                         roles, settlement.getMaxRoles()
                 )).setMaterial(Material.CHEST).build();
+
         return ClickableItem.empty(itemStack);
     }
 
@@ -124,13 +125,13 @@ public class SettlementInventory implements InventoryProvider {
 
         boolean permission = role.hasPermission(RolePermission.EDIT_SPAWN) || settlement.isOwner(player);
         return InventoryItem.of(permission, itemStack, e -> {
-            if(e.isLeftClick()) {
+            if (e.isLeftClick()) {
                 player.closeInventory();
                 player.teleport(settlement.getLocation());
-            } else if(e.isRightClick()) {
+            } else if (e.isRightClick()) {
                 settlement.setLocation(player.getLocation());
                 player.closeInventory();
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_SET_SPAWN));
+                player.sendMessage(Locale.SETTLEMENT_SET_SPAWN.prefix());
             }
         });
     }

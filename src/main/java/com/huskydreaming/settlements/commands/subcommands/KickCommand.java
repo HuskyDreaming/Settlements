@@ -37,16 +37,16 @@ public class KickCommand implements CommandInterface {
 
     @Override
     public void run(Player player, String[] strings) {
-        if(strings.length == 2) {
+        if (strings.length == 2) {
             String string = strings[1];
             OfflinePlayer offlinePlayer = Remote.getOfflinePlayer(string);
             if (offlinePlayer == null) {
-                player.sendMessage(Remote.prefix(Locale.PLAYER_NULL, string));
+                player.sendMessage(Locale.PLAYER_NULL.prefix(string));
                 return;
             }
 
             if (!memberService.hasSettlement(player)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+                player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
                 return;
             }
 
@@ -55,25 +55,27 @@ public class KickCommand implements CommandInterface {
             Role role = roleService.getRole(member);
 
             if (!(role.hasPermission(RolePermission.MEMBER_KICK) || settlement.isOwner(player))) {
-                player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS, RolePermission.MEMBER_KICK.getName()));
+                player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.MEMBER_KICK.getName()));
                 return;
             }
 
-            if(role.hasPermission(RolePermission.MEMBER_KICK_EXEMPT) || settlement.isOwner(offlinePlayer)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK_EXEMPT));
+            if (role.hasPermission(RolePermission.MEMBER_KICK_EXEMPT) || settlement.isOwner(offlinePlayer)) {
+                player.sendMessage(Locale.SETTLEMENT_KICK_EXEMPT.prefix());
             } else {
                 memberService.remove(offlinePlayer);
                 borderService.removePlayer(player);
                 borderService.addPlayer(player, member.getSettlement(), Color.RED);
 
                 Player onlinePlayer = offlinePlayer.getPlayer();
-                if(onlinePlayer != null) onlinePlayer.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK));
+                if (onlinePlayer != null) onlinePlayer.sendMessage(Locale.SETTLEMENT_KICK.prefix());
 
                 List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(member.getSettlement());
-                offlinePlayers.forEach(off ->  {
-                    if(off.isOnline()) {
+                offlinePlayers.forEach(off -> {
+                    if (off.isOnline()) {
                         Player on = off.getPlayer();
-                        if(on != null) on.sendMessage(Remote.prefix(Locale.SETTLEMENT_LEAVE_PLAYER, offlinePlayer.getName()));
+                        if (on != null) {
+                            on.sendMessage(Locale.SETTLEMENT_LEAVE_PLAYER.prefix(offlinePlayer.getName()));
+                        }
                     }
                 });
             }

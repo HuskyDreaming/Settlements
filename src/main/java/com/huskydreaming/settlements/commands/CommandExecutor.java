@@ -7,10 +7,6 @@ import com.huskydreaming.settlements.registries.CommandRegistry;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
-import org.bukkit.Bukkit;
-import org.bukkit.Server;
-import org.bukkit.command.CommandMap;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
@@ -51,7 +47,7 @@ public class CommandExecutor extends org.bukkit.command.Command {
 
                 commandBase.ifPresentOrElse(c -> {
                             if (!player.hasPermission("settlements." + c.getLabel().name().toLowerCase())) {
-                                player.sendMessage(Remote.parameterize(Locale.NO_PERMISSIONS, c.getLabel().name()));
+                                player.sendMessage(Locale.NO_PERMISSIONS.prefix("/settlements " + c.getLabel().name() + c.getArguments()));
                             } else {
                                 c.run(player, strings);
                             }
@@ -74,7 +70,7 @@ public class CommandExecutor extends org.bukkit.command.Command {
     @NotNull
     @Override
     public List<String> tabComplete(@NotNull CommandSender sender, @NotNull String alias, @NotNull String[] args) throws IllegalArgumentException {
-        if(args.length == 1) {
+        if (args.length == 1) {
             return commandRegistry.getCommands().stream().filter(c -> !c.isDebug()).map(c -> c.getLabel().name().toLowerCase()).collect(Collectors.toList());
         }
         return new ArrayList<>();

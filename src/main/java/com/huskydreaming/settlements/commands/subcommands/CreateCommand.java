@@ -7,7 +7,6 @@ import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -36,55 +35,60 @@ public class CreateCommand implements CommandInterface {
     @Override
     public void run(Player player, String[] strings) {
         if (strings.length == 2) {
-            if(memberService.hasSettlement(player)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_EXISTS));
+            if (memberService.hasSettlement(player)) {
+                player.sendMessage(Locale.SETTLEMENT_PLAYER_EXISTS.prefix());
                 return;
             }
 
-            if(dependencyService.isWorldGuard(player)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATE_WORLDGUARD));
+            if (dependencyService.isTowny(player)) {
+
+                player.sendMessage(Locale.SETTLEMENT_LAND_TOWNY.prefix());
+                return;
+            }
+            if (dependencyService.isWorldGuard(player)) {
+                player.sendMessage(Locale.SETTLEMENT_CREATE_WORLDGUARD.prefix());
                 return;
             }
 
-            String name = strings[1];
+            String name = strings[1].toLowerCase();
             Map<String, Integer> defaults = settlementService.getDefaults();
             int minimumNameLength = defaults.getOrDefault("min-name-length", 2);
             int maximumNameLength = defaults.getOrDefault("max-name-length", 10);
 
             if (settlementService.isSettlement(name)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_EXIST));
+                player.sendMessage(Locale.SETTLEMENT_EXIST.prefix());
                 return;
             }
 
-            if(name.length() < minimumNameLength) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATE_MIN_NAME_LENGTH, minimumNameLength));
+            if (name.length() < minimumNameLength) {
+                player.sendMessage(Locale.SETTLEMENT_CREATE_MIN_NAME_LENGTH.prefix(minimumNameLength));
                 return;
             }
 
-            if(name.length() > maximumNameLength) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATE_MAX_NAME_LENGTH, maximumNameLength));
+            if (name.length() > maximumNameLength) {
+                player.sendMessage(Locale.SETTLEMENT_CREATE_MAX_NAME_LENGTH.prefix(maximumNameLength));
                 return;
             }
 
-            if(claimService.isDisabledWorld(player.getWorld())) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATE_DISABLED_WORLD));
+            if (claimService.isDisabledWorld(player.getWorld())) {
+                player.sendMessage(Locale.SETTLEMENT_CREATE_DISABLED_WORLD.prefix());
                 return;
             }
 
             Chunk chunk = player.getLocation().getChunk();
             if (claimService.isClaim(chunk)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_ESTABLISHED));
+                player.sendMessage(Locale.SETTLEMENT_ESTABLISHED.prefix());
                 return;
             }
 
             Settlement settlement = settlementService.createSettlement(player, name);
-            roleService.setup(name, settlement);
-            memberService.add(player, name, settlement.getDefaultRole());
-            claimService.setClaim(chunk, name);
 
+            roleService.setup(name, settlement);
+            claimService.setClaim(chunk, name);
+            memberService.add(player, name, settlement.getDefaultRole());
             borderService.addPlayer(player, name, Color.AQUA);
 
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_CREATED, name));
+            player.sendMessage(Locale.SETTLEMENT_CREATED.prefix(name));
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.huskydreaming.settlements.inventories;
 
-import com.huskydreaming.settlements.persistence.Settlement;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;
 import fr.minuskube.inv.content.InventoryContents;
@@ -28,10 +27,10 @@ public abstract class InventoryPageProvider<E> implements InventoryProvider {
     @Override
     public void init(Player player, InventoryContents contents) {
         contents.fillBorders(InventoryItem.border());
-        if(smartInventory != null) contents.set(0, 0, InventoryItem.back(player, smartInventory));
+        if (smartInventory != null) contents.set(0, 0, InventoryItem.back(player, smartInventory));
 
         ClickableItem[] clickableItems = new ClickableItem[array.length];
-        for(int i = 0; i < clickableItems.length; i++) {
+        for (int i = 0; i < clickableItems.length; i++) {
             AtomicInteger atomicInteger = new AtomicInteger(i);
             ItemStack itemStack = construct(i + 1, array[atomicInteger.get()]);
             Consumer<InventoryClickEvent> consumer = e -> run(e, array[atomicInteger.get()], contents);
@@ -58,16 +57,16 @@ public abstract class InventoryPageProvider<E> implements InventoryProvider {
 
         pagination.addToIterator(contents.newIterator(SlotIterator.Type.HORIZONTAL, 1, 0));
 
-        if(!pagination.isLast() && !pagination.isFirst()) {
+        if (!pagination.isLast() && !pagination.isFirst()) {
             contents.set(4, 1, InventoryItem.previous(player, contents));
             contents.set(4, 7, InventoryItem.next(player, contents));
         }
 
-        if(!pagination.isLast()) {
+        if (!pagination.isLast()) {
             contents.set(4, 7, InventoryItem.next(player, contents));
         }
 
-        if(!pagination.isFirst()) {
+        if (!pagination.isFirst()) {
             contents.set(4, 1, InventoryItem.previous(player, contents));
         }
     }

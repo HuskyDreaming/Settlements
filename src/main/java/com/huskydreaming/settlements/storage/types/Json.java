@@ -4,6 +4,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import com.google.gson.stream.JsonReader;
+import com.huskydreaming.settlements.persistence.Claim;
+import com.huskydreaming.settlements.serializers.ClaimSerializer;
 import com.huskydreaming.settlements.serializers.LocationSerializer;
 import com.huskydreaming.settlements.storage.base.Extension;
 import com.huskydreaming.settlements.utilities.Remote;
@@ -21,6 +23,7 @@ import java.nio.file.Path;
 public class Json {
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(Location.class, new LocationSerializer())
+            .registerTypeAdapter(Claim.class, new ClaimSerializer())
             .setPrettyPrinting()
             .create();
 

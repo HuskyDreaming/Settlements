@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services.providers;
+package com.huskydreaming.settlements.services.implementations;
 
 import com.google.gson.reflect.TypeToken;
 import com.huskydreaming.settlements.SettlementPlugin;
@@ -42,7 +42,7 @@ public class RoleServiceImpl implements RoleService {
             plugin.getLogger().info("Registered " + rolesSize + " roles(s).");
         }
 
-        if(defaultRoles != null) defaultRoles.clear();
+        if (defaultRoles != null) defaultRoles.clear();
         defaultRoles = configService.deserializeDefaultRoles(plugin);
     }
 
@@ -100,7 +100,7 @@ public class RoleServiceImpl implements RoleService {
     public boolean promote(String settlementName, Role role, Member member) {
         List<Role> list = roles.get(settlementName);
         int index = list.indexOf(role);
-        if(index < list.size() - 1) {
+        if (index < list.size() - 1) {
             role = list.get(index + 1);
             if (role != null) {
                 member.setRole(role.getName());
@@ -114,7 +114,7 @@ public class RoleServiceImpl implements RoleService {
     public boolean demote(String settlementName, Role role, Member member) {
         List<Role> list = roles.get(settlementName);
         int index = list.indexOf(role);
-        if(index >= 1) {
+        if (index >= 1) {
             role = list.get(index - 1);
             if (role != null) {
                 member.setRole(role.getName());
@@ -148,7 +148,7 @@ public class RoleServiceImpl implements RoleService {
     @Override
     public Role sync(Member member, String defaultRole) {
         List<Role> roles = getRoles(member.getSettlement());
-        if(roles.stream().noneMatch(role -> role.getName().equalsIgnoreCase(member.getRole()))) {
+        if (roles.stream().noneMatch(role -> role.getName().equalsIgnoreCase(member.getRole()))) {
             member.setRole(defaultRole);
         }
         return roles.stream()

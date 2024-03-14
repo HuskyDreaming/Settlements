@@ -6,7 +6,6 @@ import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.registries.CommandRegistry;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
@@ -29,7 +28,7 @@ public class HelpCommand implements CommandInterface {
     public void run(Player player, String[] strings) {
         int index = 1;
 
-        if(strings.length > 1) {
+        if (strings.length > 1) {
             index = Integer.parseInt(strings[1]);
             if (strings[1].equals("0")) index = 1;
         }
@@ -38,13 +37,13 @@ public class HelpCommand implements CommandInterface {
         int page = (int) Math.ceil((double) commandInterfaces.size() / 6);
 
         if (index > page) {
-            player.sendMessage(Remote.prefix(Locale.HELP_PAGE_LIMIT, page));
+            player.sendMessage(Locale.HELP_PAGE_LIMIT.prefix(page));
         } else {
-            for(int i = 0; i < 10; i++) {
+            for (int i = 0; i < 10; i++) {
                 player.sendMessage("");
             }
 
-            player.sendMessage(Remote.parameterize(Locale.HELP_PAGE_HEADER, index, page));
+            player.sendMessage(Locale.HELP_PAGE_HEADER.parameterize(index, page));
             player.sendMessage("");
 
             List<String> stringList = new ArrayList<>();
@@ -59,7 +58,7 @@ public class HelpCommand implements CommandInterface {
                     player.sendMessage("");
                 } else {
                     String string = stringList.get(number);
-                    TextComponent message = new TextComponent(Remote.parameterize(Locale.HELP_PAGE_FORMAT, number + 1, string));
+                    TextComponent message = new TextComponent(Locale.HELP_PAGE_FORMAT.parameterize(number + 1, string));
                     message.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, string));
                     player.spigot().sendMessage(message);
                 }
@@ -71,22 +70,22 @@ public class HelpCommand implements CommandInterface {
             TextComponent previous = new TextComponent(Locale.HELP_PAGE_PREVIOUS.parse());
             TextComponent spacer = new TextComponent("            ");
 
-            if(index == 1) {
-                previous.setText(Remote.parameterize(Locale.HELP_PAGE_DISABLED) + previous.getText());
-                next.setText(Remote.parameterize(Locale.HELP_PAGE_ENABLED) + next.getText());
+            if (index == 1) {
+                previous.setText(Locale.HELP_PAGE_DISABLED.parse() + previous.getText());
+                next.setText(Locale.HELP_PAGE_ENABLED.parse() + next.getText());
                 next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index + 1)));
-            } else if((index + 1) > page) {
-                next.setText(Remote.parameterize(Locale.HELP_PAGE_DISABLED) + next.getText());
-                previous.setText(Remote.parameterize(Locale.HELP_PAGE_ENABLED) + previous.getText());
+            } else if ((index + 1) > page) {
+                next.setText(Locale.HELP_PAGE_DISABLED.parse() + next.getText());
+                previous.setText(Locale.HELP_PAGE_ENABLED.parse() + previous.getText());
                 previous.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index - 1)));
             } else {
                 next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index + 1)));
-                next.setText(Remote.parameterize(Locale.HELP_PAGE_ENABLED) + next.getText());
+                next.setText(Locale.HELP_PAGE_ENABLED.parse() + next.getText());
                 previous.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index - 1)));
-                previous.setText(Remote.parameterize(Locale.HELP_PAGE_ENABLED) + previous.getText());
+                previous.setText(Locale.HELP_PAGE_ENABLED.parse() + previous.getText());
             }
 
-            player.spigot().sendMessage(spacer,previous, spacer , next, spacer);
+            player.spigot().sendMessage(spacer, previous, spacer, next, spacer);
             player.sendMessage("");
         }
     }

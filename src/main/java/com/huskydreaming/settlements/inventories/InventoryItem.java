@@ -2,7 +2,6 @@ package com.huskydreaming.settlements.inventories;
 
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import com.huskydreaming.settlements.storage.enumerations.Menu;
-import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.SmartInventory;
 import fr.minuskube.inv.content.InventoryContents;
@@ -18,11 +17,11 @@ import java.util.function.Consumer;
 public class InventoryItem {
 
     public static ClickableItem of(boolean permission, ItemStack itemStack, Consumer<InventoryClickEvent> consumer) {
-        if(permission) return ClickableItem.of(itemStack, consumer);
+        if (permission) return ClickableItem.of(itemStack, consumer);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        if(itemMeta != null) {
+        if (itemMeta != null) {
             return ClickableItem.empty(ItemBuilder.create()
-                    .setDisplayName(Remote.parameterize(Menu.GENERAL_NO_PERMISSIONS_TITLE, itemMeta.getDisplayName()))
+                    .setDisplayName(Menu.GENERAL_NO_PERMISSIONS_TITLE.parameterize(itemMeta.getDisplayName()))
                     .setLore(Menu.GENERAL_NO_PERMISSIONS_LORE.parseList())
                     .build());
         }

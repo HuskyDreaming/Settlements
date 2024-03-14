@@ -11,7 +11,6 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +32,7 @@ public class ItemBuilder {
     }
 
     public ItemBuilder setLore(@Nullable List<String> lore) {
-        if(lore == null) {
+        if (lore == null) {
             this.lore = new ArrayList<>();
             return this;
         }
@@ -70,13 +69,13 @@ public class ItemBuilder {
     public ItemStack buildPlayer(OfflinePlayer offlinePlayer) {
         ItemStack itemStack = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta skullMeta = (SkullMeta) itemStack.getItemMeta();
-        if(skullMeta != null) {
-            if(enchanted) skullMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+        if (skullMeta != null) {
+            if (enchanted) skullMeta.addEnchant(Enchantment.DURABILITY, 1, true);
             skullMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             skullMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             skullMeta.setDisplayName(displayName);
             skullMeta.setOwnerProfile(offlinePlayer.getPlayerProfile());
-            if(lore != null) skullMeta.setLore(lore);
+            if (lore != null) skullMeta.setLore(lore);
             itemStack.setItemMeta(skullMeta);
         }
         return itemStack;
@@ -85,12 +84,12 @@ public class ItemBuilder {
     public ItemStack build() {
         ItemStack itemStack = new ItemStack(material);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        if(itemMeta != null) {
-            if(enchanted) itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+        if (itemMeta != null) {
+            if (enchanted) itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
             itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
             itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             itemMeta.setDisplayName(displayName);
-            if(lore != null) itemMeta.setLore(lore);
+            if (lore != null) itemMeta.setLore(lore);
             itemStack.setItemMeta(itemMeta);
         }
         itemStack.setAmount(amount);

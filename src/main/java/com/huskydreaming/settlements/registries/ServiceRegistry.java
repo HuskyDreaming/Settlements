@@ -3,26 +3,26 @@ package com.huskydreaming.settlements.registries;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.services.base.ServiceInterface;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.services.providers.*;
+import com.huskydreaming.settlements.services.implementations.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ServiceRegistry implements Registry{
+public class ServiceRegistry implements Registry {
 
     private final Map<Class<?>, ServiceInterface> services = new ConcurrentHashMap<>();
 
     @Override
     public void register(SettlementPlugin plugin) {
+        services.put(LocaleService.class, new LocaleServiceImpl());
         services.put(ConfigService.class, new ConfigServiceImpl());
         services.put(ClaimService.class, new ClaimServiceImpl(plugin));
         services.put(BorderService.class, new BorderServiceImpl(plugin));
         services.put(DependencyService.class, new DependencyServiceImpl());
         services.put(InventoryService.class, new InventoryServiceImpl());
         services.put(InvitationService.class, new InvitationServiceImpl());
-        services.put(LocaleService.class, new LocaleServiceImpl());
         services.put(MemberService.class, new MemberServiceImpl());
         services.put(RoleService.class, new RoleServiceImpl(plugin));
         services.put(SettlementService.class, new SettlementServiceImpl(plugin));

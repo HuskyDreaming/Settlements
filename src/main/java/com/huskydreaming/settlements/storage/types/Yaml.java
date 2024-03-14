@@ -28,7 +28,7 @@ public class Yaml {
     }
 
     public void save() {
-        if(configuration == null || path == null || !Files.exists(path)) return;
+        if (configuration == null || path == null || !Files.exists(path)) return;
         try {
             configuration.save(path.toFile());
         } catch (IOException e) {
@@ -40,7 +40,7 @@ public class Yaml {
         configuration = YamlConfiguration.loadConfiguration(path.toFile());
         InputStream inputStream = plugin.getResource(getFileName());
 
-        if(inputStream == null) return;
+        if (inputStream == null) return;
 
         Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         YamlConfiguration defaultConfiguration = YamlConfiguration.loadConfiguration(reader);

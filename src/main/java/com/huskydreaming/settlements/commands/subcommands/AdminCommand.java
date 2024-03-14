@@ -4,6 +4,7 @@ import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.Command;
 import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
+import com.huskydreaming.settlements.persistence.Claim;
 import com.huskydreaming.settlements.services.interfaces.ClaimService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
@@ -34,7 +35,7 @@ public class AdminCommand implements CommandInterface {
             sendHelp(player);
         } else if (strings.length == 2) {
             String string = strings[1].toUpperCase();
-            if(CommandLabel.contains(string)) {
+            if (CommandLabel.contains(string)) {
                 switch (CommandLabel.valueOf(string)) {
                     case UNCLAIM -> sendUnClaim(player);
                     case HELP -> sendHelp(player);
@@ -42,10 +43,9 @@ public class AdminCommand implements CommandInterface {
                 return;
             }
             sendUnknown(player, string);
-        }
-        else if (strings.length == 3) {
+        } else if (strings.length == 3) {
             String string = strings[1].toUpperCase();
-            if(CommandLabel.contains(string)) {
+            if (CommandLabel.contains(string)) {
                 switch (CommandLabel.valueOf(string)) {
                     case CLAIM -> sendClaim(player, strings[2]);
                     case DISBAND -> sendDisband(player, strings[2]);
@@ -58,47 +58,48 @@ public class AdminCommand implements CommandInterface {
 
     private void sendClaim(Player player, String string) {
         Chunk chunk = player.getLocation().getChunk();
-        if(settlementService.isSettlement(string)) {
+        if (settlementService.isSettlement(string)) {
 
             boolean isAdjacent = false;
-            for(Chunk c : claimService.getChunks(string)) {
-                if (Remote.areAdjacentChunks(chunk, c)) isAdjacent = true;
+            for (Claim claim : claimService.getClaims(string)) {
+                if (Remote.areAdjacentChunks(chunk, claim.toChunk())) isAdjacent = true;
             }
 
-            if(isAdjacent) {
+            if (isAdjacent) {
                 String x = String.valueOf(chunk.getX());
                 String z = String.valueOf(chunk.getZ());
 
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_CLAIM, x, z));
+                player.sendMessage(Locale.SETTLEMENT_LAND_CLAIM.prefix(x, z));
                 claimService.setClaim(chunk, string);
             } else {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_ADJACENT));
+                player.sendMessage(Locale.SETTLEMENT_LAND_ADJACENT.prefix());
             }
 
         } else {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_NULL, string));
+            player.sendMessage(Locale.SETTLEMENT_NULL.prefix(string));
         }
     }
 
     private void sendUnClaim(Player player) {
         Chunk chunk = player.getLocation().getChunk();
 
-        if(!claimService.isClaim(chunk)) {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_NOT_CLAIMED));
+        if (!claimService.isClaim(chunk)) {
+            player.sendMessage(Locale.SETTLEMENT_LAND_NOT_CLAIMED.prefix());
             return;
         }
 
-        if(claimService.getChunks(claimService.getClaim(chunk)).size() == 1) {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_UNCLAIM_ONE));
+        String claim = claimService.getClaim(chunk);
+        if (claimService.getClaims(claim).size() == 1) {
+            player.sendMessage(Locale.SETTLEMENT_LAND_UNCLAIM_ONE.prefix());
         } else {
             claimService.removeClaim(chunk);
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LAND_UNCLAIM));
+            player.sendMessage(Locale.SETTLEMENT_LAND_UNCLAIM.prefix());
         }
     }
 
     private void sendDisband(Player player, String string) {
-        if(!settlementService.isSettlement(string)) {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_NULL, string));
+        if (!settlementService.isSettlement(string)) {
+            player.sendMessage(Locale.SETTLEMENT_NULL.prefix(string));
             return;
         }
 
@@ -106,16 +107,16 @@ public class AdminCommand implements CommandInterface {
         memberService.clean(string);
         settlementService.disbandSettlement(string);
 
-        player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DISBAND));
+        player.sendMessage(Locale.SETTLEMENT_DISBAND.prefix());
     }
 
     private void sendUnknown(Player player, String string) {
-        player.sendMessage(Remote.prefix(Locale.UNKNOWN_SUBCOMMAND, string));
+        player.sendMessage(Locale.UNKNOWN_SUBCOMMAND.prefix(string));
     }
 
     private void sendHelp(Player player) {
         List<String> strings = Locale.ADMIN_HELP.parseList();
-        if(strings == null) return;
+        if (strings == null) return;
 
         strings.stream().map(s -> ChatColor.translateAlternateColorCodes('&', s)).forEach(player::sendMessage);
     }

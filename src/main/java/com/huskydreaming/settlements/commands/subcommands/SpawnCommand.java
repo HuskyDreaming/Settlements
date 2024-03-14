@@ -12,7 +12,6 @@ import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.SPAWN)
@@ -31,7 +30,7 @@ public class SpawnCommand implements CommandInterface {
     @Override
     public void run(Player player, String[] strings) {
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
             return;
         }
 
@@ -40,16 +39,16 @@ public class SpawnCommand implements CommandInterface {
         Role role = roleService.getRole(member);
 
         if (!(role.hasPermission(RolePermission.SPAWN_TELEPORT) || settlement.isOwner(player))) {
-            player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS), RolePermission.SPAWN_TELEPORT.getName());
+            player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.SPAWN_TELEPORT.getName()));
             return;
         }
 
-        if(settlement.getLocation() == null) {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_SPAWN_NULL));
+        if (settlement.getLocation() == null) {
+            player.sendMessage(Locale.SETTLEMENT_SPAWN_NULL.prefix());
             return;
         }
 
         player.teleport(settlement.getLocation());
-        player.sendMessage(Remote.prefix(Locale.SETTLEMENT_SPAWN));
+        player.sendMessage(Locale.SETTLEMENT_SPAWN.prefix());
     }
 }

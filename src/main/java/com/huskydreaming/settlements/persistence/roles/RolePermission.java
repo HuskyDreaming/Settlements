@@ -28,11 +28,11 @@ public enum RolePermission {
     SPAWN_SET(RolePermissionType.SPAWN),
     SPAWN_TELEPORT(RolePermissionType.SPAWN);
 
+    private final RolePermissionType type;
+
     RolePermission(RolePermissionType type) {
         this.type = type;
     }
-
-    private final RolePermissionType type;
 
     public String getName() {
         return Remote.capitalizeFully(name().toLowerCase()).replace("_", " ");

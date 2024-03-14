@@ -7,7 +7,6 @@ import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.storage.enumerations.Menu;
-import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
@@ -83,7 +82,7 @@ public class ConfirmationInventory implements InventoryProvider {
             borderService.removePlayer(player);
 
             player.closeInventory();
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DISBAND));
+            player.sendMessage(Locale.SETTLEMENT_DISBAND.prefix());
         }
     }
 }

@@ -1,8 +1,9 @@
-package com.huskydreaming.settlements.services.providers;
+package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.inventories.InventoryAction;
 import com.huskydreaming.settlements.inventories.providers.*;
+import com.huskydreaming.settlements.persistence.Claim;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.*;
@@ -10,7 +11,6 @@ import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.SmartInventory;
 import org.bukkit.OfflinePlayer;
 
-import java.util.Collection;
 import java.util.List;
 
 public class InventoryServiceImpl implements InventoryService {
@@ -86,10 +86,9 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public SmartInventory getClaimsInventory(SettlementPlugin plugin, String settlementName) {
         ClaimService claimService = plugin.provide(ClaimService.class);
-        Collection<String> chunks = claimService.getChunksAsStrings(settlementName);
-        String[] array = chunks.toArray(new String[0]);
-        int rows = (int) Math.ceil((double) array.length / 9);
-        ClaimsInventory claimsInventory = new ClaimsInventory(plugin, settlementName, rows, array);
+        Claim[] claims = claimService.getClaims(settlementName).toArray(new Claim[0]);
+        int rows = (int) Math.ceil((double) claims.length / 9);
+        ClaimsInventory claimsInventory = new ClaimsInventory(plugin, settlementName, rows, claims);
         return SmartInventory.builder()
                 .manager(inventoryManager)
                 .id("landsInventory")

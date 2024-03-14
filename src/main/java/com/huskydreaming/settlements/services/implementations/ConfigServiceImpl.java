@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services.providers;
+package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;

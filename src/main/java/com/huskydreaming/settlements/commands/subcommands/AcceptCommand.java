@@ -7,7 +7,6 @@ import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
@@ -37,21 +36,22 @@ public class AcceptCommand implements CommandInterface {
         if (strings.length == 2) {
             String string = strings[1];
             if (invitationService.hasNoInvitation(player, string)) {
-                player.sendMessage(Remote.prefix(Locale.INVITATION_NULL, string));
+                player.sendMessage(Locale.INVITATION_NULL.prefix(string));
                 return;
             }
 
             Settlement settlement = settlementService.getSettlement(string);
             if (settlement == null) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_NULL, string));
+                player.sendMessage(Locale.SETTLEMENT_NULL.prefix(string));
                 return;
             }
 
             List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(string);
-            offlinePlayers.forEach(offlinePlayer ->  {
-                if(offlinePlayer.isOnline()) {
+            offlinePlayers.forEach(offlinePlayer -> {
+                if (offlinePlayer.isOnline()) {
                     Player onlinePlayer = offlinePlayer.getPlayer();
-                    if(onlinePlayer != null) onlinePlayer.sendMessage(Remote.prefix(Locale.SETTLEMENT_JOIN_PLAYER, player.getName()));
+                    if (onlinePlayer != null)
+                        onlinePlayer.sendMessage(Locale.SETTLEMENT_JOIN_PLAYER.prefix(player.getName()));
                 }
             });
 
@@ -60,16 +60,16 @@ public class AcceptCommand implements CommandInterface {
             borderService.removePlayer(player);
 
             Chunk chunk = player.getLocation().getChunk();
-            if(claimService.isClaim(chunk)) {
+            if (claimService.isClaim(chunk)) {
                 String claim = claimService.getClaim(player.getLocation().getChunk());
-                if(claim.equalsIgnoreCase(string)) {
+                if (claim.equalsIgnoreCase(string)) {
                     borderService.addPlayer(player, claim, Color.AQUA);
                 } else {
                     borderService.addPlayer(player, claim, Color.RED);
                 }
             }
 
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_JOIN, string));
+            player.sendMessage(Locale.SETTLEMENT_JOIN.prefix(string));
         }
     }
 }

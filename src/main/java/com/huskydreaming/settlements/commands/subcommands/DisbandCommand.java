@@ -8,7 +8,6 @@ import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.DISBAND)
@@ -30,15 +29,15 @@ public class DisbandCommand implements CommandInterface {
 
     @Override
     public void run(Player player, String[] strings) {
-        if(!memberService.hasSettlement(player)) {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+        if (!memberService.hasSettlement(player)) {
+            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
             return;
         }
 
         Member member = memberService.getCitizen(player);
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
-        if(!settlement.isOwner(player)) {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_NOT_OWNER));
+        if (!settlement.isOwner(player)) {
+            player.sendMessage(Locale.SETTLEMENT_NOT_OWNER.prefix());
             return;
         }
 
@@ -48,6 +47,6 @@ public class DisbandCommand implements CommandInterface {
         settlementService.disbandSettlement(member.getSettlement());
         borderService.removePlayer(player);
 
-        player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DISBAND));
+        player.sendMessage(Locale.SETTLEMENT_DISBAND.prefix());
     }
 }

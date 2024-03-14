@@ -33,14 +33,14 @@ public class MemberListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         Member member = memberService.getCitizen(player);
-        if(member != null) {
+        if (member != null) {
             DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             Date today = Calendar.getInstance().getTime();
             String lastOnline = df.format(today);
 
             member.setLastOnline(lastOnline);
 
-            if(claimService.isClaim(player.getLocation().getChunk())) {
+            if (claimService.isClaim(player.getLocation().getChunk())) {
                 String claim = claimService.getClaim(event.getPlayer().getLocation().getChunk());
                 borderService.addPlayer(player, claim, claim.equalsIgnoreCase(member.getSettlement()) ? Color.AQUA : Color.RED);
             }
@@ -51,7 +51,7 @@ public class MemberListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         Member member = memberService.getCitizen(player);
-        if(member != null) {
+        if (member != null) {
             DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             Date today = Calendar.getInstance().getTime();
             String lastOnline = df.format(today);

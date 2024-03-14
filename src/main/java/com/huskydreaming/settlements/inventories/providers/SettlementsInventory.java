@@ -16,37 +16,39 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class SettlementsInventory extends InventoryPageProvider<String> {
+
     private final ClaimService claimService;
     private final MemberService memberService;
-    private final SettlementService settlementService;
     private final RoleService roleService;
+    private final SettlementService settlementService;
 
     public SettlementsInventory(SettlementPlugin plugin, int rows, String[] settlementNames) {
         super(rows, settlementNames);
 
-        claimService = plugin.provide(ClaimService.class);
         memberService = plugin.provide(MemberService.class);
-        settlementService = plugin.provide(SettlementService.class);
+        claimService = plugin.provide(ClaimService.class);
         roleService = plugin.provide(RoleService.class);
+        settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override
     public ItemStack construct(int index, String settlementName) {
 
-        int roles = roleService.getRoles(settlementName).size();
-        int claims = claimService.getChunks(settlementName).size();
-        int members = memberService.getMembers(settlementName).size();
-
         Settlement settlement = settlementService.getSettlement(settlementName);
         Material icon = settlement.getIcon();
 
+        int roles = roleService.getRoles(settlementName).size();
+        int claims = claimService.getClaims(settlementName).size();
+        int members = memberService.getMembers(settlementName).size();
+
         return ItemBuilder.create()
-                .setDisplayName(Remote.parameterize(Menu.CLAIMS_TITLE, index, settlementName))
-                .setLore(Remote.parameterizeList(Menu.SETTLEMENT_LORE,
+                .setDisplayName(Menu.CLAIMS_TITLE.parameterize(index, Remote.capitalizeFully(settlementName)))
+                .setLore(Menu.SETTLEMENT_LORE.parameterizeList(
                         settlement.getOwnerName(),
                         members, settlement.getMaxCitizens(),
                         claims, settlement.getMaxLand(),
-                        roles, settlement.getMaxRoles()))
+                        roles, settlement.getMaxRoles(),
+                        settlement.getOwnerName()))
                 .setMaterial(icon == null ? Material.GRASS_BLOCK : icon)
                 .build();
     }

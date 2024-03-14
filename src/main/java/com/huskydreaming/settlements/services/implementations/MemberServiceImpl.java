@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services.providers;
+package com.huskydreaming.settlements.services.implementations;
 
 import com.google.gson.reflect.TypeToken;
 import com.huskydreaming.settlements.SettlementPlugin;
@@ -75,8 +75,8 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void sync(String settlementName, String defaultRole, Role role) {
-        for(Member member : getMembers(settlementName)) {
-            if(member.getRole().equalsIgnoreCase(role.getName())) {
+        for (Member member : getMembers(settlementName)) {
+            if (member.getRole().equalsIgnoreCase(role.getName())) {
                 member.setRole(defaultRole);
             }
         }
@@ -90,12 +90,13 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public void deserialize(SettlementPlugin plugin) {
-        Type type = new TypeToken<Map<UUID, Member>>(){}.getType();
+        Type type = new TypeToken<Map<UUID, Member>>() {
+        }.getType();
         members = Json.read(plugin, "data/members", type);
-        if(members == null) members = new ConcurrentHashMap<>();
+        if (members == null) members = new ConcurrentHashMap<>();
 
         int size = members.size();
-        if(size > 0) {
+        if (size > 0) {
             plugin.getLogger().info("Registered " + size + " members(s).");
         }
     }

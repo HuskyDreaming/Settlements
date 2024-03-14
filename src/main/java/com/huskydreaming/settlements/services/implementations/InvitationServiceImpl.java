@@ -1,11 +1,10 @@
-package com.huskydreaming.settlements.services.providers;
+package com.huskydreaming.settlements.services.implementations;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.services.interfaces.InvitationService;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
@@ -33,7 +32,7 @@ public class InvitationServiceImpl implements InvitationService {
 
             TextComponent spacer = new TextComponent(" ");
 
-            player.sendMessage(Remote.prefix(Locale.INVITATION_DENIED, name));
+            player.sendMessage(Locale.INVITATION_DENIED.prefix(name));
             player.spigot().sendMessage(accept, spacer, deny);
 
         } catch (ExecutionException e) {

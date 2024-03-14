@@ -1,5 +1,7 @@
 package com.huskydreaming.settlements.persistence;
 
+import java.util.Objects;
+
 public class Member {
 
     private String settlement;
@@ -47,5 +49,20 @@ public class Member {
 
     public boolean hasAutoClaim() {
         return autoClaim;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Member member)) return false;
+        return autoClaim == member.autoClaim &&
+                Objects.equals(settlement, member.settlement) &&
+                Objects.equals(role, member.role) &&
+                Objects.equals(lastOnline, member.lastOnline);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(settlement, role, lastOnline, autoClaim);
     }
 }

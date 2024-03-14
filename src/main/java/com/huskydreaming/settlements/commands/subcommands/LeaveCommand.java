@@ -10,7 +10,6 @@ import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -32,28 +31,30 @@ public class LeaveCommand implements CommandInterface {
 
     @Override
     public void run(Player player, String[] strings) {
-        if(!memberService.hasSettlement(player)) {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+        if (!memberService.hasSettlement(player)) {
+            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
             return;
         }
 
         Member member = memberService.getCitizen(player);
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
-        if(settlement.isOwner(player)) {
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LEAVE_OWNER));
+        if (settlement.isOwner(player)) {
+            player.sendMessage(Locale.SETTLEMENT_LEAVE_OWNER.prefix());
             return;
         }
 
         memberService.remove(player);
         borderService.removePlayer(player);
         borderService.addPlayer(player, member.getSettlement(), Color.RED);
-        player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LEAVE));
+        player.sendMessage(Locale.SETTLEMENT_LEAVE.prefix());
 
         List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(member.getSettlement());
-        offlinePlayers.forEach(offlinePlayer ->  {
-            if(offlinePlayer.isOnline()) {
+        offlinePlayers.forEach(offlinePlayer -> {
+            if (offlinePlayer.isOnline()) {
                 Player onlinePlayer = offlinePlayer.getPlayer();
-                if(onlinePlayer != null) onlinePlayer.sendMessage(Remote.prefix(Locale.SETTLEMENT_LEAVE_PLAYER, player.getName()));
+                if (onlinePlayer != null) {
+                    onlinePlayer.sendMessage(Locale.SETTLEMENT_LEAVE_PLAYER.prefix(player.getName()));
+                }
             }
         });
     }

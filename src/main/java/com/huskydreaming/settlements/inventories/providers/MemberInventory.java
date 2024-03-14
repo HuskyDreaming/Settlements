@@ -13,7 +13,6 @@ import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.storage.enumerations.Menu;
-import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
@@ -68,21 +67,21 @@ public class MemberInventory implements InventoryProvider {
                 .setDisplayName(Menu.MEMBER_SET_OWNER_TITLE.parse())
                 .setLore(Menu.MEMBER_SET_OWNER_LORE.parseList())
                 .setMaterial(Material.EMERALD)
-                .build(), e-> {
-            if(settlement.isOwner(player)) {
+                .build(), e -> {
+            if (settlement.isOwner(player)) {
 
-                if(offlinePlayer.getUniqueId().equals(player.getUniqueId())) {
-                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_IS_OWNER));
+                if (offlinePlayer.getUniqueId().equals(player.getUniqueId())) {
+                    player.sendMessage(Locale.SETTLEMENT_IS_OWNER.prefix());
                 } else {
                     Player target = offlinePlayer.getPlayer();
                     if (target != null) {
-                        target.sendMessage(Remote.prefix(Locale.SETTLEMENT_OWNER));
+                        target.sendMessage(Locale.SETTLEMENT_OWNER.prefix());
                     }
-                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_OWNER_TRANSFERRED, offlinePlayer.getName()));
+                    player.sendMessage(Locale.SETTLEMENT_OWNER_TRANSFERRED.prefix(offlinePlayer.getName()));
                     settlement.setOwner(offlinePlayer);
                 }
             } else {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_NOT_OWNER_TRANSFER));
+                player.sendMessage(Locale.SETTLEMENT_NOT_OWNER_TRANSFER.prefix());
             }
             contents.inventory().close(player);
         });
@@ -93,17 +92,17 @@ public class MemberInventory implements InventoryProvider {
         int index = roleService.getIndex(settlementName, member);
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_SET_ROLE_TITLE.parse())
-                .setLore(Remote.parameterizeList(Menu.MEMBER_SET_ROLE_LORE, index, member.getRole()))
+                .setLore(Menu.MEMBER_SET_ROLE_LORE.parameterize(index, member.getRole()))
                 .setMaterial(Material.WRITABLE_BOOK)
-                .build(), e-> {
+                .build(), e -> {
 
             Role role = roleService.sync(member, defaultRole);
-            if(e.isRightClick()) {
-                if(roleService.demote(settlementName, role, member)) {
+            if (e.isRightClick()) {
+                if (roleService.demote(settlementName, role, member)) {
                     contents.inventory().open(player);
                 }
-            } else if(e.isLeftClick()) {
-                if(roleService.promote(settlementName, role, member)) {
+            } else if (e.isLeftClick()) {
+                if (roleService.promote(settlementName, role, member)) {
                     contents.inventory().open(player);
                 }
             }
@@ -115,16 +114,16 @@ public class MemberInventory implements InventoryProvider {
                 .setDisplayName(Menu.MEMBER_KICK_TITLE.parse())
                 .setLore(Menu.MEMBER_KICK_LORE.parseList())
                 .setMaterial(Material.ANVIL)
-                .build(), e-> {
+                .build(), e -> {
             Member member = memberService.getCitizen(offlinePlayer);
             Role role = roleService.getRole(member);
 
-            if(settlement.isOwner(offlinePlayer) || role.hasPermission(RolePermission.MEMBER_KICK_EXEMPT)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK_EXEMPT));
+            if (settlement.isOwner(offlinePlayer) || role.hasPermission(RolePermission.MEMBER_KICK_EXEMPT)) {
+                player.sendMessage(Locale.SETTLEMENT_KICK_EXEMPT.prefix());
             } else {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK_PLAYER, offlinePlayer.getName()));
+                player.sendMessage(Locale.SETTLEMENT_KICK_PLAYER.prefix(offlinePlayer.getName()));
                 Player target = offlinePlayer.getPlayer();
-                if(target != null) target.sendMessage(Remote.prefix(Locale.SETTLEMENT_KICK, settlementName));
+                if (target != null) target.sendMessage(Locale.SETTLEMENT_KICK.prefix(settlementName));
                 memberService.remove(offlinePlayer);
             }
             contents.inventory().close(player);

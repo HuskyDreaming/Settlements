@@ -13,7 +13,6 @@ import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
 import com.huskydreaming.settlements.storage.enumerations.Menu;
-import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.ChatColor;
@@ -77,7 +76,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
 
     @Override
     public void run(InventoryClickEvent event, RolePermission rolePermission, InventoryContents contents) {
-        if(event.getWhoClicked() instanceof Player) {
+        if (event.getWhoClicked() instanceof Player) {
             Player player = ((Player) event.getWhoClicked()).getPlayer();
             if (role.hasPermission(rolePermission)) {
                 role.remove(rolePermission);
@@ -94,8 +93,8 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 .setLore(Menu.ROLE_DELETE_LORE.parseList())
                 .setMaterial(Material.TNT_MINECART)
                 .build(), e -> {
-            if(roleService.getRoles(settlementName).size() > 1) {
-                if(settlement.getDefaultRole().equalsIgnoreCase(role.getName())) {
+            if (roleService.getRoles(settlementName).size() > 1) {
+                if (settlement.getDefaultRole().equalsIgnoreCase(role.getName())) {
                     Role defaultRole = roleService.getOtherRole(settlementName, role.getName());
                     settlement.setDefaultRole(defaultRole.getName());
                 }
@@ -104,7 +103,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 roleService.remove(settlementName, role);
                 inventoryService.getRolesInventory(plugin, settlementName).open(player);
             } else {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_ROLE_ONE));
+                player.sendMessage(Locale.SETTLEMENT_ROLE_ONE.prefix());
             }
         });
     }
@@ -114,7 +113,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 .setDisplayName(Menu.ROLE_DEFAULT_TITLE.parse())
                 .setLore(Menu.ROLE_DEFAULT_LORE.parseList())
                 .setMaterial(Material.DIAMOND)
-                .build(), e-> {
+                .build(), e -> {
             settlement.setDefaultRole(role.getName());
             inventoryService.getRolesInventory(plugin, settlementName).open(player);
         });

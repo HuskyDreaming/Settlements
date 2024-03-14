@@ -54,6 +54,7 @@ public enum Locale implements Parseable {
     SETTLEMENT_LAND_UNCLAIM("You have unclaimed the land from the settlement."),
     SETTLEMENT_LAND_UNCLAIM_ONE("The settlement only has only one claimed land. You can't unclaim more land for the settlement."),
     SETTLEMENT_LAND_WORLDGUARD("You can't claim this region as it is protected by worldguard."),
+    SETTLEMENT_LAND_TOWNY("You can't claim this region as it is protected by towny."),
     SETTLEMENT_LAND_DISABLED_WORLD("You are not allowed to claim land in this world."),
     SETTLEMENT_LEAVE("You have left the settlement."),
     SETTLEMENT_LEAVE_PLAYER("&b{0} &7has left the settlement."),
@@ -94,16 +95,41 @@ public enum Locale implements Parseable {
     INVITATION_SENT("You have sent an invitation to &b{0}&7."),
     INVITATION_ACCEPT("&a[Accept]"),
     INVITATION_DENY("&c[Deny]"),
-    NO_PERMISSIONS("You do not have permissions for: &b{0}"),
+    NO_PERMISSIONS("You do not have permissions for &b{0}"),
     RELOAD("You have successfully reloaded all the configurations."),
     UNKNOWN_SUBCOMMAND("&b{0} &7is not a valid subcommand."),
     PLAYER_NULL("The player &b{0} &7has never played before."),
     PLAYER_OFFLINE("The player &b{0} &7does not seem to be online."),
     WILDERNESS_TITLE("&a&lWilderness"),
-    WILDERNESS_FOOTER("&7Fresh new land awaits you");
+    WILDERNESS_FOOTER("&7Fresh new land awaits you"),
+
+    // Role Permission Descriptions
+    // LAND
+    ROLE_PERMISSION_LAND_BREAK("break land"),
+    ROLE_PERMISSION_LAND_PLACE("place blocks"),
+    ROLE_PERMISSION_LAND_INTERACT("interact with the claim"),
+    ROLE_PERMISSION_LAND_CLAIM("claim land"),
+    ROLE_PERMISSION_LAND_UNCLAIM("unclaim land"),
+
+    //EDIT
+    ROLE_PERMISSION_EDIT_CITIZEN("edit citizens"),
+    ROLE_PERMISSION_EDIT_LAND("edit claims"),
+    ROLE_PERMISSION_EDIT_SPAWN("edit spawn"),
+    ROLE_PERMISSION_EDIT_ROLES("edit roles"),
+    ROLE_PERMISSION_EDIT_DESCRIPTION("edit the settlement description"),
+    ROLE_PERMISSION_EDIT_TAGS("edit the settlement tag"),
+
+    //MEMBER
+    ROLE_PERMISSION_MEMBER_KICK("Kick members from the settlement"),
+    ROLE_PERMISSION_MEMBER_INVITE("invite members to the settlement"),
+    ROLE_PERMISSION_MEMBER_KICK_EXEMPT("kick this player"),
+    ROLE_PERMISSION_MEMBER_FRIENDLY_FIRE("damage your settlement members"),
+
+    //SPAWN
+    ROLE_PERMISSION_SPAWN_SET("set settlement spawn"),
+    ROLE_PERMISSION_SPAWN_TELEPORT("teleport to settlement");
 
     private final String def;
-
     private final List<String> list;
     private static FileConfiguration localeConfiguration;
 
@@ -117,17 +143,21 @@ public enum Locale implements Parseable {
         this.def = null;
     }
 
+    public String prefix(Object... objects) {
+        return Locale.PREFIX.parse() + parameterizeObjects(objects);
+    }
+
     @Nullable
     public String parse() {
         String message = localeConfiguration.getString(toString(), def);
-        if(message == null) return null;
+        if (message == null) return null;
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
     @Nullable
     public List<String> parseList() {
         List<?> objects = localeConfiguration.getList(toString(), list);
-        if(objects == null) return null;
+        if (objects == null) return null;
         return objects.stream().map(Functions.toStringFunction()).collect(Collectors.toList());
     }
 

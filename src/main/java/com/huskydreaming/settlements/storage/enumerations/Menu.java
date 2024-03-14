@@ -41,6 +41,11 @@ public enum Menu implements Parseable {
     SETTLEMENT_CITIZENS_LORE(Collections.singletonList("&7Click to edit Members.")),
     SETTLEMENT_ROLES_TITLE("&aRoles"),
     SETTLEMENT_ROLES_LORE(Collections.singletonList("&7Click to edit Roles.")),
+    SETTLEMENT_ROLE_EDIT_DISPLAYNAME("&a{0}. {1}"),
+    SETTLEMENT_ROLE_EDIT_ROLE("&f{0}"),
+    SETTLEMENT_ROLE_EDIT_TAG("(Default)"),
+    SETTLEMENT_ROLE_EDIT_TITLE("{0} {1}"),
+    SETTLEMENT_ROLE_EDIT_LORE(Collections.singletonList("&7Click to edit Role.")),
     SETTLEMENT_LANDS_TITLE("&aLands"),
     SETTLEMENT_LANDS_LORE(Collections.singletonList("&7Click to edit Lands.")),
     SETTLEMENT_SPAWN_TITLE("&aSpawn"),
@@ -115,14 +120,14 @@ public enum Menu implements Parseable {
     @Nullable
     public String parse() {
         String message = menuConfiguration.getString(toString(), def);
-        if(message == null) return null;
+        if (message == null) return null;
         return ChatColor.translateAlternateColorCodes('&', message);
     }
 
     @Nullable
     public List<String> parseList() {
         List<?> objects = menuConfiguration.getList(toString(), list);
-        if(objects == null) return null;
+        if (objects == null) return null;
         return objects.stream().map(Functions.toStringFunction()).collect(Collectors.toList());
     }
 

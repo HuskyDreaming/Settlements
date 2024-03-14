@@ -13,7 +13,6 @@ import com.huskydreaming.settlements.services.interfaces.InvitationService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -37,23 +36,23 @@ public class InviteCommand implements CommandInterface {
         if (strings.length == 2) {
 
             if (!memberService.hasSettlement(player)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+                player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
                 return;
             }
 
             Player target = Bukkit.getPlayer(strings[1]);
             if (target == null) {
-                player.sendMessage(Remote.prefix(Locale.PLAYER_OFFLINE, strings[1]));
+                player.sendMessage(Locale.PLAYER_OFFLINE.prefix(strings[1]));
                 return;
             }
 
             if (target == player) {
-                player.sendMessage(Remote.prefix(Locale.INVITATION_SELF));
+                player.sendMessage(Locale.INVITATION_SELF.prefix());
                 return;
             }
 
             if (memberService.hasSettlement(target)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_HAS_SETTLEMENT, target.getName()));
+                player.sendMessage(Locale.SETTLEMENT_PLAYER_HAS_SETTLEMENT.prefix(target.getName()));
                 return;
             }
 
@@ -62,12 +61,12 @@ public class InviteCommand implements CommandInterface {
             Role role = roleService.getRole(member);
 
             if (!(role.hasPermission(RolePermission.MEMBER_INVITE) || settlement.isOwner(player))) {
-                player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS, RolePermission.MEMBER_INVITE.getName()));
+                player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.MEMBER_INVITE));
                 return;
             }
 
             invitationService.sendInvitation(target, member.getSettlement());
-            player.sendMessage(Remote.prefix(Locale.INVITATION_SENT, target.getName()));
+            player.sendMessage(Locale.INVITATION_SENT.prefix(target.getName()));
         }
     }
 }

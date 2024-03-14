@@ -7,7 +7,6 @@ import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import com.huskydreaming.settlements.storage.enumerations.Menu;
-import com.huskydreaming.settlements.utilities.Remote;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -45,15 +44,15 @@ public class MembersInventory extends InventoryPageProvider<OfflinePlayer> {
         String lastOnline = (offlinePlayer.isOnline() ? "Now" : member.getLastOnline()) + " (" + zone + ")";
 
         return ItemBuilder.create()
-                .setDisplayName(Remote.parameterize(Menu.MEMBERS_TITLE, index, offlinePlayer.getName()))
-                .setLore(Remote.parameterizeList(Menu.MEMBERS_LORE, member.getRole(), status, lastOnline))
+                .setDisplayName(Menu.MEMBERS_TITLE.parameterize(index, offlinePlayer.getName()))
+                .setLore(Menu.MEMBERS_LORE.parameterizeList(member.getRole(), status, lastOnline))
                 .buildPlayer(offlinePlayer);
     }
 
     @Override
     public void run(InventoryClickEvent event, OfflinePlayer offlinePlayer, InventoryContents contents) {
-        if(event.getWhoClicked() instanceof Player player) {
-           inventoryService.getCitizenInventory(plugin, settlementName, offlinePlayer).open(player);
+        if (event.getWhoClicked() instanceof Player player) {
+            inventoryService.getCitizenInventory(plugin, settlementName, offlinePlayer).open(player);
         }
     }
 }

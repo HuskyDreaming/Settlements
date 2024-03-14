@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services.providers;
+package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.services.interfaces.LocaleService;

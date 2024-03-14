@@ -7,9 +7,9 @@ import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
+import com.huskydreaming.settlements.storage.enumerations.Menu;
 import com.huskydreaming.settlements.utilities.ItemBuilder;
 import fr.minuskube.inv.content.InventoryContents;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -50,13 +50,13 @@ public class RolesInventory extends InventoryPageProvider<Role> {
         boolean isDefault = settlement.getDefaultRole().equalsIgnoreCase(role.getName());
 
         Material material = isDefault ? Material.BOOK : Material.PAPER;
-        String defaultRole = isDefault ? "(Default)" : "";
-        String defaultName = ChatColor.GRAY + defaultRole;
-        String displayName = ChatColor.GREEN + "" + index + ". " + role.getName();
+        String defaultRole = isDefault ? Menu.SETTLEMENT_ROLE_EDIT_TITLE.parse() : "";
+        String defaultName = Menu.SETTLEMENT_ROLE_EDIT_ROLE.parameterize(defaultRole);
+        String displayName = Menu.SETTLEMENT_ROLE_EDIT_DISPLAYNAME.parameterize(index, role.getName());
 
         return ItemBuilder.create()
-                .setDisplayName(displayName + " " + defaultName)
-                .setLore(ChatColor.GRAY + "Left-Click to edit role.", ChatColor.GRAY + "Right-click to increase priority.")
+                .setDisplayName(Menu.SETTLEMENT_ROLE_EDIT_TITLE.parameterize(displayName, defaultName))
+                .setLore(Menu.SETTLEMENT_ROLE_EDIT_LORE.parseList())
                 .setMaterial(material)
                 .setEnchanted(isDefault)
                 .setAmount(index)
@@ -66,12 +66,12 @@ public class RolesInventory extends InventoryPageProvider<Role> {
     @Override
     public void run(InventoryClickEvent event, Role role, InventoryContents contents) {
         if (event.getWhoClicked() instanceof Player player) {
-            if(event.isLeftClick()) {
+            if (event.isLeftClick()) {
                 inventoryService.getRoleInventory(plugin, settlementName, role).open(player);
-            } else if(event.isRightClick()) {
+            } else if (event.isRightClick()) {
                 List<Role> roles = roleService.getRoles(settlementName);
                 int index = roleService.getIndex(settlementName, role.getName());
-                if(index < roles.size() - 1) Collections.swap(roles, index, index + 1);
+                if (index < roles.size() - 1) Collections.swap(roles, index, index + 1);
                 contents.inventory().open(player);
             }
         }

@@ -12,7 +12,6 @@ import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.CREATEROLE, arguments = " [name]")
@@ -31,8 +30,8 @@ public class CreateRoleCommand implements CommandInterface {
     @Override
     public void run(Player player, String[] strings) {
         if (strings.length == 2) {
-            if(!memberService.hasSettlement(player)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+            if (!memberService.hasSettlement(player)) {
+                player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
                 return;
             }
 
@@ -40,17 +39,17 @@ public class CreateRoleCommand implements CommandInterface {
             Settlement settlement = settlementService.getSettlement(member.getSettlement());
             Role role = roleService.getRole(member);
 
-            if(role.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player)) {
+            if (role.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player)) {
                 String roleName = strings[1];
-                if(roleService.hasRole(member.getSettlement(), roleName)) {
-                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_ROLE_CREATE, roleName));
+                if (roleService.hasRole(member.getSettlement(), roleName)) {
+                    player.sendMessage(Locale.SETTLEMENT_ROLE_CREATE.prefix(roleName));
                     return;
                 }
 
                 roleService.add(member.getSettlement(), roleName);
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_ROLE_CREATE, roleName));
+                player.sendMessage(Locale.SETTLEMENT_ROLE_CREATE.prefix(roleName));
             } else {
-                player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS, RolePermission.EDIT_ROLES.getName()));
+                player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.EDIT_ROLES));
             }
         }
     }

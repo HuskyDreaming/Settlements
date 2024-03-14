@@ -6,7 +6,7 @@
 
     <groupId>com.huskydreaming</groupId>
     <artifactId>Settlements</artifactId>
-    <version>0.6.0</version>
+    <version>0.6.1</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -43,7 +43,10 @@
     </build>
 
     <repositories>
-        <!-- This adds the Spigot Maven repository to the build -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
         <repository>
             <id>sk89q-repo</id>
             <url>https://maven.enginehub.org/repo/</url>
@@ -86,6 +89,12 @@
             <groupId>me.clip</groupId>
             <artifactId>placeholderapi</artifactId>
             <version>2.11.5</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.TownyAdvanced</groupId>
+            <artifactId>towny</artifactId>
+            <version>0.100.1.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -1,9 +1,10 @@
-package com.huskydreaming.settlements.services.providers;
+package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.dependencies.SettlementPlaceholderExpansion;
 import com.huskydreaming.settlements.services.interfaces.DependencyService;
 import com.huskydreaming.settlements.services.base.DependencyType;
+import com.palmergames.bukkit.towny.TownyAPI;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.util.Location;
 import com.sk89q.worldguard.WorldGuard;
@@ -22,6 +23,14 @@ public class DependencyServiceImpl implements DependencyService {
     private final Set<String> types = new HashSet<>();
 
     @Override
+    public boolean isTowny(Player player) {
+        if (types.contains(DependencyType.TOWNY.toString())) {
+            return !TownyAPI.getInstance().isWilderness(player.getLocation());
+        }
+        return false;
+    }
+
+    @Override
     public boolean isWorldGuard(Player player) {
         if (types.contains(DependencyType.WORLDGUARD.toString())) {
             Location location = BukkitAdapter.adapt(player.getLocation());
@@ -37,7 +46,7 @@ public class DependencyServiceImpl implements DependencyService {
     public void deserialize(SettlementPlugin plugin) {
         PluginManager pluginManager = plugin.getServer().getPluginManager();
 
-        for(String softDependency : plugin.getDescription().getSoftDepend()) {
+        for (String softDependency : plugin.getDescription().getSoftDepend()) {
             if (pluginManager.getPlugin(softDependency) != null) types.add(softDependency);
         }
 

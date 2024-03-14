@@ -1,8 +1,6 @@
 name: Settlements
 main: com.huskydreaming.settlements.SettlementPlugin
-version: 0.6.0
+version: 0.6.1
 api-version: 1.20
 author: HuskyDreaming
-softdepend:
-  - WorldGuard
-  - PlaceholderAPI
+softdepend: [WorldGuard, PlaceholderAPI, Towny]

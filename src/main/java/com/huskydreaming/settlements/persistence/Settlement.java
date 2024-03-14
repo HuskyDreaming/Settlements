@@ -7,6 +7,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.UUID;
 
 public class Settlement {
@@ -88,7 +89,7 @@ public class Settlement {
         OfflinePlayer player = Arrays.stream(Bukkit.getOfflinePlayers())
                 .filter(offlinePlayer -> offlinePlayer.getUniqueId().equals(owner))
                 .findFirst().orElse(null);
-        if(player != null) return player.getName();
+        if (player != null) return player.getName();
         return null;
     }
 
@@ -119,5 +120,26 @@ public class Settlement {
     @Deprecated
     public String getName() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Settlement that)) return false;
+        return maxLand == that.maxLand &&
+                maxCitizens == that.maxCitizens &&
+                maxRoles == that.maxRoles &&
+                Objects.equals(owner, that.owner) &&
+                Objects.equals(name, that.name) &&
+                Objects.equals(tag, that.tag) &&
+                Objects.equals(description, that.description) &&
+                Objects.equals(defaultRole, that.defaultRole) &&
+                Objects.equals(location, that.location)
+                && icon == that.icon;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(owner, name, tag, description, defaultRole, location, icon, maxLand, maxCitizens, maxRoles);
     }
 }

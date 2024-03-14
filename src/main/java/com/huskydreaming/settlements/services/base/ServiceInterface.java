@@ -7,6 +7,7 @@ public interface ServiceInterface {
     default void serialize(SettlementPlugin plugin) {
 
     }
+
     default void deserialize(SettlementPlugin plugin) {
 
     }

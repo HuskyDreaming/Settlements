@@ -7,6 +7,7 @@ public interface Registry {
     default void register(SettlementPlugin plugin) {
 
     }
+
     default void unregister(SettlementPlugin plugin) {
 
     }

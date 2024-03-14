@@ -12,7 +12,6 @@ import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
@@ -36,7 +35,7 @@ public class SetDescriptionCommand implements CommandInterface {
     public void run(Player player, String[] strings) {
         if (strings.length > 1) {
             if (!memberService.hasSettlement(player)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+                player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
                 return;
             }
 
@@ -52,20 +51,20 @@ public class SetDescriptionCommand implements CommandInterface {
                 int minimumDescriptionLength = defaults.getOrDefault("min-description-length", 8);
                 int maximumDescriptionLength = defaults.getOrDefault("max-description-length", 36);
 
-                if(string.length() > maximumDescriptionLength) {
-                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DESCRIPTION_LONG, maximumDescriptionLength));
+                if (string.length() > maximumDescriptionLength) {
+                    player.sendMessage(Locale.SETTLEMENT_DESCRIPTION_LONG.prefix(maximumDescriptionLength));
                     return;
                 }
 
-                if(string.length() < minimumDescriptionLength) {
-                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DESCRIPTION_SHORT, minimumDescriptionLength));
+                if (string.length() < minimumDescriptionLength) {
+                    player.sendMessage(Locale.SETTLEMENT_DESCRIPTION_SHORT.prefix(minimumDescriptionLength));
                     return;
                 }
 
                 settlement.setDescription(string);
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_DESCRIPTION, string));
+                player.sendMessage(Locale.SETTLEMENT_DESCRIPTION.prefix(string));
             } else {
-                player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS, RolePermission.LAND_CLAIM.getName()));
+                player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.LAND_CLAIM.getName()));
             }
         }
     }

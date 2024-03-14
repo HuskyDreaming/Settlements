@@ -22,7 +22,7 @@ public class LocationSerializer implements JsonSerializer<Location>, JsonDeseria
         String worldId = jsonObject.get("worldId").getAsString();
 
         World world = null;
-        if(worldId != null) {
+        if (worldId != null) {
             UUID worldID = UUID.fromString(worldId);
             world = Bukkit.getWorld(worldID);
         }
@@ -41,7 +41,7 @@ public class LocationSerializer implements JsonSerializer<Location>, JsonDeseria
         jsonObject.addProperty("yaw", location.getYaw());
 
         World world = location.getWorld();
-        if(world != null) {
+        if (world != null) {
             jsonObject.addProperty("worldId", world.getUID().toString());
         }
 

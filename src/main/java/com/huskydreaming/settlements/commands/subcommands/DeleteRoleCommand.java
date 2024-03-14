@@ -12,7 +12,6 @@ import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.DELETEROLE, arguments = " [role]")
@@ -31,8 +30,8 @@ public class DeleteRoleCommand implements CommandInterface {
     @Override
     public void run(Player player, String[] strings) {
         if (strings.length == 2) {
-            if(!memberService.hasSettlement(player)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+            if (!memberService.hasSettlement(player)) {
+                player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
                 return;
             }
 
@@ -40,19 +39,19 @@ public class DeleteRoleCommand implements CommandInterface {
             Settlement settlement = settlementService.getSettlement(member.getSettlement());
             Role role = roleService.getRole(member);
 
-            if(role.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player)) {
+            if (role.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player)) {
                 String roleName = strings[1];
-                if(!roleService.hasRole(member.getSettlement(), roleName)) {
-                    player.sendMessage(Remote.prefix(Locale.SETTLEMENT_ROLE_NULL, roleName));
+                if (!roleService.hasRole(member.getSettlement(), roleName)) {
+                    player.sendMessage(Locale.SETTLEMENT_ROLE_NULL.prefix(roleName));
                     return;
                 }
 
                 Role roleToDelete = roleService.getRole(member.getSettlement(), roleName);
 
                 roleService.remove(member.getSettlement(), roleToDelete);
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_ROLE_DELETE, roleName));
+                player.sendMessage(Locale.SETTLEMENT_ROLE_DELETE.prefix(roleName));
             } else {
-                player.sendMessage(Remote.prefix(Locale.NO_PERMISSIONS, RolePermission.EDIT_ROLES.getName()));
+                player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.EDIT_ROLES));
             }
         }
     }

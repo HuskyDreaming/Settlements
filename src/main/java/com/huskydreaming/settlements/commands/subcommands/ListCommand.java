@@ -6,7 +6,6 @@ import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.LIST)
@@ -26,8 +25,8 @@ public class ListCommand implements CommandInterface {
     @Override
     public void run(Player player, String[] strings) {
         if (strings.length == 1) {
-            if(settlementService.getSettlements().isEmpty()) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_LIST_NULL));
+            if (settlementService.getSettlements().isEmpty()) {
+                player.sendMessage(Locale.SETTLEMENT_LIST_NULL.prefix());
             } else {
                 inventoryService.getSettlementsInventory(plugin).open(player);
             }

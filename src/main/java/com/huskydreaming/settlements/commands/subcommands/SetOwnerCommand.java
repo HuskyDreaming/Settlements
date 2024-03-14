@@ -30,36 +30,36 @@ public class SetOwnerCommand implements CommandInterface {
             String string = strings[1];
 
             if (!memberService.hasSettlement(player)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_PLAYER_NULL));
+                player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
                 return;
             }
 
             Member member = memberService.getCitizen(player);
             Settlement settlement = settlementService.getSettlement(member.getSettlement());
             if (!settlement.isOwner(player)) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_NOT_OWNER));
+                player.sendMessage(Locale.SETTLEMENT_NOT_OWNER.prefix());
                 return;
             }
 
             OfflinePlayer offlinePlayer = Remote.getOfflinePlayer(string);
             if (offlinePlayer == null) {
-                player.sendMessage(Remote.prefix(Locale.PLAYER_NULL, string));
+                player.sendMessage(Locale.PLAYER_NULL.prefix(string));
                 return;
             }
 
-            if(offlinePlayer.getUniqueId().equals(player.getUniqueId())) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_IS_OWNER));
+            if (offlinePlayer.getUniqueId().equals(player.getUniqueId())) {
+                player.sendMessage(Locale.SETTLEMENT_IS_OWNER.prefix());
                 return;
             }
 
             Member offlineMember = memberService.getCitizen(offlinePlayer);
             if (!offlineMember.getSettlement().equalsIgnoreCase(member.getSettlement())) {
-                player.sendMessage(Remote.prefix(Locale.SETTLEMENT_NOT_CITIZEN));
+                player.sendMessage(Locale.SETTLEMENT_NOT_CITIZEN.prefix());
                 return;
             }
 
             settlement.setOwner(offlinePlayer);
-            player.sendMessage(Remote.prefix(Locale.SETTLEMENT_OWNER_TRANSFERRED), offlinePlayer.getName());
+            player.sendMessage(Locale.SETTLEMENT_OWNER_TRANSFERRED.prefix(offlinePlayer.getName()));
         }
     }
 }

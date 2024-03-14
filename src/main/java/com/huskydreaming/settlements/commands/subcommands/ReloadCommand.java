@@ -6,7 +6,6 @@ import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.RELOAD)
@@ -44,6 +43,6 @@ public class ReloadCommand implements CommandInterface {
         roleService.serialize(plugin);
         settlementService.serialize(plugin);
 
-        player.sendMessage(Remote.prefix(Locale.RELOAD));
+        player.sendMessage(Locale.RELOAD.prefix());
     }
 }

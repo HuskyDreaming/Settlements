@@ -4,5 +4,5 @@ public enum RolePermissionType {
     LAND,
     EDIT,
     MEMBER,
-    SPAWN;
+    SPAWN
 }

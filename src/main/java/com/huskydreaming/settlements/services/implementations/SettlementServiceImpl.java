@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services.providers;
+package com.huskydreaming.settlements.services.implementations;
 
 import com.google.gson.reflect.TypeToken;
 import com.huskydreaming.settlements.SettlementPlugin;
@@ -25,7 +25,7 @@ public class SettlementServiceImpl implements SettlementService {
     @Override
     public Settlement createSettlement(Player player, String name) {
         Settlement settlement = Settlement.create(player);
-        if(defaults != null) {
+        if (defaults != null) {
             settlement.setMaxCitizens(defaults.getOrDefault("max-members", 10));
             settlement.setMaxLand(defaults.getOrDefault("max-claims", 15));
             settlement.setMaxRoles(defaults.getOrDefault("max-roles", 5));
@@ -42,12 +42,12 @@ public class SettlementServiceImpl implements SettlementService {
 
     @Override
     public boolean isSettlement(String name) {
-        return settlements.containsKey(name);
+        return settlements.containsKey(name.toLowerCase());
     }
 
     @Override
     public Settlement getSettlement(String string) {
-        return settlements.get(string);
+        return settlements.get(string.toLowerCase());
     }
 
     @Override
@@ -68,10 +68,11 @@ public class SettlementServiceImpl implements SettlementService {
 
     @Override
     public void deserialize(SettlementPlugin plugin) {
-        Type set = new TypeToken<Set<Settlement>>(){}.getType();
+        Type set = new TypeToken<Set<Settlement>>() {}.getType();
         Set<Settlement> settlementSet = Json.read(plugin, "data/settlements", set);
 
-        if(settlementSet != null) {
+        if (settlementSet != null) {
+            // This deprecation is fine as we are converting old data format to new
             settlementSet.forEach(settlement -> settlements.put(settlement.getName(), settlement));
 
             plugin.getLogger().info("Converted old data format to new enhanced data format...");
@@ -81,14 +82,13 @@ public class SettlementServiceImpl implements SettlementService {
                 plugin.getLogger().info("Registered " + size + " settlement(s).");
             }
         } else {
-            Type hashmap = new TypeToken<Map<String, Settlement>>() {}.getType();
+            Type hashmap = new TypeToken<Map<String, Settlement>>() {
+            }.getType();
             settlements = Json.read(plugin, "data/settlements", hashmap);
             if (settlements == null) settlements = new ConcurrentHashMap<>();
 
             int size = settlements.size();
-            if (size > 0) {
-                plugin.getLogger().info("Registered " + size + " settlement(s).");
-            }
+            if (size > 0) plugin.getLogger().info("Registered " + size + " settlement(s).");
         }
 
         if (defaults != null) defaults.clear();
