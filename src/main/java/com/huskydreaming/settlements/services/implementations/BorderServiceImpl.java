@@ -1,9 +1,9 @@
 package com.huskydreaming.settlements.services.implementations;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.persistence.Claim;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.settlements.services.interfaces.BorderService;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
+import com.huskydreaming.settlements.services.interfaces.ChunkService;
 import com.huskydreaming.settlements.transience.BorderData;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -16,15 +16,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class BorderServiceImpl implements BorderService {
 
-    private final ClaimService claimService;
+    private final ChunkService chunkService;
     private final Map<Player, BorderData> borders = new ConcurrentHashMap<>();
 
-    public BorderServiceImpl(SettlementPlugin plugin) {
-        claimService = plugin.provide(ClaimService.class);
+    public BorderServiceImpl(HuskyPlugin plugin) {
+        chunkService = plugin.provide(ChunkService.class);
     }
 
+
     @Override
-    public void deserialize(SettlementPlugin plugin) {
+    public void deserialize(HuskyPlugin plugin) {
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -54,40 +55,40 @@ public class BorderServiceImpl implements BorderService {
     @Override
     public BorderData calculatePositions(String name, Color color) {
         Set<Location> points = new HashSet<>();
-        for (Claim claim : claimService.getClaims(name)) {
+        for (ChunkData data : chunkService.getClaims(name)) {
 
-            Chunk chunk = claim.toChunk();
+            Chunk chunk = data.toChunk();
             World world = chunk.getWorld();
 
-            int minX = claim.getX() << 4;
-            int minZ = claim.getZ() << 4;
+            int minX = data.getX() << 4;
+            int minZ = data.getZ() << 4;
 
             int maxX = minX + 16;
             int maxZ = minZ + 16;
 
             // North
-            if (!claimService.isClaim(world.getChunkAt(chunk.getX(), chunk.getZ() - 1))) {
+            if (!chunkService.isClaim(world.getChunkAt(chunk.getX(), chunk.getZ() - 1))) {
                 for (int x = minX; x <= maxX; x++) {
                     points.add(new Location(world, x, world.getHighestBlockYAt(x, minZ) + 1, minZ));
                 }
             }
 
             // South
-            if (!claimService.isClaim(world.getChunkAt(chunk.getX(), chunk.getZ() + 1))) {
+            if (!chunkService.isClaim(world.getChunkAt(chunk.getX(), chunk.getZ() + 1))) {
                 for (int x = minX; x <= maxX; x++) {
                     points.add(new Location(world, x, world.getHighestBlockYAt(x, maxZ) + 1, maxZ));
                 }
             }
 
             // West
-            if (!claimService.isClaim(world.getChunkAt(chunk.getX() - 1, chunk.getZ()))) {
+            if (!chunkService.isClaim(world.getChunkAt(chunk.getX() - 1, chunk.getZ()))) {
                 for (int z = minZ; z <= maxZ; z++) {
                     points.add(new Location(world, minX, world.getHighestBlockYAt(minX, z) + 1, z));
                 }
             }
 
             // East
-            if (!claimService.isClaim(world.getChunkAt(chunk.getX() + 1, chunk.getZ()))) {
+            if (!chunkService.isClaim(world.getChunkAt(chunk.getX() + 1, chunk.getZ()))) {
                 for (int z = minZ; z <= maxZ; z++) {
                     points.add(new Location(world, maxX, world.getHighestBlockYAt(maxX, z) + 1, z));
                 }

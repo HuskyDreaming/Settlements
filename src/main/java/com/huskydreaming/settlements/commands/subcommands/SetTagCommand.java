@@ -1,8 +1,8 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.commands.Command;
-import com.huskydreaming.settlements.commands.CommandInterface;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.commands.Command;
+import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
@@ -11,20 +11,20 @@ import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
+import com.huskydreaming.settlements.storage.Locale;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
 
-@Command(label = CommandLabel.SETTAG, arguments = " [tag]")
-public class SetTagCommand implements CommandInterface {
+@Command(label = CommandLabel.SET_TAG, arguments = " [tag]")
+public class SetTagCommand implements SubCommand {
 
     private final MemberService memberService;
 
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public SetTagCommand(SettlementPlugin plugin) {
+    public SetTagCommand(HuskyPlugin plugin) {
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);

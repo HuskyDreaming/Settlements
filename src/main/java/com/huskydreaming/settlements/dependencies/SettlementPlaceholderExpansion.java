@@ -1,13 +1,13 @@
 package com.huskydreaming.settlements.dependencies;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.persistence.Claim;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.data.ChunkData;
+import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.enumerations.Placeholder;
-import com.huskydreaming.settlements.utilities.Remote;
+import com.huskydreaming.settlements.storage.Placeholder;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.jetbrains.annotations.NotNull;
@@ -17,20 +17,20 @@ import java.util.*;
 
 public class SettlementPlaceholderExpansion extends PlaceholderExpansion {
 
-    private final SettlementPlugin plugin;
-    private final ClaimService claimService;
+    private final HuskyPlugin plugin;
+    private final ChunkService chunkService;
     private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
 
     private final String defaultString;
 
-    public SettlementPlaceholderExpansion(SettlementPlugin plugin) {
+    public SettlementPlaceholderExpansion(HuskyPlugin plugin) {
         this.plugin = plugin;
 
         ConfigService configService = plugin.provide(ConfigService.class);
         defaultString = configService.deserializeEmptyPlaceholder(plugin);
-        claimService = plugin.provide(ClaimService.class);
+        chunkService = plugin.provide(ChunkService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
@@ -72,8 +72,8 @@ public class SettlementPlaceholderExpansion extends PlaceholderExpansion {
 
         if (Placeholder.CLAIMS_COUNT.isPlaceholder(params) && memberService.hasSettlement(player)) {
             Member member = memberService.getCitizen(player);
-            Set<Claim> claims = claimService.getClaims(member.getSettlement());
-            return String.valueOf(claims.size());
+            Set<ChunkData> chunks = chunkService.getClaims(member.getSettlement());
+            return String.valueOf(chunks.size());
         }
 
         if (Placeholder.ROLES_COUNT.isPlaceholder(params) && memberService.hasSettlement(player)) {
@@ -109,7 +109,7 @@ public class SettlementPlaceholderExpansion extends PlaceholderExpansion {
         // This needs to be improved with caching
         if (Placeholder.MEMBERS_TOP.containsPlaceholder(params)) {
             String[] split = params.split("_");
-            if (split.length == 3 && Remote.isNumeric(split[2])) {
+            if (split.length == 3 && Util.isNumeric(split[2])) {
                 int number = Integer.parseInt(split[2]);
                 if (memberService.getCount() < number) return defaultString;
                 LinkedHashMap<String, Long> map = memberService.getTop(number);
@@ -128,10 +128,10 @@ public class SettlementPlaceholderExpansion extends PlaceholderExpansion {
         // This needs to be improved with caching
         if (Placeholder.CLAIMS_TOP.containsPlaceholder(params)) {
             String[] split = params.split("_");
-            if (split.length == 3 && Remote.isNumeric(split[2])) {
+            if (split.length == 3 && Util.isNumeric(split[2])) {
                 int number = Integer.parseInt(split[2]);
-                if (claimService.getCount() < number) return defaultString;
-                LinkedHashMap<String, Long> map = claimService.getTop(number);
+                if (chunkService.getCount() < number) return defaultString;
+                LinkedHashMap<String, Long> map = chunkService.getTop(number);
 
                 if (map.isEmpty()) return defaultString;
 

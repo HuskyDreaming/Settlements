@@ -1,11 +1,11 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.commands.Command;
-import com.huskydreaming.settlements.commands.CommandInterface;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.commands.Command;
+import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.registries.CommandRegistry;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.registries.CommandRegistry;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
+import com.huskydreaming.settlements.storage.Locale;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
@@ -16,12 +16,12 @@ import java.util.List;
 import java.util.Set;
 
 @Command(label = CommandLabel.HELP, arguments = " [page]")
-public class HelpCommand implements CommandInterface {
+public class HelpCommand implements SubCommand {
 
     private final CommandRegistry commandRegistry;
 
-    public HelpCommand(SettlementPlugin plugin) {
-        commandRegistry = plugin.getCommandRegistry();
+    public HelpCommand(HuskyPlugin plugin) {
+        this.commandRegistry = plugin.getCommandRegistry();
     }
 
     @Override
@@ -33,8 +33,8 @@ public class HelpCommand implements CommandInterface {
             if (strings[1].equals("0")) index = 1;
         }
 
-        Set<CommandInterface> commandInterfaces = commandRegistry.getCommands();
-        int page = (int) Math.ceil((double) commandInterfaces.size() / 6);
+        Set<SubCommand> subCommands = commandRegistry.getSubCommands();
+        int page = (int) Math.ceil((double) subCommands.size() / 6);
 
         if (index > page) {
             player.sendMessage(Locale.HELP_PAGE_LIMIT.prefix(page));
@@ -48,7 +48,7 @@ public class HelpCommand implements CommandInterface {
 
             List<String> stringList = new ArrayList<>();
 
-            commandInterfaces.forEach(command -> stringList.add("/settlements " + command.getLabel().name().toLowerCase() + command.getArguments()));
+            subCommands.forEach(command -> stringList.add("/settlements " + command.getLabel().toLowerCase() + command.getArguments()));
             Collections.sort(stringList);
 
             for (int i = 0; i < stringList.size(); i++) {

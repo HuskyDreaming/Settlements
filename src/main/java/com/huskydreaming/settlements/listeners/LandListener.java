@@ -1,14 +1,14 @@
 package com.huskydreaming.settlements.listeners;
 
+import com.huskydreaming.huskycore.data.ChunkData;
+import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.persistence.Claim;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
+import com.huskydreaming.settlements.storage.Locale;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
@@ -27,7 +27,7 @@ import java.util.Set;
 public class LandListener implements Listener {
 
     private final BorderService borderService;
-    private final ClaimService claimService;
+    private final ChunkService chunkService;
     private final DependencyService dependencyService;
     private final MemberService memberService;
     private final RoleService roleService;
@@ -35,7 +35,7 @@ public class LandListener implements Listener {
 
     public LandListener(SettlementPlugin plugin) {
         borderService = plugin.provide(BorderService.class);
-        claimService = plugin.provide(ClaimService.class);
+        chunkService = plugin.provide(ChunkService.class);
         dependencyService = plugin.provide(DependencyService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
@@ -46,8 +46,8 @@ public class LandListener implements Listener {
     public void onMove(PlayerMoveEvent event) {
         if (event.getTo() != null && !event.getTo().getChunk().equals(event.getFrom().getChunk())) {
 
-            String fromChunk = claimService.getClaim(event.getFrom().getChunk());
-            String toChunk = claimService.getClaim(event.getTo().getChunk());
+            String fromChunk = chunkService.getClaim(event.getFrom().getChunk());
+            String toChunk = chunkService.getClaim(event.getTo().getChunk());
 
             Player player = event.getPlayer();
             if (fromChunk == null && toChunk != null) {
@@ -112,7 +112,7 @@ public class LandListener implements Listener {
         borderService.addPlayer(player, toChunk, color);
 
         player.sendTitle(
-                chatColor + Locale.SETTLEMENT_TITLE_HEADER.parameterize(Remote.capitalizeFully(toChunk)),
+                chatColor + Locale.SETTLEMENT_TITLE_HEADER.parameterize(Util.capitalize(toChunk)),
                 Locale.SETTLEMENT_TITLE_FOOTER.parameterize(settlement.getDescription()),
                 20, 40, 20
         );
@@ -124,7 +124,7 @@ public class LandListener implements Listener {
         Member member = memberService.getCitizen(player);
         if (!member.hasAutoClaim()) return false;
 
-        if (claimService.isDisabledWorld(player.getWorld())) {
+        if (chunkService.isDisabledWorld(player.getWorld())) {
             player.sendMessage(Locale.SETTLEMENT_LAND_DISABLED_WORLD.prefix());
             return false;
         }
@@ -140,13 +140,13 @@ public class LandListener implements Listener {
         }
 
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
-        Set<Claim> claims = claimService.getClaims(member.getSettlement());
-        if (claims.size() >= settlement.getMaxLand()) {
+        Set<ChunkData> chunks = chunkService.getClaims(member.getSettlement());
+        if (chunks.size() >= settlement.getMaxLand()) {
             player.sendMessage(Locale.SETTLEMENT_AUTO_CLAIM_OFF_MAX_LAND.prefix());
             member.setAutoClaim(false);
             return false;
         }
-        claimService.setClaim(chunk, member.getSettlement());
+        chunkService.setClaim(chunk, member.getSettlement());
 
         borderService.removePlayer(player);
         borderService.addPlayer(player, member.getSettlement(), Color.AQUA);
@@ -166,11 +166,11 @@ public class LandListener implements Listener {
     }
 
     private boolean isCancelled(Chunk chunk, Player player, RolePermission rolePermission) {
-        if (!claimService.isClaim(chunk)) return false;
+        if (!chunkService.isClaim(chunk)) return false;
         if (memberService.hasSettlement(player)) {
             Member member = memberService.getCitizen(player);
             String memberSettlement = member.getSettlement();
-            String currentSettlement = claimService.getClaim(chunk);
+            String currentSettlement = chunkService.getClaim(chunk);
 
             if (memberSettlement.equalsIgnoreCase(currentSettlement)) {
                 Settlement settlement = settlementService.getSettlement(memberSettlement);

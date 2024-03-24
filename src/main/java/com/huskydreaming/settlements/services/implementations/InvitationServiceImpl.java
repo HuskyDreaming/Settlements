@@ -2,9 +2,9 @@ package com.huskydreaming.settlements.services.implementations;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import com.huskydreaming.settlements.SettlementPlugin;
+import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.settlements.services.interfaces.InvitationService;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
+import com.huskydreaming.settlements.storage.Locale;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
@@ -59,7 +59,12 @@ public class InvitationServiceImpl implements InvitationService {
     }
 
     @Override
-    public void deserialize(SettlementPlugin plugin) {
+    public Set<String> getInvitations(Player player) {
+        return cache.getIfPresent(player.getUniqueId());
+    }
+
+    @Override
+    public void deserialize(HuskyPlugin plugin) {
         cache = CacheBuilder.newBuilder()
                 .expireAfterAccess(1, TimeUnit.MINUTES)
                 .build();

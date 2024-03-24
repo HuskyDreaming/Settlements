@@ -1,48 +1,49 @@
 package com.huskydreaming.settlements.inventories.providers;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.inventories.InventoryPageProvider;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.inventories.InventoryPageProvider;
+import com.huskydreaming.huskycore.utilities.ItemBuilder;
+import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
+import com.huskydreaming.settlements.services.interfaces.ChunkService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.utilities.ItemBuilder;
-import com.huskydreaming.settlements.storage.enumerations.Menu;
-import com.huskydreaming.settlements.utilities.Remote;
+import com.huskydreaming.settlements.storage.Menu;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 
 public class SettlementsInventory extends InventoryPageProvider<String> {
 
-    private final ClaimService claimService;
+    private final ChunkService chunkService;
     private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public SettlementsInventory(SettlementPlugin plugin, int rows, String[] settlementNames) {
+    public SettlementsInventory(HuskyPlugin plugin, int rows, String[] settlementNames) {
         super(rows, settlementNames);
 
         memberService = plugin.provide(MemberService.class);
-        claimService = plugin.provide(ClaimService.class);
+        chunkService = plugin.provide(ChunkService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
     }
 
     @Override
-    public ItemStack construct(int index, String settlementName) {
+    public ItemStack construct(Player player, int index, String settlementName) {
 
         Settlement settlement = settlementService.getSettlement(settlementName);
         Material icon = settlement.getIcon();
 
         int roles = roleService.getRoles(settlementName).size();
-        int claims = claimService.getClaims(settlementName).size();
+        int claims = chunkService.getClaims(settlementName).size();
         int members = memberService.getMembers(settlementName).size();
 
         return ItemBuilder.create()
-                .setDisplayName(Menu.CLAIMS_TITLE.parameterize(index, Remote.capitalizeFully(settlementName)))
+                .setDisplayName(Menu.CLAIMS_TITLE.parameterize(index, Util.capitalize(settlementName)))
                 .setLore(Menu.SETTLEMENT_LORE.parameterizeList(
                         settlement.getOwnerName(),
                         members, settlement.getMaxCitizens(),

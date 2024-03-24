@@ -1,7 +1,7 @@
-package com.huskydreaming.settlements.storage.enumerations;
+package com.huskydreaming.settlements.storage;
 
 import com.google.common.base.Functions;
-import com.huskydreaming.settlements.storage.base.Parseable;
+import com.huskydreaming.huskycore.interfaces.Parseable;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -13,18 +13,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public enum Menu implements Parseable {
-    // General Menu Items
-    GENERAL_BACK_TITLE("&fBack"),
-    GENERAL_BACK_LORE(Collections.singletonList("&7Click to go back.")),
-    GENERAL_PREVIOUS_TITLE("&fPrevious"),
-    GENERAL_PREVIOUS_LORE(Collections.singletonList("&7Click for previous page.")),
-    GENERAL_NEXT_TITLE("&fNext"),
-    GENERAL_NEXT_LORE(Collections.singletonList("&7Click for next page.")),
-    GENERAL_NO_PERMISSIONS_TITLE("&c{0}"),
-    GENERAL_NO_PERMISSIONS_LORE(Collections.singletonList("&7No permissions.")),
-
-    // Confirmation Menu
-
     CONFIRMATION_YES_TITLE("&a&lYes"),
     CONFIRMATION_NO_TITLE("&c&lNo"),
 
@@ -41,13 +29,13 @@ public enum Menu implements Parseable {
     SETTLEMENT_CITIZENS_LORE(Collections.singletonList("&7Click to edit Members.")),
     SETTLEMENT_ROLES_TITLE("&aRoles"),
     SETTLEMENT_ROLES_LORE(Collections.singletonList("&7Click to edit Roles.")),
-    SETTLEMENT_ROLE_EDIT_DISPLAYNAME("&a{0}. {1}"),
-    SETTLEMENT_ROLE_EDIT_ROLE("&f{0}"),
-    SETTLEMENT_ROLE_EDIT_TAG("(Default)"),
-    SETTLEMENT_ROLE_EDIT_TITLE("{0} {1}"),
+    SETTLEMENT_ROLE_EDIT_TITLE("&a{0}. {1} &7{2}"),
+    SETTLEMENT_ROLE_EDIT_DEFAULT("(Default)"),
     SETTLEMENT_ROLE_EDIT_LORE(Collections.singletonList("&7Click to edit Role.")),
-    SETTLEMENT_LANDS_TITLE("&aLands"),
-    SETTLEMENT_LANDS_LORE(Collections.singletonList("&7Click to edit Lands.")),
+    SETTLEMENT_CLAIMS_TITLE("&aClaims"),
+    SETTLEMENT_CLAIMS_LORE(Collections.singletonList("&7Click to view claims.")),
+    SETTLEMENT_FLAGS_TITLE("&aFlags"),
+    SETTLEMENT_FLAGS_LORE(List.of("&7Click to adjust flags.", "", "&f&oFlags currently don't function")),
     SETTLEMENT_SPAWN_TITLE("&aSpawn"),
     SETTLEMENT_SPAWN_LORE(Arrays.asList(
             "&7Left-Click to teleport",
@@ -67,7 +55,7 @@ public enum Menu implements Parseable {
     //Members Menu
     MEMBER_SET_OWNER_TITLE("&aSet Owner"),
     MEMBER_SET_OWNER_LORE(Collections.singletonList("&7Click to set owner")),
-    MEMBER_SET_ROLE_TITLE(" &aSet Role"),
+    MEMBER_SET_ROLE_TITLE("&aSet Role"),
     MEMBER_SET_ROLE_LORE(List.of(
             "&7Current Role: &f{0}. {1}",
             "",
@@ -88,16 +76,12 @@ public enum Menu implements Parseable {
     MEMBERS_STATUS_ONLINE("&aOnline"),
 
     DISBAND_TITLE("Disband Settlement?"),
+
     // Claims Menu
     CLAIMS_TITLE("&a{0}, {1}"),
     CLAIMS_LORE(List.of("&7Click to teleport.")),
+
     // Roles Menu
-    ROLE_SETTING_ENABLE_LORE("&7Click to enable"),
-    ROLE_SETTING_DISABLE_LORE("&7Click to disable"),
-    ROLE_SETTING_ENABLE_MATERIAL("LIME_DYE"),
-    ROLE_SETTING_DISABLE_MATERIAL("GRAY_DYE"),
-    ROLE_SETTING_ENABLE_COLOR("GREEN"),
-    ROLE_SETTING_DISABLE_COLOR("RED"),
     ROLE_DELETE_TITLE("&cDelete"),
     ROLE_DELETE_LORE(Collections.singletonList("&7Click to delete role.")),
     ROLE_DEFAULT_TITLE("&bDefault"),
@@ -115,6 +99,11 @@ public enum Menu implements Parseable {
     Menu(List<String> list) {
         this.list = list;
         this.def = null;
+    }
+
+    @Override
+    public String prefix(Object... objects) {
+        return null;
     }
 
     @Nullable

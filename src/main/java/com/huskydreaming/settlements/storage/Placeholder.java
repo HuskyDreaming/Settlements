@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.storage.enumerations;
+package com.huskydreaming.settlements.storage;
 
 public enum Placeholder {
     NAME,

@@ -1,12 +1,12 @@
 package com.huskydreaming.settlements.inventories.providers;
 
-import com.huskydreaming.settlements.SettlementPlugin;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.inventories.InventoryItem;
+import com.huskydreaming.huskycore.utilities.ItemBuilder;
 import com.huskydreaming.settlements.inventories.InventoryAction;
-import com.huskydreaming.settlements.inventories.InventoryItem;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.utilities.ItemBuilder;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.storage.enumerations.Menu;
+import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
@@ -18,22 +18,24 @@ import java.util.Objects;
 
 public class ConfirmationInventory implements InventoryProvider {
 
-    private final SettlementPlugin plugin;
+    private final HuskyPlugin plugin;
     private final BorderService borderService;
+    private final FlagService flagService;
     private final MemberService memberService;
-    private final ClaimService claimService;
+    private final ChunkService chunkService;
     private final InventoryService inventoryService;
     private final RoleService roleService;
     private final SettlementService settlementService;
     private final InventoryAction inventoryAction;
     private final String name;
 
-    public ConfirmationInventory(SettlementPlugin plugin, String name, InventoryAction inventoryAction) {
+    public ConfirmationInventory(HuskyPlugin plugin, String name, InventoryAction inventoryAction) {
         this.plugin = plugin;
 
         borderService = plugin.provide(BorderService.class);
+        flagService = plugin.provide(FlagService.class);
         settlementService = plugin.provide(SettlementService.class);
-        claimService = plugin.provide(ClaimService.class);
+        chunkService = plugin.provide(ChunkService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
         inventoryService = plugin.provide(InventoryService.class);
@@ -75,8 +77,9 @@ public class ConfirmationInventory implements InventoryProvider {
 
     public void runAction(Player player) {
         if (Objects.requireNonNull(inventoryAction) == InventoryAction.DISBAND) {
-            claimService.clean(name);
+            chunkService.clean(name);
             memberService.clean(name);
+            flagService.clean(name);
             roleService.clean(name);
             settlementService.disbandSettlement(name);
             borderService.removePlayer(player);

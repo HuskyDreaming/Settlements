@@ -1,13 +1,14 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.google.gson.reflect.TypeToken;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.storage.Json;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
-import com.huskydreaming.settlements.storage.types.Json;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -25,13 +26,13 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public void serialize(SettlementPlugin plugin) {
+    public void serialize(HuskyPlugin plugin) {
         Json.write(plugin, "data/roles", roles);
         plugin.getLogger().info("Saved " + roles.size() + " roles(s).");
     }
 
     @Override
-    public void deserialize(SettlementPlugin plugin) {
+    public void deserialize(HuskyPlugin plugin) {
         Type type = new TypeToken<Map<String, List<Role>>>() {}.getType();
         roles = Json.read(plugin, "data/roles", type);
 

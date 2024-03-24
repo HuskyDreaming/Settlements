@@ -1,16 +1,15 @@
 package com.huskydreaming.settlements.services.implementations;
 
+import com.huskydreaming.settlements.persistence.Flag;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
-import com.huskydreaming.settlements.storage.enumerations.Config;
+import com.huskydreaming.settlements.storage.Config;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConfigServiceImpl implements ConfigService {
@@ -39,6 +38,15 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
+    public Set<Flag> deserializeDefaultFlags(Plugin plugin) {
+        Set<Flag> flags = new HashSet<>();
+        for(String string : plugin.getConfig().getStringList(Config.FLAGS.toString())) {
+            flags.add(Flag.valueOf(string));
+        }
+        return flags;
+    }
+
+    @Override
     public List<String> deserializeDisabledWorlds(Plugin plugin) {
         return plugin.getConfig().getStringList(Config.DISABLED_WORLDS.toString());
     }
@@ -46,6 +54,11 @@ public class ConfigServiceImpl implements ConfigService {
     @Override
     public String deserializeEmptyPlaceholder(Plugin plugin) {
         return plugin.getConfig().getString(Config.PLACEHOLDER_STRING.toString());
+    }
+
+    @Override
+    public boolean deserializeTeleportation(Plugin plugin) {
+        return plugin.getConfig().getBoolean(Config.TELEPORTATION.toString());
     }
 
     @Override

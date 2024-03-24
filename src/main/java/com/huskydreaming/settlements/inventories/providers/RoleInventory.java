@@ -1,7 +1,9 @@
 package com.huskydreaming.settlements.inventories.providers;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.inventories.InventoryPageProvider;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.inventories.InventoryPageProvider;
+import com.huskydreaming.huskycore.storage.parseables.DefaultMenu;
+import com.huskydreaming.huskycore.utilities.ItemBuilder;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
@@ -10,12 +12,10 @@ import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.utilities.ItemBuilder;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.storage.enumerations.Menu;
+import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -23,7 +23,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class RoleInventory extends InventoryPageProvider<RolePermission> {
 
-    private final SettlementPlugin plugin;
+    private final HuskyPlugin plugin;
     private final InventoryService inventoryService;
     private final MemberService memberService;
     private final SettlementService settlementService;
@@ -32,7 +32,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
 
     private final String settlementName;
 
-    public RoleInventory(SettlementPlugin plugin, String settlementName, int rows, Role role) {
+    public RoleInventory(HuskyPlugin plugin, String settlementName, int rows, Role role) {
         super(rows, RolePermission.values());
         this.plugin = plugin;
 
@@ -58,18 +58,18 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
     }
 
     @Override
-    public ItemStack construct(int index, RolePermission rolePermission) {
+    public ItemStack construct(Player player, int index, RolePermission rolePermission) {
         boolean enabled = this.role.hasPermission(rolePermission);
 
-        String materialEnabled = Menu.ROLE_SETTING_ENABLE_MATERIAL.parse();
-        String materialDisabled = Menu.ROLE_SETTING_DISABLE_MATERIAL.parse();
+        String materialEnabled = DefaultMenu.ENABLE_MATERIAL.parse();
+        String materialDisabled = DefaultMenu.DISABLED_MATERIAL.parse();
 
-        String colorEnabled = Menu.ROLE_SETTING_ENABLE_COLOR.parse();
-        String colorDisabled = Menu.ROLE_SETTING_DISABLE_COLOR.parse();
+        String displayNameEnabled = DefaultMenu.ENABLE_TITLE.parameterize(rolePermission.getName());
+        String displayNameDisabled = DefaultMenu.DISABLED_TITLE.parameterize(rolePermission.getName());
 
         return ItemBuilder.create()
-                .setDisplayName(ChatColor.valueOf(enabled ? colorEnabled : colorDisabled) + rolePermission.getName())
-                .setLore(enabled ? Menu.ROLE_SETTING_ENABLE_LORE.parse() : Menu.ROLE_SETTING_DISABLE_LORE.parse())
+                .setDisplayName(enabled ? displayNameEnabled : displayNameDisabled)
+                .setLore(enabled ? DefaultMenu.DISABLED_DESCRIPTION.parse() : DefaultMenu.ENABLED_DESCRIPTION.parse())
                 .setMaterial(Material.valueOf(enabled ? materialEnabled : materialDisabled))
                 .build();
     }

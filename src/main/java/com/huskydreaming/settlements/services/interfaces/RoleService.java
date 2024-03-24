@@ -1,13 +1,13 @@
 package com.huskydreaming.settlements.services.interfaces;
 
+import com.huskydreaming.huskycore.interfaces.Service;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.services.base.ServiceInterface;
 
 import java.util.List;
 
-public interface RoleService extends ServiceInterface {
+public interface RoleService extends Service {
 
     Role getOtherRole(String settlementName, String name);
 

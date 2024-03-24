@@ -1,9 +1,9 @@
 package com.huskydreaming.settlements.services.interfaces;
 
-import com.huskydreaming.settlements.services.base.ServiceInterface;
-import com.huskydreaming.settlements.storage.types.Yaml;
+import com.huskydreaming.huskycore.interfaces.Service;
+import com.huskydreaming.huskycore.storage.Yaml;
 
-public interface LocaleService extends ServiceInterface {
+public interface LocaleService extends Service {
 
     Yaml getLocale();
     Yaml getMenu();

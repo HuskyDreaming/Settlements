@@ -1,7 +1,8 @@
 package com.huskydreaming.settlements.inventories.providers;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.inventories.InventoryItem;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.inventories.InventoryItem;
+import com.huskydreaming.huskycore.utilities.ItemBuilder;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
@@ -10,9 +11,8 @@ import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.utilities.ItemBuilder;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.storage.enumerations.Menu;
+import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
@@ -22,7 +22,7 @@ import org.bukkit.entity.Player;
 
 public class MemberInventory implements InventoryProvider {
 
-    private final SettlementPlugin plugin;
+    private final HuskyPlugin plugin;
     private final InventoryService inventoryService;
     private final MemberService memberService;
     private final RoleService roleService;
@@ -31,7 +31,7 @@ public class MemberInventory implements InventoryProvider {
 
     private final String settlementName;
 
-    public MemberInventory(SettlementPlugin plugin, String settlementName, OfflinePlayer offlinePlayer) {
+    public MemberInventory(HuskyPlugin plugin, String settlementName, OfflinePlayer offlinePlayer) {
         this.plugin = plugin;
 
         inventoryService = plugin.provide(InventoryService.class);
@@ -92,7 +92,7 @@ public class MemberInventory implements InventoryProvider {
         int index = roleService.getIndex(settlementName, member);
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_SET_ROLE_TITLE.parse())
-                .setLore(Menu.MEMBER_SET_ROLE_LORE.parameterize(index, member.getRole()))
+                .setLore(Menu.MEMBER_SET_ROLE_LORE.parameterizeList(index, member.getRole()))
                 .setMaterial(Material.WRITABLE_BOOK)
                 .build(), e -> {
 

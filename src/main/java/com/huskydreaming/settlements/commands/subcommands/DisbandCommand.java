@@ -1,29 +1,31 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.commands.Command;
-import com.huskydreaming.settlements.commands.CommandInterface;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.commands.Command;
+import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
+import com.huskydreaming.settlements.storage.Locale;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.DISBAND)
-public class DisbandCommand implements CommandInterface {
+public class DisbandCommand implements SubCommand {
 
     private final BorderService borderService;
     private final MemberService memberService;
-    private final ClaimService claimService;
+    private final ChunkService chunkService;
     private final RoleService roleService;
+    private final FlagService flagService;
     private final SettlementService settlementService;
 
-    public DisbandCommand(SettlementPlugin plugin) {
+    public DisbandCommand(HuskyPlugin plugin) {
         borderService = plugin.provide(BorderService.class);
         memberService = plugin.provide(MemberService.class);
-        claimService = plugin.provide(ClaimService.class);
+        chunkService = plugin.provide(ChunkService.class);
         roleService = plugin.provide(RoleService.class);
+        flagService = plugin.provide(FlagService.class);
         settlementService = plugin.provide(SettlementService.class);
     }
 
@@ -41,7 +43,8 @@ public class DisbandCommand implements CommandInterface {
             return;
         }
 
-        claimService.clean(member.getSettlement());
+        flagService.clean(member.getSettlement());
+        chunkService.clean(member.getSettlement());
         memberService.clean(member.getSettlement());
         roleService.clean(member.getSettlement());
         settlementService.disbandSettlement(member.getSettlement());

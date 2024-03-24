@@ -1,6 +1,6 @@
 package com.huskydreaming.settlements.persistence.roles;
 
-import com.huskydreaming.settlements.utilities.Remote;
+import com.huskydreaming.huskycore.utilities.Util;
 
 import java.util.*;
 
@@ -30,7 +30,7 @@ public class Role {
     }
 
     public String getName() {
-        return Remote.capitalizeFully(name.toLowerCase());
+        return Util.capitalize(name.toLowerCase());
     }
 
     @Override

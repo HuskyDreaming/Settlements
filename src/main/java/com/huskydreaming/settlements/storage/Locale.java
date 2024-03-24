@@ -1,7 +1,7 @@
-package com.huskydreaming.settlements.storage.enumerations;
+package com.huskydreaming.settlements.storage;
 
 import com.google.common.base.Functions;
-import com.huskydreaming.settlements.storage.base.Parseable;
+import com.huskydreaming.huskycore.interfaces.Parseable;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.Nullable;
@@ -95,39 +95,13 @@ public enum Locale implements Parseable {
     INVITATION_SENT("You have sent an invitation to &b{0}&7."),
     INVITATION_ACCEPT("&a[Accept]"),
     INVITATION_DENY("&c[Deny]"),
-    NO_PERMISSIONS("You do not have permissions for &b{0}"),
+    NO_PERMISSIONS("You do not have permissions."),
     RELOAD("You have successfully reloaded all the configurations."),
     UNKNOWN_SUBCOMMAND("&b{0} &7is not a valid subcommand."),
     PLAYER_NULL("The player &b{0} &7has never played before."),
     PLAYER_OFFLINE("The player &b{0} &7does not seem to be online."),
     WILDERNESS_TITLE("&a&lWilderness"),
-    WILDERNESS_FOOTER("&7Fresh new land awaits you"),
-
-    // Role Permission Descriptions
-    // LAND
-    ROLE_PERMISSION_LAND_BREAK("break land"),
-    ROLE_PERMISSION_LAND_PLACE("place blocks"),
-    ROLE_PERMISSION_LAND_INTERACT("interact with the claim"),
-    ROLE_PERMISSION_LAND_CLAIM("claim land"),
-    ROLE_PERMISSION_LAND_UNCLAIM("unclaim land"),
-
-    //EDIT
-    ROLE_PERMISSION_EDIT_CITIZEN("edit citizens"),
-    ROLE_PERMISSION_EDIT_LAND("edit claims"),
-    ROLE_PERMISSION_EDIT_SPAWN("edit spawn"),
-    ROLE_PERMISSION_EDIT_ROLES("edit roles"),
-    ROLE_PERMISSION_EDIT_DESCRIPTION("edit the settlement description"),
-    ROLE_PERMISSION_EDIT_TAGS("edit the settlement tag"),
-
-    //MEMBER
-    ROLE_PERMISSION_MEMBER_KICK("Kick members from the settlement"),
-    ROLE_PERMISSION_MEMBER_INVITE("invite members to the settlement"),
-    ROLE_PERMISSION_MEMBER_KICK_EXEMPT("kick this player"),
-    ROLE_PERMISSION_MEMBER_FRIENDLY_FIRE("damage your settlement members"),
-
-    //SPAWN
-    ROLE_PERMISSION_SPAWN_SET("set settlement spawn"),
-    ROLE_PERMISSION_SPAWN_TELEPORT("teleport to settlement");
+    WILDERNESS_FOOTER("&7Fresh new land awaits you");
 
     private final String def;
     private final List<String> list;
@@ -144,7 +118,7 @@ public enum Locale implements Parseable {
     }
 
     public String prefix(Object... objects) {
-        return Locale.PREFIX.parse() + parameterizeObjects(objects);
+        return Locale.PREFIX.parse() + parameterize(objects);
     }
 
     @Nullable

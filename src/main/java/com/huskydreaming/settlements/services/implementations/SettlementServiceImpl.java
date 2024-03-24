@@ -1,11 +1,12 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.google.gson.reflect.TypeToken;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.storage.Json;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Json;
 import org.bukkit.entity.Player;
 
 import java.lang.reflect.Type;
@@ -20,6 +21,41 @@ public class SettlementServiceImpl implements SettlementService {
 
     public SettlementServiceImpl(SettlementPlugin plugin) {
         configService = plugin.provide(ConfigService.class);
+    }
+
+    @Override
+    public void serialize(HuskyPlugin plugin) {
+        Json.write(plugin, "data/settlements", settlements);
+        plugin.getLogger().info("Saved " + settlements.size() + " settlement(s).");
+    }
+
+    @Override
+    public void deserialize(HuskyPlugin plugin) {
+        Type set = new TypeToken<Set<Settlement>>() {}.getType();
+        Set<Settlement> settlementSet = Json.read(plugin, "data/settlements", set);
+
+        if (settlementSet != null) {
+            // This deprecation is fine as we are converting old data format to new
+            settlementSet.forEach(settlement -> settlements.put(settlement.getName(), settlement));
+
+            plugin.getLogger().info("Converted old data format to new enhanced data format...");
+
+            int size = settlements.size();
+            if (size > 0) {
+                plugin.getLogger().info("Registered " + size + " settlement(s).");
+            }
+        } else {
+            Type hashmap = new TypeToken<Map<String, Settlement>>() {
+            }.getType();
+            settlements = Json.read(plugin, "data/settlements", hashmap);
+            if (settlements == null) settlements = new ConcurrentHashMap<>();
+
+            int size = settlements.size();
+            if (size > 0) plugin.getLogger().info("Registered " + size + " settlement(s).");
+        }
+
+        if (defaults != null) defaults.clear();
+        defaults = configService.deserializeDefaults(plugin);
     }
 
     @Override
@@ -58,40 +94,5 @@ public class SettlementServiceImpl implements SettlementService {
     @Override
     public Map<String, Integer> getDefaults() {
         return Collections.unmodifiableMap(defaults);
-    }
-
-    @Override
-    public void serialize(SettlementPlugin plugin) {
-        Json.write(plugin, "data/settlements", settlements);
-        plugin.getLogger().info("Saved " + settlements.size() + " settlement(s).");
-    }
-
-    @Override
-    public void deserialize(SettlementPlugin plugin) {
-        Type set = new TypeToken<Set<Settlement>>() {}.getType();
-        Set<Settlement> settlementSet = Json.read(plugin, "data/settlements", set);
-
-        if (settlementSet != null) {
-            // This deprecation is fine as we are converting old data format to new
-            settlementSet.forEach(settlement -> settlements.put(settlement.getName(), settlement));
-
-            plugin.getLogger().info("Converted old data format to new enhanced data format...");
-
-            int size = settlements.size();
-            if (size > 0) {
-                plugin.getLogger().info("Registered " + size + " settlement(s).");
-            }
-        } else {
-            Type hashmap = new TypeToken<Map<String, Settlement>>() {
-            }.getType();
-            settlements = Json.read(plugin, "data/settlements", hashmap);
-            if (settlements == null) settlements = new ConcurrentHashMap<>();
-
-            int size = settlements.size();
-            if (size > 0) plugin.getLogger().info("Registered " + size + " settlement(s).");
-        }
-
-        if (defaults != null) defaults.clear();
-        defaults = configService.deserializeDefaults(plugin);
     }
 }

@@ -1,16 +1,16 @@
 package com.huskydreaming.settlements.inventories.providers;
 
-import com.huskydreaming.settlements.SettlementPlugin;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.inventories.InventoryItem;
+import com.huskydreaming.huskycore.utilities.ItemBuilder;
 import com.huskydreaming.settlements.inventories.InventoryAction;
-import com.huskydreaming.settlements.inventories.InventoryItem;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.utilities.ItemBuilder;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.storage.enumerations.Menu;
+import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
@@ -20,19 +20,22 @@ import org.bukkit.inventory.ItemStack;
 
 public class SettlementInventory implements InventoryProvider {
 
-    private final SettlementPlugin plugin;
+    private final HuskyPlugin plugin;
     private final MemberService memberService;
-    private final ClaimService claimService;
+    private final ChunkService chunkService;
     private final InventoryService inventoryService;
-
     private final RoleService roleService;
     private final SettlementService settlementService;
     private final String settlementName;
+    private final boolean teleportation;
 
-    public SettlementInventory(SettlementPlugin plugin, String settlementName) {
+    public SettlementInventory(HuskyPlugin plugin, String settlementName) {
         this.plugin = plugin;
 
-        claimService = plugin.provide(ClaimService.class);
+        ConfigService configService =  plugin.provide(ConfigService.class);
+        teleportation = configService.deserializeTeleportation(plugin);
+
+        chunkService = plugin.provide(ChunkService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
         inventoryService = plugin.provide(InventoryService.class);
@@ -52,10 +55,12 @@ public class SettlementInventory implements InventoryProvider {
 
         contents.set(1, 1, citizensItem(player, settlement, role));
         contents.set(1, 2, roleItem(player, settlement, role));
-        contents.set(1, 3, landItem(player, settlement, role));
-        contents.set(1, 4, info(settlement));
-        contents.set(1, 5, spawn(player, settlement, role));
-        contents.set(1, 7, disband(player, settlement));
+        contents.set(1, 3, claimItem(player, settlement, role));
+        contents.set(1, 4, infoItem(settlement));
+        contents.set(1, 5, flagItem(player, settlement, role));
+        contents.set(1, 7, disbandItem(player, settlement));
+
+        if(teleportation) contents.set(1, 6, spawn(player, settlement, role));
     }
 
     @Override
@@ -78,7 +83,7 @@ public class SettlementInventory implements InventoryProvider {
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(Menu.SETTLEMENT_ROLES_TITLE.parse())
                 .setLore(Menu.SETTLEMENT_ROLES_LORE.parseList())
-                .setMaterial(Material.WRITABLE_BOOK)
+                .setMaterial(Material.ANVIL)
                 .build();
 
         boolean permission = role.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player);
@@ -86,10 +91,10 @@ public class SettlementInventory implements InventoryProvider {
     }
 
 
-    private ClickableItem landItem(Player player, Settlement settlement, Role role) {
+    private ClickableItem claimItem(Player player, Settlement settlement, Role role) {
         ItemStack itemStack = ItemBuilder.create()
-                .setDisplayName(Menu.SETTLEMENT_LANDS_TITLE.parse())
-                .setLore(Menu.SETTLEMENT_LANDS_LORE.parseList())
+                .setDisplayName(Menu.SETTLEMENT_CLAIMS_TITLE.parse())
+                .setLore(Menu.SETTLEMENT_CLAIMS_LORE.parseList())
                 .setMaterial(Material.GRASS_BLOCK)
                 .build();
 
@@ -97,10 +102,10 @@ public class SettlementInventory implements InventoryProvider {
         return InventoryItem.of(permission, itemStack, e -> inventoryService.getClaimsInventory(plugin, settlementName).open(player));
     }
 
-    private ClickableItem info(Settlement settlement) {
+    private ClickableItem infoItem(Settlement settlement) {
 
         int roles = roleService.getRoles(settlementName).size();
-        int claims = claimService.getClaims(settlementName).size();
+        int claims = chunkService.getClaims(settlementName).size();
         int members = memberService.getMembers(settlementName).size();
 
         ItemStack itemStack = ItemBuilder.create()
@@ -114,6 +119,17 @@ public class SettlementInventory implements InventoryProvider {
                 )).setMaterial(Material.CHEST).build();
 
         return ClickableItem.empty(itemStack);
+    }
+
+    private ClickableItem flagItem(Player player, Settlement settlement, Role role) {
+        ItemStack itemStack = ItemBuilder.create()
+                .setDisplayName(Menu.SETTLEMENT_FLAGS_TITLE.parse())
+                .setLore(Menu.SETTLEMENT_FLAGS_LORE.parseList())
+                .setMaterial(Material.WRITABLE_BOOK)
+                .build();
+
+        boolean permission = role.hasPermission(RolePermission.EDIT_FLAGS) || settlement.isOwner(player);
+        return InventoryItem.of(permission, itemStack, e -> inventoryService.getFlagsInventory(plugin, settlementName).open(player));
     }
 
     private ClickableItem spawn(Player player, Settlement settlement, Role role) {
@@ -136,7 +152,7 @@ public class SettlementInventory implements InventoryProvider {
         });
     }
 
-    private ClickableItem disband(Player player, Settlement settlement) {
+    private ClickableItem disbandItem(Player player, Settlement settlement) {
         ItemStack itemStack = ItemBuilder.create()
                 .setDisplayName(Menu.SETTLEMENT_DISBAND_TITLE.parse())
                 .setLore(Menu.SETTLEMENT_DISBAND_LORE.parseList())

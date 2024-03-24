@@ -1,14 +1,14 @@
 package com.huskydreaming.settlements.services.interfaces;
 
-import com.huskydreaming.settlements.persistence.Claim;
-import com.huskydreaming.settlements.services.base.ServiceInterface;
+import com.huskydreaming.huskycore.data.ChunkData;
+import com.huskydreaming.huskycore.interfaces.Service;
 import org.bukkit.Chunk;
 import org.bukkit.World;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-public interface ClaimService extends ServiceInterface {
+public interface ChunkService extends Service {
 
     void setClaim(Chunk chunk, String name);
 
@@ -24,7 +24,7 @@ public interface ClaimService extends ServiceInterface {
 
     LinkedHashMap<String, Long> getTop(int limit);
 
-    Set<Claim> getClaims(String name);
+    Set<ChunkData> getClaims(String name);
 
     boolean isDisabledWorld(World world);
 }

@@ -1,15 +1,14 @@
 package com.huskydreaming.settlements.services.interfaces;
 
+import com.huskydreaming.huskycore.interfaces.Service;
 import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.services.base.ServiceInterface;
 import org.bukkit.OfflinePlayer;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 
-public interface MemberService extends ServiceInterface {
+public interface MemberService extends Service {
 
     boolean hasSettlement(OfflinePlayer offlinePlayer);
 

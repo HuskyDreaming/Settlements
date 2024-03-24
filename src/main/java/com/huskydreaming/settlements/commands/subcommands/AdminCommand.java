@@ -1,30 +1,34 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.commands.Command;
-import com.huskydreaming.settlements.commands.CommandInterface;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.commands.Command;
+import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.data.ChunkData;
+import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.persistence.Claim;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
+import com.huskydreaming.settlements.services.interfaces.ChunkService;
+import com.huskydreaming.settlements.services.interfaces.FlagService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
+import com.huskydreaming.settlements.storage.Locale;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
 
 import java.util.List;
 
-@Command(label = CommandLabel.ADMIN)
-public class AdminCommand implements CommandInterface {
 
-    private final ClaimService claimService;
+@Command(label = CommandLabel.ADMIN, arguments = " [claim|disband|help|unclaim]")
+public class AdminCommand implements SubCommand {
+
+    private final ChunkService chunkService;
+    private final FlagService flagService;
     private final MemberService memberService;
     private final SettlementService settlementService;
 
-    public AdminCommand(SettlementPlugin plugin) {
-        claimService = plugin.provide(ClaimService.class);
+    public AdminCommand(HuskyPlugin plugin) {
+        chunkService = plugin.provide(ChunkService.class);
+        flagService = plugin.provide(FlagService.class);
         memberService = plugin.provide(MemberService.class);
         settlementService = plugin.provide(SettlementService.class);
     }
@@ -35,24 +39,23 @@ public class AdminCommand implements CommandInterface {
             sendHelp(player);
         } else if (strings.length == 2) {
             String string = strings[1].toUpperCase();
-            if (CommandLabel.contains(string)) {
-                switch (CommandLabel.valueOf(string)) {
-                    case UNCLAIM -> sendUnClaim(player);
-                    case HELP -> sendHelp(player);
-                }
-                return;
+
+            if (string.equalsIgnoreCase(CommandLabel.UN_CLAIM)) {
+                sendUnClaim(player);
+            } else if (string.equalsIgnoreCase(CommandLabel.HELP)) {
+                sendHelp(player);
+            } else {
+                sendUnknown(player, string);
             }
-            sendUnknown(player, string);
         } else if (strings.length == 3) {
             String string = strings[1].toUpperCase();
-            if (CommandLabel.contains(string)) {
-                switch (CommandLabel.valueOf(string)) {
-                    case CLAIM -> sendClaim(player, strings[2]);
-                    case DISBAND -> sendDisband(player, strings[2]);
-                }
-                return;
+            if (string.equalsIgnoreCase(CommandLabel.CLAIM)) {
+                sendClaim(player, strings[2]);
+            } else if (string.equalsIgnoreCase(CommandLabel.DISBAND)) {
+                sendDisband(player, strings[2]);
+            } else {
+                sendUnknown(player, string);
             }
-            sendUnknown(player, string);
         }
     }
 
@@ -61,8 +64,8 @@ public class AdminCommand implements CommandInterface {
         if (settlementService.isSettlement(string)) {
 
             boolean isAdjacent = false;
-            for (Claim claim : claimService.getClaims(string)) {
-                if (Remote.areAdjacentChunks(chunk, claim.toChunk())) isAdjacent = true;
+            for (ChunkData data : chunkService.getClaims(string)) {
+                if (Util.areAdjacentChunks(chunk, data.toChunk())) isAdjacent = true;
             }
 
             if (isAdjacent) {
@@ -70,7 +73,7 @@ public class AdminCommand implements CommandInterface {
                 String z = String.valueOf(chunk.getZ());
 
                 player.sendMessage(Locale.SETTLEMENT_LAND_CLAIM.prefix(x, z));
-                claimService.setClaim(chunk, string);
+                chunkService.setClaim(chunk, string);
             } else {
                 player.sendMessage(Locale.SETTLEMENT_LAND_ADJACENT.prefix());
             }
@@ -83,16 +86,16 @@ public class AdminCommand implements CommandInterface {
     private void sendUnClaim(Player player) {
         Chunk chunk = player.getLocation().getChunk();
 
-        if (!claimService.isClaim(chunk)) {
+        if (!chunkService.isClaim(chunk)) {
             player.sendMessage(Locale.SETTLEMENT_LAND_NOT_CLAIMED.prefix());
             return;
         }
 
-        String claim = claimService.getClaim(chunk);
-        if (claimService.getClaims(claim).size() == 1) {
+        String claim = chunkService.getClaim(chunk);
+        if (chunkService.getClaims(claim).size() == 1) {
             player.sendMessage(Locale.SETTLEMENT_LAND_UNCLAIM_ONE.prefix());
         } else {
-            claimService.removeClaim(chunk);
+            chunkService.removeClaim(chunk);
             player.sendMessage(Locale.SETTLEMENT_LAND_UNCLAIM.prefix());
         }
     }
@@ -103,7 +106,8 @@ public class AdminCommand implements CommandInterface {
             return;
         }
 
-        claimService.clean(string);
+        flagService.clean(string);
+        chunkService.clean(string);
         memberService.clean(string);
         settlementService.disbandSettlement(string);
 
@@ -119,5 +123,11 @@ public class AdminCommand implements CommandInterface {
         if (strings == null) return;
 
         strings.stream().map(s -> ChatColor.translateAlternateColorCodes('&', s)).forEach(player::sendMessage);
+    }
+
+    @Override
+    public List<String> onTabComplete(Player player, String[] strings) {
+        if(strings.length == 2) return List.of(CommandLabel.CLAIM,CommandLabel.DISBAND, CommandLabel.HELP, CommandLabel.UN_CLAIM);
+        return List.of();
     }
 }

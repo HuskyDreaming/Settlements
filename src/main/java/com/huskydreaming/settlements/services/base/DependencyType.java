@@ -1,7 +1,7 @@
 package com.huskydreaming.settlements.services.base;
 
 public enum DependencyType {
-    WORLDGUARD("WorldGuard"),
+    WORLD_GUARD("WorldGuard"),
     PLACEHOLDER_API("PlaceholderAPI"),
     TOWNY("Towny");
 

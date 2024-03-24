@@ -1,12 +1,12 @@
 package com.huskydreaming.settlements.services.interfaces;
 
+import com.huskydreaming.huskycore.interfaces.Service;
 import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.base.ServiceInterface;
 import org.bukkit.entity.Player;
 
 import java.util.Map;
 
-public interface SettlementService extends ServiceInterface {
+public interface SettlementService extends Service {
 
     Settlement createSettlement(Player player, String name);
 

@@ -1,15 +1,15 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.huskycore.commands.Command;
+import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.commands.Command;
-import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
+import com.huskydreaming.settlements.storage.Locale;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.LIST)
-public class ListCommand implements CommandInterface {
+public class ListCommand implements SubCommand {
 
     private final SettlementPlugin plugin;
     private final InventoryService inventoryService;

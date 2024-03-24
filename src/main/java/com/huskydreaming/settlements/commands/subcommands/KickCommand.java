@@ -1,8 +1,9 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
+import com.huskydreaming.huskycore.commands.Command;
+import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.commands.Command;
-import com.huskydreaming.settlements.commands.CommandInterface;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
@@ -12,8 +13,7 @@ import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
-import com.huskydreaming.settlements.utilities.Remote;
+import com.huskydreaming.settlements.storage.Locale;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -21,7 +21,7 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 @Command(label = CommandLabel.KICK, arguments = " [player]")
-public class KickCommand implements CommandInterface {
+public class KickCommand implements SubCommand {
 
     private final BorderService borderService;
     private final MemberService memberService;
@@ -39,7 +39,7 @@ public class KickCommand implements CommandInterface {
     public void run(Player player, String[] strings) {
         if (strings.length == 2) {
             String string = strings[1];
-            OfflinePlayer offlinePlayer = Remote.getOfflinePlayer(string);
+            OfflinePlayer offlinePlayer = Util.getOfflinePlayer(string);
             if (offlinePlayer == null) {
                 player.sendMessage(Locale.PLAYER_NULL.prefix(string));
                 return;

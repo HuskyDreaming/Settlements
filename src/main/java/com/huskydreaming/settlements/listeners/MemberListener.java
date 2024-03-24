@@ -3,7 +3,7 @@ package com.huskydreaming.settlements.listeners;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.services.interfaces.BorderService;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
+import com.huskydreaming.settlements.services.interfaces.ChunkService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -20,12 +20,12 @@ import java.util.Date;
 public class MemberListener implements Listener {
 
     private final BorderService borderService;
-    private final ClaimService claimService;
+    private final ChunkService chunkService;
     private final MemberService memberService;
 
     public MemberListener(SettlementPlugin plugin) {
         borderService = plugin.provide(BorderService.class);
-        claimService = plugin.provide(ClaimService.class);
+        chunkService = plugin.provide(ChunkService.class);
         memberService = plugin.provide(MemberService.class);
     }
 
@@ -40,8 +40,8 @@ public class MemberListener implements Listener {
 
             member.setLastOnline(lastOnline);
 
-            if (claimService.isClaim(player.getLocation().getChunk())) {
-                String claim = claimService.getClaim(event.getPlayer().getLocation().getChunk());
+            if (chunkService.isClaim(player.getLocation().getChunk())) {
+                String claim = chunkService.getClaim(event.getPlayer().getLocation().getChunk());
                 borderService.addPlayer(player, claim, claim.equalsIgnoreCase(member.getSettlement()) ? Color.AQUA : Color.RED);
             }
         }

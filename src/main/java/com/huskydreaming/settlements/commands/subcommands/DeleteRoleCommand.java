@@ -1,8 +1,8 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.commands.Command;
-import com.huskydreaming.settlements.commands.CommandInterface;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.commands.Command;
+import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.Settlement;
@@ -11,17 +11,21 @@ import com.huskydreaming.settlements.persistence.roles.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
+import com.huskydreaming.settlements.storage.Locale;
 import org.bukkit.entity.Player;
 
-@Command(label = CommandLabel.DELETEROLE, arguments = " [role]")
-public class DeleteRoleCommand implements CommandInterface {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Command(label = CommandLabel.DELETE_ROLE, arguments = " [role]")
+public class DeleteRoleCommand implements SubCommand {
 
     private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public DeleteRoleCommand(SettlementPlugin plugin) {
+    public DeleteRoleCommand(HuskyPlugin plugin) {
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
@@ -54,5 +58,14 @@ public class DeleteRoleCommand implements CommandInterface {
                 player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.EDIT_ROLES));
             }
         }
+    }
+
+    @Override
+    public List<String> onTabComplete(Player player, String[] strings) {
+        if(strings.length == 2) {
+            Member member = memberService.getCitizen(player);
+            return roleService.getRoles(member.getSettlement()).stream().map(Role::getName).collect(Collectors.toList());
+        }
+        return new ArrayList<>();
     }
 }

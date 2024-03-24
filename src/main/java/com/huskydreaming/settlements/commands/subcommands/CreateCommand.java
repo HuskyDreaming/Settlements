@@ -1,12 +1,12 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.commands.Command;
-import com.huskydreaming.settlements.commands.CommandInterface;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.commands.Command;
+import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
+import com.huskydreaming.settlements.storage.Locale;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -14,19 +14,21 @@ import org.bukkit.entity.Player;
 import java.util.Map;
 
 @Command(label = CommandLabel.CREATE, arguments = " [name]")
-public class CreateCommand implements CommandInterface {
+public class CreateCommand implements SubCommand {
 
     private final BorderService borderService;
-    private final ClaimService claimService;
+    private final ChunkService chunkService;
     private final DependencyService dependencyService;
+    private final FlagService flagService;
     private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public CreateCommand(SettlementPlugin plugin) {
+    public CreateCommand(HuskyPlugin plugin) {
         borderService = plugin.provide(BorderService.class);
-        claimService = plugin.provide(ClaimService.class);
+        chunkService = plugin.provide(ChunkService.class);
         dependencyService = plugin.provide(DependencyService.class);
+        flagService = plugin.provide(FlagService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
@@ -70,21 +72,22 @@ public class CreateCommand implements CommandInterface {
                 return;
             }
 
-            if (claimService.isDisabledWorld(player.getWorld())) {
+            if (chunkService.isDisabledWorld(player.getWorld())) {
                 player.sendMessage(Locale.SETTLEMENT_CREATE_DISABLED_WORLD.prefix());
                 return;
             }
 
             Chunk chunk = player.getLocation().getChunk();
-            if (claimService.isClaim(chunk)) {
+            if (chunkService.isClaim(chunk)) {
                 player.sendMessage(Locale.SETTLEMENT_ESTABLISHED.prefix());
                 return;
             }
 
             Settlement settlement = settlementService.createSettlement(player, name);
 
+            flagService.setup(name);
             roleService.setup(name, settlement);
-            claimService.setClaim(chunk, name);
+            chunkService.setClaim(chunk, name);
             memberService.add(player, name, settlement.getDefaultRole());
             borderService.addPlayer(player, name, Color.AQUA);
 

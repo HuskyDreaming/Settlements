@@ -1,9 +1,11 @@
-package com.huskydreaming.settlements.storage.enumerations;
+package com.huskydreaming.settlements.storage;
 
 public enum Config {
     DISABLED_WORLDS,
     PLACEHOLDER_STRING,
     ROLES,
+    FLAGS,
+    TELEPORTATION,
     SETTLEMENT;
 
     @Override

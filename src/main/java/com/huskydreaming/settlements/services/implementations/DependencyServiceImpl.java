@@ -1,6 +1,6 @@
 package com.huskydreaming.settlements.services.implementations;
 
-import com.huskydreaming.settlements.SettlementPlugin;
+import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.settlements.dependencies.SettlementPlaceholderExpansion;
 import com.huskydreaming.settlements.services.interfaces.DependencyService;
 import com.huskydreaming.settlements.services.base.DependencyType;
@@ -32,7 +32,7 @@ public class DependencyServiceImpl implements DependencyService {
 
     @Override
     public boolean isWorldGuard(Player player) {
-        if (types.contains(DependencyType.WORLDGUARD.toString())) {
+        if (types.contains(DependencyType.WORLD_GUARD.toString())) {
             Location location = BukkitAdapter.adapt(player.getLocation());
             RegionContainer regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
             RegionQuery query = regionContainer.createQuery();
@@ -43,7 +43,7 @@ public class DependencyServiceImpl implements DependencyService {
     }
 
     @Override
-    public void deserialize(SettlementPlugin plugin) {
+    public void deserialize(HuskyPlugin plugin) {
         PluginManager pluginManager = plugin.getServer().getPluginManager();
 
         for (String softDependency : plugin.getDescription().getSoftDepend()) {

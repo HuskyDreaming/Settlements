@@ -1,27 +1,29 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.commands.Command;
-import com.huskydreaming.settlements.commands.CommandInterface;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.commands.Command;
+import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.enumerations.Locale;
+import com.huskydreaming.settlements.storage.Locale;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.RELOAD)
-public class ReloadCommand implements CommandInterface {
+public class ReloadCommand implements SubCommand {
 
-    private final SettlementPlugin plugin;
-    private final ClaimService claimService;
+    private final HuskyPlugin plugin;
+    private final ChunkService chunkService;
+    private final FlagService flagService;
     private final LocaleService localeService;
     private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
 
-    public ReloadCommand(SettlementPlugin plugin) {
+    public ReloadCommand(HuskyPlugin plugin) {
         this.plugin = plugin;
 
-        claimService = plugin.provide(ClaimService.class);
+        chunkService = plugin.provide(ChunkService.class);
+        flagService = plugin.provide(FlagService.class);
         localeService = plugin.provide(LocaleService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
@@ -38,7 +40,8 @@ public class ReloadCommand implements CommandInterface {
         plugin.getConfig().options().copyDefaults(true);
         plugin.saveConfig();
 
-        claimService.serialize(plugin);
+        chunkService.serialize(plugin);
+        flagService.serialize(plugin);
         memberService.serialize(plugin);
         roleService.serialize(plugin);
         settlementService.serialize(plugin);

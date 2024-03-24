@@ -1,11 +1,11 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.google.gson.reflect.TypeToken;
-import com.huskydreaming.settlements.SettlementPlugin;
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.storage.Json;
 import com.huskydreaming.settlements.persistence.Member;
 import com.huskydreaming.settlements.persistence.roles.Role;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.storage.types.Json;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
@@ -17,6 +17,24 @@ import java.util.stream.Collectors;
 public class MemberServiceImpl implements MemberService {
 
     private Map<UUID, Member> members = new ConcurrentHashMap<>();
+
+    @Override
+    public void serialize(HuskyPlugin plugin) {
+        Json.write(plugin, "data/members", members);
+        plugin.getLogger().info("Saved " + members.size() + " members(s).");
+    }
+
+    @Override
+    public void deserialize(HuskyPlugin plugin) {
+        Type type = new TypeToken<Map<UUID, Member>>() {}.getType();
+        members = Json.read(plugin, "data/members", type);
+        if (members == null) members = new ConcurrentHashMap<>();
+
+        int size = members.size();
+        if (size > 0) {
+            plugin.getLogger().info("Registered " + size + " members(s).");
+        }
+    }
 
     @Override
     public boolean hasSettlement(OfflinePlayer offlinePlayer) {
@@ -79,25 +97,6 @@ public class MemberServiceImpl implements MemberService {
             if (member.getRole().equalsIgnoreCase(role.getName())) {
                 member.setRole(defaultRole);
             }
-        }
-    }
-
-    @Override
-    public void serialize(SettlementPlugin plugin) {
-        Json.write(plugin, "data/members", members);
-        plugin.getLogger().info("Saved " + members.size() + " members(s).");
-    }
-
-    @Override
-    public void deserialize(SettlementPlugin plugin) {
-        Type type = new TypeToken<Map<UUID, Member>>() {
-        }.getType();
-        members = Json.read(plugin, "data/members", type);
-        if (members == null) members = new ConcurrentHashMap<>();
-
-        int size = members.size();
-        if (size > 0) {
-            plugin.getLogger().info("Registered " + size + " members(s).");
         }
     }
 }

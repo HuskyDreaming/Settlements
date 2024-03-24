@@ -1,44 +1,35 @@
 package com.huskydreaming.settlements.persistence.roles;
 
-import com.huskydreaming.settlements.utilities.Remote;
+import com.huskydreaming.huskycore.utilities.Util;
 
 public enum RolePermission {
     // LAND
-    LAND_BREAK(RolePermissionType.LAND),
-    LAND_PLACE(RolePermissionType.LAND),
-    LAND_INTERACT(RolePermissionType.LAND),
-    LAND_CLAIM(RolePermissionType.LAND),
-    LAND_UNCLAIM(RolePermissionType.LAND),
+    LAND_BREAK,
+    LAND_PLACE,
+    LAND_INTERACT,
+    LAND_CLAIM,
+    LAND_UNCLAIM,
 
     // EDIT
-    EDIT_CITIZENS(RolePermissionType.EDIT),
-    EDIT_LAND(RolePermissionType.EDIT),
-    EDIT_SPAWN(RolePermissionType.EDIT),
-    EDIT_ROLES(RolePermissionType.EDIT),
-    EDIT_DESCRIPTION(RolePermissionType.EDIT),
-    EDIT_TAGS(RolePermissionType.EDIT),
+    EDIT_CITIZENS,
+    EDIT_LAND,
+    EDIT_SPAWN,
+    EDIT_ROLES,
+    EDIT_FLAGS,
+    EDIT_DESCRIPTION,
+    EDIT_TAGS,
 
     // MEMBER
-    MEMBER_KICK(RolePermissionType.MEMBER),
-    MEMBER_INVITE(RolePermissionType.MEMBER),
-    MEMBER_KICK_EXEMPT(RolePermissionType.MEMBER),
-    MEMBER_FRIENDLY_FIRE(RolePermissionType.MEMBER),
+    MEMBER_KICK,
+    MEMBER_INVITE,
+    MEMBER_KICK_EXEMPT,
+    MEMBER_FRIENDLY_FIRE,
 
     //SPAWN
-    SPAWN_SET(RolePermissionType.SPAWN),
-    SPAWN_TELEPORT(RolePermissionType.SPAWN);
-
-    private final RolePermissionType type;
-
-    RolePermission(RolePermissionType type) {
-        this.type = type;
-    }
+    SPAWN_SET,
+    SPAWN_TELEPORT;
 
     public String getName() {
-        return Remote.capitalizeFully(name().toLowerCase()).replace("_", " ");
-    }
-
-    public RolePermissionType getType() {
-        return type;
+        return Util.capitalize(name().toLowerCase()).replace("_", " ");
     }
 }

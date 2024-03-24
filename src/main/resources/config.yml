@@ -10,8 +10,19 @@ settlement:
   max-tag-length: 4
   min-tag-length: 2
 
+# Allow teleportation like going to claims, spawn etc
+# Note: a restart is required
+teleportation: true
+
 # When the placeholder is invalid, replace it with this string.
 placeholder-string: "-"
+
+# The default flags for a settlements
+# Refer to wiki for all available land flags
+
+flags:
+  - ANIMAL_SPAWNING
+  - MONSTER_SPAWNING
 
 # The default roles that get created when you make a settlement with appropriate permissions.
 # Refer to wiki for all available permissions
