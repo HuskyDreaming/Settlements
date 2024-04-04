@@ -6,11 +6,8 @@ import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.services.interfaces.ChunkService;
-import com.huskydreaming.settlements.services.interfaces.FlagService;
-import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.services.interfaces.*;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -21,13 +18,18 @@ import java.util.List;
 @Command(label = CommandLabel.ADMIN, arguments = " [claim|disband|help|unclaim]")
 public class AdminCommand implements SubCommand {
 
-    private final ChunkService chunkService;
+    private final HuskyPlugin plugin;
+    private final ClaimService claimService;
     private final FlagService flagService;
+    private final InventoryService inventoryService;
     private final MemberService memberService;
     private final SettlementService settlementService;
 
     public AdminCommand(HuskyPlugin plugin) {
-        chunkService = plugin.provide(ChunkService.class);
+        this.plugin = plugin;
+
+        claimService = plugin.provide(ClaimService.class);
+        inventoryService = plugin.provide(InventoryService.class);
         flagService = plugin.provide(FlagService.class);
         memberService = plugin.provide(MemberService.class);
         settlementService = plugin.provide(SettlementService.class);
@@ -36,7 +38,7 @@ public class AdminCommand implements SubCommand {
     @Override
     public void run(Player player, String[] strings) {
         if (strings.length == 1) {
-            sendHelp(player);
+            inventoryService.getAdminInventory(plugin).open(player);
         } else if (strings.length == 2) {
             String string = strings[1].toUpperCase();
 
@@ -64,7 +66,7 @@ public class AdminCommand implements SubCommand {
         if (settlementService.isSettlement(string)) {
 
             boolean isAdjacent = false;
-            for (ChunkData data : chunkService.getClaims(string)) {
+            for (ChunkData data : claimService.getClaims(string)) {
                 if (Util.areAdjacentChunks(chunk, data.toChunk())) isAdjacent = true;
             }
 
@@ -73,7 +75,7 @@ public class AdminCommand implements SubCommand {
                 String z = String.valueOf(chunk.getZ());
 
                 player.sendMessage(Locale.SETTLEMENT_LAND_CLAIM.prefix(x, z));
-                chunkService.setClaim(chunk, string);
+                claimService.setClaim(chunk, string);
             } else {
                 player.sendMessage(Locale.SETTLEMENT_LAND_ADJACENT.prefix());
             }
@@ -86,16 +88,16 @@ public class AdminCommand implements SubCommand {
     private void sendUnClaim(Player player) {
         Chunk chunk = player.getLocation().getChunk();
 
-        if (!chunkService.isClaim(chunk)) {
+        if (!claimService.isClaim(chunk)) {
             player.sendMessage(Locale.SETTLEMENT_LAND_NOT_CLAIMED.prefix());
             return;
         }
 
-        String claim = chunkService.getClaim(chunk);
-        if (chunkService.getClaims(claim).size() == 1) {
+        String claim = claimService.getClaim(chunk);
+        if (claimService.getClaims(claim).size() == 1) {
             player.sendMessage(Locale.SETTLEMENT_LAND_UNCLAIM_ONE.prefix());
         } else {
-            chunkService.removeClaim(chunk);
+            claimService.removeClaim(chunk);
             player.sendMessage(Locale.SETTLEMENT_LAND_UNCLAIM.prefix());
         }
     }
@@ -107,7 +109,7 @@ public class AdminCommand implements SubCommand {
         }
 
         flagService.clean(string);
-        chunkService.clean(string);
+        claimService.clean(string);
         memberService.clean(string);
         settlementService.disbandSettlement(string);
 
@@ -127,7 +129,8 @@ public class AdminCommand implements SubCommand {
 
     @Override
     public List<String> onTabComplete(Player player, String[] strings) {
-        if(strings.length == 2) return List.of(CommandLabel.CLAIM,CommandLabel.DISBAND, CommandLabel.HELP, CommandLabel.UN_CLAIM);
+        if (strings.length == 2)
+            return List.of(CommandLabel.CLAIM, CommandLabel.DISBAND, CommandLabel.HELP, CommandLabel.UN_CLAIM);
         return List.of();
     }
 }

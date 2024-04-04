@@ -1,8 +1,8 @@
 package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.interfaces.Service;
-import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.roles.Role;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Role;
 import org.bukkit.OfflinePlayer;
 
 import java.util.LinkedHashMap;

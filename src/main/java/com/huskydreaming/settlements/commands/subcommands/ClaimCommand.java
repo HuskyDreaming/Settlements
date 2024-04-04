@@ -4,14 +4,14 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.huskycore.data.ChunkData;
-import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.storage.persistence.Config;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -22,8 +22,8 @@ import java.util.Set;
 public class ClaimCommand implements SubCommand {
 
     private final BorderService borderService;
-
-    private final ChunkService chunkService;
+    private final ClaimService claimService;
+    private final ConfigService configService;
     private final DependencyService dependencyService;
     private final MemberService memberService;
     private final RoleService roleService;
@@ -31,7 +31,8 @@ public class ClaimCommand implements SubCommand {
 
     public ClaimCommand(HuskyPlugin plugin) {
         borderService = plugin.provide(BorderService.class);
-        chunkService = plugin.provide(ChunkService.class);
+        claimService = plugin.provide(ClaimService.class);
+        configService = plugin.provide(ConfigService.class);
         dependencyService = plugin.provide(DependencyService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
@@ -45,7 +46,8 @@ public class ClaimCommand implements SubCommand {
             return;
         }
 
-        if (chunkService.isDisabledWorld(player.getWorld())) {
+        Config config = configService.getConfig();
+        if (config.containsDisableWorld(player.getWorld())) {
             player.sendMessage(Locale.SETTLEMENT_LAND_DISABLED_WORLD.prefix());
             return;
         }
@@ -61,7 +63,7 @@ public class ClaimCommand implements SubCommand {
         }
 
         Chunk chunk = player.getLocation().getChunk();
-        if (chunkService.isClaim(chunk)) {
+        if (claimService.isClaim(chunk)) {
             player.sendMessage(Locale.SETTLEMENT_LAND_CLAIMED.prefix());
             return;
         }
@@ -70,30 +72,30 @@ public class ClaimCommand implements SubCommand {
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
         Role role = roleService.getRole(member);
 
-        if (role.hasPermission(RolePermission.LAND_CLAIM) || settlement.isOwner(player)) {
-            Set<ChunkData> chunks = chunkService.getClaims(member.getSettlement());
+        if (role.hasPermission(RolePermission.CLAIM_LAND) || settlement.isOwner(player)) {
+            Set<ChunkData> chunks = claimService.getClaims(member.getSettlement());
             if (chunks.size() >= settlement.getMaxLand()) {
                 player.sendMessage(Locale.SETTLEMENT_LAND_CLAIMED_MAX.prefix(settlement.getMaxLand()));
                 return;
             }
 
-            boolean isAdjacent = false;
-            for (ChunkData data : chunks) {
-                if (Util.areAdjacentChunks(chunk, data.toChunk())) isAdjacent = true;
+            if (claimService.isAdjacentToOtherClaim(member.getSettlement(), chunk)) {
+                player.sendMessage(Locale.SETTLEMENT_LAND_ADJACENT_OTHER.prefix());
+                return;
             }
 
-            if (isAdjacent) {
+            if (claimService.isAdjacent(member.getSettlement(), chunk)) {
                 String x = String.valueOf(chunk.getX());
                 String z = String.valueOf(chunk.getZ());
 
                 player.sendMessage(Locale.SETTLEMENT_LAND_CLAIM.prefix(x, z));
-                chunkService.setClaim(chunk, member.getSettlement());
+                claimService.setClaim(chunk, member.getSettlement());
                 borderService.addPlayer(player, member.getSettlement(), Color.AQUA);
             } else {
                 player.sendMessage(Locale.SETTLEMENT_LAND_ADJACENT.prefix());
             }
         } else {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.LAND_CLAIM));
+            player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.CLAIM_LAND));
         }
     }
 }

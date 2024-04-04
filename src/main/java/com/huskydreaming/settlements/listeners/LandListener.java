@@ -1,15 +1,15 @@
 package com.huskydreaming.settlements.listeners;
 
+import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.data.ChunkData;
-import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.storage.persistence.Config;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.Locale;
-import org.bukkit.ChatColor;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.block.Block;
@@ -21,50 +21,45 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.Set;
 
 public class LandListener implements Listener {
 
     private final BorderService borderService;
-    private final ChunkService chunkService;
+    private final ConfigService configService;
+    private final ClaimService claimService;
     private final DependencyService dependencyService;
     private final MemberService memberService;
     private final RoleService roleService;
+
+    private final NotificationService notificationService;
     private final SettlementService settlementService;
 
     public LandListener(SettlementPlugin plugin) {
+
         borderService = plugin.provide(BorderService.class);
-        chunkService = plugin.provide(ChunkService.class);
+        configService = plugin.provide(ConfigService.class);
+        claimService = plugin.provide(ClaimService.class);
         dependencyService = plugin.provide(DependencyService.class);
         memberService = plugin.provide(MemberService.class);
+        notificationService = plugin.provide(NotificationService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
     }
 
     @EventHandler
+    public void onTeleport(PlayerTeleportEvent event) {
+        if (event.getTo() != null && !event.getTo().getChunk().equals(event.getFrom().getChunk())) {
+            sendChunkChange(event.getFrom().getChunk(), event.getTo().getChunk(), event.getPlayer());
+        }
+    }
+
+    @EventHandler
     public void onMove(PlayerMoveEvent event) {
         if (event.getTo() != null && !event.getTo().getChunk().equals(event.getFrom().getChunk())) {
-
-            String fromChunk = chunkService.getClaim(event.getFrom().getChunk());
-            String toChunk = chunkService.getClaim(event.getTo().getChunk());
-
-            Player player = event.getPlayer();
-            if (fromChunk == null && toChunk != null) {
-                handleChunkChange(player, toChunk);
-                return;
-            }
-
-            if (toChunk != null && !fromChunk.equalsIgnoreCase(toChunk)) {
-                handleChunkChange(player, toChunk);
-                return;
-            }
-
-            if (toChunk == null && fromChunk != null) {
-                if (hasAutoClaimedChunk(player, event.getTo().getChunk())) return;
-
-                handleWildernessChange(player);
-            }
+            sendChunkChange(event.getFrom().getChunk(), event.getTo().getChunk(), event.getPlayer());
         }
     }
 
@@ -75,7 +70,7 @@ public class LandListener implements Listener {
             if (block != null) {
                 Chunk chunk = block.getChunk();
                 Player player = event.getPlayer();
-                event.setCancelled(isCancelled(chunk, player, RolePermission.LAND_INTERACT));
+                event.setCancelled(isCancelled(chunk, player, RolePermission.CLAIM_INTERACT));
             }
         }
     }
@@ -84,38 +79,29 @@ public class LandListener implements Listener {
     public void onBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         Chunk chunk = event.getBlock().getChunk();
-        event.setCancelled(isCancelled(chunk, player, RolePermission.LAND_BREAK));
+        event.setCancelled(isCancelled(chunk, player, RolePermission.CLAIM_BREAK));
     }
 
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         Chunk chunk = event.getBlock().getChunk();
-        event.setCancelled(isCancelled(chunk, player, RolePermission.LAND_PLACE));
+        event.setCancelled(isCancelled(chunk, player, RolePermission.CLAIM_PLACE));
     }
 
     private void handleChunkChange(Player player, String toChunk) {
         Settlement settlement = settlementService.getSettlement(toChunk);
         if (settlement == null) return;
 
-        Color color = Color.RED;
-        ChatColor chatColor = ChatColor.RED;
-
+        boolean isClaim = false;
         if (memberService.hasSettlement(player)) {
             Member member = memberService.getCitizen(player);
-
-            color = member.getSettlement().equalsIgnoreCase(toChunk) ? Color.AQUA : Color.RED;
-            chatColor = member.getSettlement().equalsIgnoreCase(toChunk) ? ChatColor.AQUA : ChatColor.RED;
+            isClaim = member.getSettlement().equalsIgnoreCase(toChunk);
         }
 
         borderService.removePlayer(player);
-        borderService.addPlayer(player, toChunk, color);
-
-        player.sendTitle(
-                chatColor + Locale.SETTLEMENT_TITLE_HEADER.parameterize(Util.capitalize(toChunk)),
-                Locale.SETTLEMENT_TITLE_FOOTER.parameterize(settlement.getDescription()),
-                20, 40, 20
-        );
+        borderService.addPlayer(player, toChunk, isClaim ? Color.AQUA : Color.RED);
+        notificationService.sendSettlement(player, toChunk, settlement.getDescription(), isClaim);
     }
 
     private boolean hasAutoClaimedChunk(Player player, Chunk chunk) {
@@ -124,7 +110,8 @@ public class LandListener implements Listener {
         Member member = memberService.getCitizen(player);
         if (!member.hasAutoClaim()) return false;
 
-        if (chunkService.isDisabledWorld(player.getWorld())) {
+        Config config = configService.getConfig();
+        if (config.containsDisableWorld(player.getWorld())) {
             player.sendMessage(Locale.SETTLEMENT_LAND_DISABLED_WORLD.prefix());
             return false;
         }
@@ -140,13 +127,13 @@ public class LandListener implements Listener {
         }
 
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
-        Set<ChunkData> chunks = chunkService.getClaims(member.getSettlement());
+        Set<ChunkData> chunks = claimService.getClaims(member.getSettlement());
         if (chunks.size() >= settlement.getMaxLand()) {
             player.sendMessage(Locale.SETTLEMENT_AUTO_CLAIM_OFF_MAX_LAND.prefix());
             member.setAutoClaim(false);
             return false;
         }
-        chunkService.setClaim(chunk, member.getSettlement());
+        claimService.setClaim(chunk, member.getSettlement());
 
         borderService.removePlayer(player);
         borderService.addPlayer(player, member.getSettlement(), Color.AQUA);
@@ -155,26 +142,50 @@ public class LandListener implements Listener {
         return true;
     }
 
-    private void handleWildernessChange(Player player) {
-        borderService.removePlayer(player);
-
-        player.sendTitle(
-                Locale.WILDERNESS_TITLE.parse(),
-                Locale.WILDERNESS_FOOTER.parse(),
-                20, 40, 20
-        );
+    private boolean isCancelled(Block block, Player player) {
+        Chunk chunk = block.getChunk();
+        if (!claimService.isClaim(chunk)) return false;
+        if (dependencyService.isTowny(player, block)) return false;
+        return !dependencyService.isWorldGuard(block);
     }
 
+    private void sendChunkChange(Chunk from, Chunk to, Player player) {
+        String fromChunk = claimService.getClaim(from);
+        String toChunk = claimService.getClaim(to);
+
+        if (fromChunk == null && toChunk != null) {
+            handleChunkChange(player, toChunk);
+            return;
+        }
+
+        if (toChunk != null && !fromChunk.equalsIgnoreCase(toChunk)) {
+            handleChunkChange(player, toChunk);
+            return;
+        }
+
+        if (toChunk == null && fromChunk != null) {
+            if (hasAutoClaimedChunk(player, to)) return;
+            borderService.removePlayer(player);
+            notificationService.sendWilderness(player);
+        }
+    }
+
+
     private boolean isCancelled(Chunk chunk, Player player, RolePermission rolePermission) {
-        if (!chunkService.isClaim(chunk)) return false;
+        if (!claimService.isClaim(chunk)) return false;
+
         if (memberService.hasSettlement(player)) {
             Member member = memberService.getCitizen(player);
             String memberSettlement = member.getSettlement();
-            String currentSettlement = chunkService.getClaim(chunk);
+            String currentSettlement = claimService.getClaim(chunk);
 
             if (memberSettlement.equalsIgnoreCase(currentSettlement)) {
                 Settlement settlement = settlementService.getSettlement(memberSettlement);
                 Role role = roleService.getRole(member);
+
+                if (dependencyService.isWorldGuard(player)) return true;
+                if (dependencyService.isTowny(player)) return true;
+
                 return !role.hasPermission(rolePermission) && !settlement.isOwner(player);
             }
         }

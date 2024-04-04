@@ -4,9 +4,11 @@ import com.google.gson.reflect.TypeToken;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.storage.Json;
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.persistence.roles.Role;
+import com.huskydreaming.settlements.storage.persistence.Config;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 
@@ -19,7 +21,6 @@ public class RoleServiceImpl implements RoleService {
     private final ConfigService configService;
 
     private Map<String, List<Role>> roles = new HashMap<>();
-    private List<Role> defaultRoles;
 
     public RoleServiceImpl(SettlementPlugin plugin) {
         configService = plugin.provide(ConfigService.class);
@@ -42,9 +43,6 @@ public class RoleServiceImpl implements RoleService {
         if (rolesSize > 0) {
             plugin.getLogger().info("Registered " + rolesSize + " roles(s).");
         }
-
-        if (defaultRoles != null) defaultRoles.clear();
-        defaultRoles = configService.deserializeDefaultRoles(plugin);
     }
 
     @Override
@@ -54,6 +52,19 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public void setup(String settlementName, Settlement settlement) {
+        Config config = configService.getConfig();
+        List<Role> defaultRoles = new ArrayList<>();
+
+        config.getDefaultRoles().forEach((s, rolePermissions) -> {
+            Role role = Role.create(s);
+
+            for(RolePermission rolePermission : rolePermissions) {
+                role.add(rolePermission);
+            }
+
+            defaultRoles.add(role);
+        });
+
         this.roles.put(settlementName, defaultRoles);
         settlement.setDefaultRole(defaultRoles.stream().findFirst().map(Role::getName).orElse(null));
     }

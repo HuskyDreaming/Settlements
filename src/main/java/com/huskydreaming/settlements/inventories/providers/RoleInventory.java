@@ -1,19 +1,19 @@
 package com.huskydreaming.settlements.inventories.providers;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.inventories.InventoryPageProvider;
-import com.huskydreaming.huskycore.storage.parseables.DefaultMenu;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
-import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.Locale;
-import com.huskydreaming.settlements.storage.Menu;
+import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Material;
@@ -30,10 +30,8 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
     private final RoleService roleService;
     private final Role role;
 
-    private final String settlementName;
-
-    public RoleInventory(HuskyPlugin plugin, String settlementName, int rows, Role role) {
-        super(rows, RolePermission.values());
+    public RoleInventory(HuskyPlugin plugin, int rows, Role role, RolePermission[] permissions) {
+        super(rows, permissions);
         this.plugin = plugin;
 
         inventoryService = plugin.provide(InventoryService.class);
@@ -42,8 +40,6 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
         roleService = plugin.provide(RoleService.class);
 
         this.role = role;
-        this.settlementName = settlementName;
-        this.smartInventory = inventoryService.getRolesInventory(plugin, settlementName);
     }
 
     @Override
@@ -53,25 +49,14 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
         Member member = memberService.getCitizen(player);
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
 
+        contents.set(0, 0, InventoryItem.back(player, inventoryService.getRolesInventory(plugin, player)));
         contents.set(0, 1, defaultItem(player, settlement));
-        contents.set(0, 2, deleteItem(player, settlement));
+        contents.set(0, 2, deleteItem(player, settlement, member.getSettlement()));
     }
 
     @Override
     public ItemStack construct(Player player, int index, RolePermission rolePermission) {
-        boolean enabled = this.role.hasPermission(rolePermission);
-
-        String materialEnabled = DefaultMenu.ENABLE_MATERIAL.parse();
-        String materialDisabled = DefaultMenu.DISABLED_MATERIAL.parse();
-
-        String displayNameEnabled = DefaultMenu.ENABLE_TITLE.parameterize(rolePermission.getName());
-        String displayNameDisabled = DefaultMenu.DISABLED_TITLE.parameterize(rolePermission.getName());
-
-        return ItemBuilder.create()
-                .setDisplayName(enabled ? displayNameEnabled : displayNameDisabled)
-                .setLore(enabled ? DefaultMenu.DISABLED_DESCRIPTION.parse() : DefaultMenu.ENABLED_DESCRIPTION.parse())
-                .setMaterial(Material.valueOf(enabled ? materialEnabled : materialDisabled))
-                .build();
+        return InventoryItem.of(role.hasPermission(rolePermission), rolePermission.toString(), rolePermission.getDescription());
     }
 
     @Override
@@ -87,21 +72,21 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
         }
     }
 
-    private ClickableItem deleteItem(Player player, Settlement settlement) {
+    private ClickableItem deleteItem(Player player, Settlement settlement, String name) {
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.ROLE_DELETE_TITLE.parse())
                 .setLore(Menu.ROLE_DELETE_LORE.parseList())
                 .setMaterial(Material.TNT_MINECART)
                 .build(), e -> {
-            if (roleService.getRoles(settlementName).size() > 1) {
+            if (roleService.getRoles(name).size() > 1) {
                 if (settlement.getDefaultRole().equalsIgnoreCase(role.getName())) {
-                    Role defaultRole = roleService.getOtherRole(settlementName, role.getName());
+                    Role defaultRole = roleService.getOtherRole(name, role.getName());
                     settlement.setDefaultRole(defaultRole.getName());
                 }
 
-                memberService.sync(settlementName, settlement.getDefaultRole(), role);
-                roleService.remove(settlementName, role);
-                inventoryService.getRolesInventory(plugin, settlementName).open(player);
+                memberService.sync(name, settlement.getDefaultRole(), role);
+                roleService.remove(name, role);
+                inventoryService.getRolesInventory(plugin, player).open(player);
             } else {
                 player.sendMessage(Locale.SETTLEMENT_ROLE_ONE.prefix());
             }
@@ -115,7 +100,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 .setMaterial(Material.DIAMOND)
                 .build(), e -> {
             settlement.setDefaultRole(role.getName());
-            inventoryService.getRolesInventory(plugin, settlementName).open(player);
+            inventoryService.getRolesInventory(plugin, player).open(player);
         });
     }
 }

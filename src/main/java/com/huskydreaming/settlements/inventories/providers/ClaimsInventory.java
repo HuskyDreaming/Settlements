@@ -2,12 +2,13 @@ package com.huskydreaming.settlements.inventories.providers;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.data.ChunkData;
+import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.inventories.InventoryPageProvider;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
-import com.huskydreaming.settlements.storage.Locale;
-import com.huskydreaming.settlements.storage.Menu;
+import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -17,15 +18,23 @@ import org.bukkit.inventory.ItemStack;
 public class ClaimsInventory extends InventoryPageProvider<ChunkData> {
 
     private final boolean teleportation;
+    private final HuskyPlugin plugin;
+    private final InventoryService inventoryService;
 
-    public ClaimsInventory(HuskyPlugin plugin, String name, int rows, ChunkData[] chunks) {
+    public ClaimsInventory(HuskyPlugin plugin, int rows, ChunkData[] chunks) {
         super(rows, chunks);
+        this.plugin = plugin;
 
-        InventoryService inventoryService = plugin.provide(InventoryService.class);
         ConfigService configService = plugin.provide(ConfigService.class);
+        this.teleportation = configService.getConfig().isTeleportation();
+        this.inventoryService = plugin.provide(InventoryService.class);
+    }
 
-        this.teleportation = configService.deserializeTeleportation(plugin);
-        this.smartInventory = inventoryService.getSettlementInventory(plugin, name);
+    @Override
+    public void init(Player player, InventoryContents contents) {
+        super.init(player, contents);
+
+        contents.set(0, 0, InventoryItem.back(player, inventoryService.getMainInventory(plugin, player)));
     }
 
     @Override
@@ -51,7 +60,6 @@ public class ClaimsInventory extends InventoryPageProvider<ChunkData> {
                 Location location = new Location(world, x, y + 1, z);
                 player.teleport(location);
                 player.sendMessage(Locale.SETTLEMENT_TELEPORT.prefix(x, z));
-
             }
         }
     }

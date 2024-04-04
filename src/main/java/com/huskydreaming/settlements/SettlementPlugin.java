@@ -5,6 +5,7 @@ import com.huskydreaming.settlements.commands.BaseCommand;
 import com.huskydreaming.settlements.commands.subcommands.*;
 import com.huskydreaming.settlements.listeners.LandListener;
 import com.huskydreaming.settlements.listeners.MemberListener;
+import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.services.implementations.*;
 import com.huskydreaming.settlements.services.interfaces.*;
 
@@ -14,17 +15,9 @@ public class SettlementPlugin extends HuskyPlugin {
     public void onEnable() {
         super.onEnable();
 
-        saveDefaultConfig();
-        getConfig().options().copyDefaults(true);
-        getLogger().info("Loaded config.yml");
-        saveConfig();
-
         registerServices();
         registerCommands();
-        registerListeners(
-                new LandListener(this),
-                new MemberListener(this)
-        );
+        registerListeners(new LandListener(this), new MemberListener(this));
     }
 
     @Override
@@ -33,17 +26,20 @@ public class SettlementPlugin extends HuskyPlugin {
     }
 
     private void registerServices() {
-        serviceRegistry.register(ConfigService.class, new ConfigServiceImpl());
-        serviceRegistry.register(ChunkService.class, new ChunkServiceImpl(this));
+        serviceRegistry.register(LocaleService.class, new LocaleServiceImpl(this));
+        serviceRegistry.register(ConfigService.class, new ConfigServiceImpl(this));
+        serviceRegistry.register(TrustService.class, new TrustServiceImpl());
+        serviceRegistry.register(ClaimService.class, new ClaimServiceImpl());
         serviceRegistry.register(BorderService.class, new BorderServiceImpl(this));
         serviceRegistry.register(DependencyService.class, new DependencyServiceImpl());
-        serviceRegistry.register(InventoryService.class, new InventoryServiceImpl());
         serviceRegistry.register(InvitationService.class, new InvitationServiceImpl());
-        serviceRegistry.register(LocaleService.class, new LocaleServiceImpl());
         serviceRegistry.register(MemberService.class, new MemberServiceImpl());
         serviceRegistry.register(FlagService.class, new FlagServiceImpl(this));
         serviceRegistry.register(RoleService.class, new RoleServiceImpl(this));
         serviceRegistry.register(SettlementService.class, new SettlementServiceImpl(this));
+        serviceRegistry.register(InventoryService.class, new InventoryServiceImpl(this));
+        serviceRegistry.register(NotificationService.class, new NotificationServiceImpl(this));
+
         serviceRegistry.deserialize(this);
     }
 
@@ -69,10 +65,16 @@ public class SettlementPlugin extends HuskyPlugin {
         commandRegistry.add(new SetTagCommand(this));
 
         ConfigService configService = serviceRegistry.provide(ConfigService.class);
+        Config config = configService.getConfig();
 
-        if(configService.deserializeTeleportation(this)) {
+        if(config.isTeleportation()) {
             commandRegistry.add(new SpawnCommand(this));
             commandRegistry.add(new SetSpawnCommand(this));
+        }
+
+        if(config.isTrusting()) {
+            commandRegistry.add(new TrustCommand(this));
+            commandRegistry.add(new UnTrustCommand(this));
         }
 
         commandRegistry.add(new UnClaimCommand(this));

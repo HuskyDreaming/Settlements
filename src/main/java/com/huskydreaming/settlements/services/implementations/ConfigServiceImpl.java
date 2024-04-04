@@ -1,79 +1,65 @@
 package com.huskydreaming.settlements.services.implementations;
 
-import com.huskydreaming.settlements.persistence.Flag;
-import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
+
+import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.storage.Json;
+import com.huskydreaming.settlements.enumeration.*;
+import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
-import com.huskydreaming.settlements.storage.Config;
-import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ConfigServiceImpl implements ConfigService {
 
-    @Override
-    public List<Role> deserializeDefaultRoles(Plugin plugin) {
-        List<Role> defaultRoles = new ArrayList<>();
+    private Config config;
+    public ConfigServiceImpl(HuskyPlugin plugin) {
+        config = Json.read(plugin, "config", Config.class);
+        if(config == null) {
+            config = new Config();
+            config.setFlags(List.of(Flag.ANIMAL_SPAWNING, Flag.MONSTER_SPAWNING));
+            config.setNotificationType(NotificationType.TITLE);
+            config.setDisabledWorlds(List.of("world_nether", "world_the_end"));
+            config.setEmptyPlaceholder("-");
+            config.setTeleportation(true);
+            config.setTrusting(true);
 
-        String path = Config.ROLES.toString();
-        FileConfiguration configuration = plugin.getConfig();
-        ConfigurationSection configurationSection = configuration.getConfigurationSection(path);
-        if (configurationSection != null) {
-            for (String key : configurationSection.getKeys(false)) {
-                Role role = new Role(key);
-                List<String> permissions = configuration.getStringList(path + "." + key);
-                permissions.forEach(p -> role.add(RolePermission.valueOf(p)));
-                defaultRoles.add(role);
+            Map<SettlementDefaultType, Integer> settlementsDefaults = new ConcurrentHashMap<>();
+            for(SettlementDefaultType settlementDefaultType : SettlementDefaultType.values()) {
+                settlementsDefaults.put(settlementDefaultType, settlementDefaultType.getValue());
+            }
+            config.setSettlementDefaults(settlementsDefaults);
+
+            Map<String, List<RolePermission>> roleDefaults = new HashMap<>();
+            for(RoleDefault roleDefault : RoleDefault.values()) {
+                roleDefaults.put(roleDefault.toString(), roleDefault.getRolePermissions());
             }
 
-            int defaultRolesSize = defaultRoles.size();
-            if (defaultRolesSize > 0) {
-                plugin.getLogger().info("Registered " + defaultRolesSize + " default roles(s).");
-            }
+            config.setDefaultRoles(roleDefaults);
+            Json.write(plugin, "config", config);
         }
-        return defaultRoles;
     }
 
     @Override
-    public Set<Flag> deserializeDefaultFlags(Plugin plugin) {
-        Set<Flag> flags = new HashSet<>();
-        for(String string : plugin.getConfig().getStringList(Config.FLAGS.toString())) {
-            flags.add(Flag.valueOf(string));
+    public void serialize(HuskyPlugin plugin) {
+        Json.write(plugin, "config", config);
+    }
+
+    @Override
+    public void selectNotificationType(NotificationType notificationType) {
+        List<NotificationType> notificationTypes = List.of(NotificationType.values());
+        int index = notificationTypes.indexOf(notificationType);
+        if (index < notificationTypes.size() - 1) {
+            index += 1;
+        } else {
+            index = 0;
         }
-        return flags;
+
+        config.setNotificationType(notificationTypes.get(index));
     }
 
     @Override
-    public List<String> deserializeDisabledWorlds(Plugin plugin) {
-        return plugin.getConfig().getStringList(Config.DISABLED_WORLDS.toString());
-    }
-
-    @Override
-    public String deserializeEmptyPlaceholder(Plugin plugin) {
-        return plugin.getConfig().getString(Config.PLACEHOLDER_STRING.toString());
-    }
-
-    @Override
-    public boolean deserializeTeleportation(Plugin plugin) {
-        return plugin.getConfig().getBoolean(Config.TELEPORTATION.toString());
-    }
-
-    @Override
-    public Map<String, Integer> deserializeDefaults(Plugin plugin) {
-        Map<String, Integer> defaults = new ConcurrentHashMap<>();
-        FileConfiguration configuration = plugin.getConfig();
-        String path = Config.SETTLEMENT.toString();
-        ConfigurationSection configurationSection = configuration.getConfigurationSection(path);
-        if (configurationSection != null) {
-            for (String key : configurationSection.getKeys(false)) {
-                int amount = configuration.getInt(path + "." + key);
-                defaults.put(key, amount);
-            }
-            return defaults;
-        }
-        return null;
+    public Config getConfig() {
+        return config;
     }
 }

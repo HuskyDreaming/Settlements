@@ -5,15 +5,15 @@ import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -55,7 +55,7 @@ public class KickCommand implements SubCommand {
             Role role = roleService.getRole(member);
 
             if (!(role.hasPermission(RolePermission.MEMBER_KICK) || settlement.isOwner(player))) {
-                player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.MEMBER_KICK.getName()));
+                player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.MEMBER_KICK));
                 return;
             }
 

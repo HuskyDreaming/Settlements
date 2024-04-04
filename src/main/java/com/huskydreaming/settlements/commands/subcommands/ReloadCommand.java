@@ -5,14 +5,14 @@ import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.RELOAD)
 public class ReloadCommand implements SubCommand {
 
     private final HuskyPlugin plugin;
-    private final ChunkService chunkService;
+    private final ClaimService claimService;
     private final FlagService flagService;
     private final LocaleService localeService;
     private final MemberService memberService;
@@ -22,7 +22,7 @@ public class ReloadCommand implements SubCommand {
     public ReloadCommand(HuskyPlugin plugin) {
         this.plugin = plugin;
 
-        chunkService = plugin.provide(ChunkService.class);
+        claimService = plugin.provide(ClaimService.class);
         flagService = plugin.provide(FlagService.class);
         localeService = plugin.provide(LocaleService.class);
         memberService = plugin.provide(MemberService.class);
@@ -40,7 +40,7 @@ public class ReloadCommand implements SubCommand {
         plugin.getConfig().options().copyDefaults(true);
         plugin.saveConfig();
 
-        chunkService.serialize(plugin);
+        claimService.serialize(plugin);
         flagService.serialize(plugin);
         memberService.serialize(plugin);
         roleService.serialize(plugin);

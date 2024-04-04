@@ -1,17 +1,14 @@
 package com.huskydreaming.settlements.inventories.providers;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.inventories.InventoryPageProvider;
-import com.huskydreaming.huskycore.storage.parseables.DefaultMenu;
-import com.huskydreaming.huskycore.utilities.ItemBuilder;
-import com.huskydreaming.huskycore.utilities.Util;
-import com.huskydreaming.settlements.persistence.Flag;
-import com.huskydreaming.settlements.persistence.Member;
+import com.huskydreaming.settlements.enumeration.Flag;
+import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.services.interfaces.FlagService;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import fr.minuskube.inv.content.InventoryContents;
-import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -19,36 +16,31 @@ import org.bukkit.inventory.ItemStack;
 public class FlagsInventory extends InventoryPageProvider<Flag> {
 
     private final FlagService flagService;
+    private final HuskyPlugin plugin;
     private final MemberService memberService;
+    private final InventoryService inventoryService;
 
-    public FlagsInventory(HuskyPlugin plugin, String name, int rows, Flag[] flags) {
+    public FlagsInventory(HuskyPlugin plugin, int rows, Flag[] flags) {
         super(rows, flags);
-
-        InventoryService inventoryService = plugin.provide(InventoryService.class);
+        this.plugin = plugin;
 
         this.flagService = plugin.provide(FlagService.class);
+        this.inventoryService = plugin.provide(InventoryService.class);
         this.memberService = plugin.provide(MemberService.class);
-        this.smartInventory = inventoryService.getSettlementInventory(plugin, name);
+    }
+
+    @Override
+    public void init(Player player, InventoryContents contents) {
+        super.init(player, contents);
+
+        contents.set(0, 0, InventoryItem.back(player, inventoryService.getMainInventory(plugin, player)));
     }
 
     @Override
     public ItemStack construct(Player player, int i, Flag flag) {
         Member member = memberService.getCitizen(player);
-
         boolean enabled = flagService.hasFlag(member.getSettlement(), flag);
-        String flagName = Util.capitalize(flag.name());
-
-        String materialEnabled = DefaultMenu.ENABLE_MATERIAL.parse();
-        String materialDisabled = DefaultMenu.DISABLED_MATERIAL.parse();
-
-        String displayNameEnabled = DefaultMenu.ENABLE_TITLE.parameterize(flagName);
-        String displayNameDisabled = DefaultMenu.DISABLED_TITLE.parameterize(flagName);
-
-        return ItemBuilder.create()
-                .setDisplayName(enabled ? displayNameEnabled : displayNameDisabled)
-                .setLore(enabled ? DefaultMenu.DISABLED_DESCRIPTION.parse() : DefaultMenu.ENABLED_DESCRIPTION.parse())
-                .setMaterial(Material.valueOf(enabled ? materialEnabled : materialDisabled))
-                .build();
+        return InventoryItem.of(enabled, flag.toString(), flag.getDescription());
     }
 
     @Override

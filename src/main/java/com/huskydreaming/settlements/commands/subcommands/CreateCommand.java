@@ -4,20 +4,21 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.enumeration.SettlementDefaultType;
+import com.huskydreaming.settlements.storage.persistence.Config;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
-
-import java.util.Map;
 
 @Command(label = CommandLabel.CREATE, arguments = " [name]")
 public class CreateCommand implements SubCommand {
 
     private final BorderService borderService;
-    private final ChunkService chunkService;
+    private final ClaimService claimService;
+    private final ConfigService configService;
     private final DependencyService dependencyService;
     private final FlagService flagService;
     private final MemberService memberService;
@@ -26,7 +27,8 @@ public class CreateCommand implements SubCommand {
 
     public CreateCommand(HuskyPlugin plugin) {
         borderService = plugin.provide(BorderService.class);
-        chunkService = plugin.provide(ChunkService.class);
+        claimService = plugin.provide(ClaimService.class);
+        configService = plugin.provide(ConfigService.class);
         dependencyService = plugin.provide(DependencyService.class);
         flagService = plugin.provide(FlagService.class);
         memberService = plugin.provide(MemberService.class);
@@ -53,9 +55,9 @@ public class CreateCommand implements SubCommand {
             }
 
             String name = strings[1].toLowerCase();
-            Map<String, Integer> defaults = settlementService.getDefaults();
-            int minimumNameLength = defaults.getOrDefault("min-name-length", 2);
-            int maximumNameLength = defaults.getOrDefault("max-name-length", 10);
+            Config config = configService.getConfig();
+            int minimumNameLength = config.getSettlementDefault(SettlementDefaultType.MIN_NAME_LENGTH);
+            int maximumNameLength = config.getSettlementDefault(SettlementDefaultType.MAX_NAME_LENGTH);
 
             if (settlementService.isSettlement(name)) {
                 player.sendMessage(Locale.SETTLEMENT_EXIST.prefix());
@@ -72,14 +74,19 @@ public class CreateCommand implements SubCommand {
                 return;
             }
 
-            if (chunkService.isDisabledWorld(player.getWorld())) {
+            if (config.containsDisableWorld(player.getWorld())) {
                 player.sendMessage(Locale.SETTLEMENT_CREATE_DISABLED_WORLD.prefix());
                 return;
             }
 
             Chunk chunk = player.getLocation().getChunk();
-            if (chunkService.isClaim(chunk)) {
+            if (claimService.isClaim(chunk)) {
                 player.sendMessage(Locale.SETTLEMENT_ESTABLISHED.prefix());
+                return;
+            }
+
+            if (claimService.isAdjacentToExistingClaim(chunk)) {
+                player.sendMessage(Locale.SETTLEMENT_ESTABLISHED_ADJACENT.prefix());
                 return;
             }
 
@@ -87,7 +94,7 @@ public class CreateCommand implements SubCommand {
 
             flagService.setup(name);
             roleService.setup(name, settlement);
-            chunkService.setClaim(chunk, name);
+            claimService.setClaim(chunk, name);
             memberService.add(player, name, settlement.getDefaultRole());
             borderService.addPlayer(player, name, Color.AQUA);
 

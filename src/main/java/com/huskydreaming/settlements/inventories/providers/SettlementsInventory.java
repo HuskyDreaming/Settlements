@@ -4,12 +4,12 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.inventories.InventoryPageProvider;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
 import com.huskydreaming.huskycore.utilities.Util;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.services.interfaces.ChunkService;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.services.interfaces.ClaimService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.Menu;
+import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -18,7 +18,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class SettlementsInventory extends InventoryPageProvider<String> {
 
-    private final ChunkService chunkService;
+    private final ClaimService claimService;
     private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
@@ -27,7 +27,7 @@ public class SettlementsInventory extends InventoryPageProvider<String> {
         super(rows, settlementNames);
 
         memberService = plugin.provide(MemberService.class);
-        chunkService = plugin.provide(ChunkService.class);
+        claimService = plugin.provide(ClaimService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
     }
@@ -39,7 +39,7 @@ public class SettlementsInventory extends InventoryPageProvider<String> {
         Material icon = settlement.getIcon();
 
         int roles = roleService.getRoles(settlementName).size();
-        int claims = chunkService.getClaims(settlementName).size();
+        int claims = claimService.getClaims(settlementName).size();
         int members = memberService.getMembers(settlementName).size();
 
         return ItemBuilder.create()

@@ -1,25 +1,12 @@
 package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.interfaces.Service;
-import com.huskydreaming.settlements.persistence.Flag;
-import com.huskydreaming.settlements.persistence.roles.Role;
-import org.bukkit.plugin.Plugin;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.huskydreaming.settlements.storage.persistence.Config;
+import com.huskydreaming.settlements.enumeration.NotificationType;
 
 public interface ConfigService extends Service {
 
-    List<Role> deserializeDefaultRoles(Plugin plugin);
+    void selectNotificationType(NotificationType notificationType);
 
-    Set<Flag> deserializeDefaultFlags(Plugin plugin);
-
-    List<String> deserializeDisabledWorlds(Plugin plugin);
-
-    String deserializeEmptyPlaceholder(Plugin plugin);
-
-    boolean deserializeTeleportation(Plugin plugin);
-
-    Map<String, Integer> deserializeDefaults(Plugin plugin);
+    Config getConfig();
 }

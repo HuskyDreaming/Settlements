@@ -4,8 +4,9 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.huskycore.registries.CommandRegistry;
+import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
@@ -28,7 +29,7 @@ public class HelpCommand implements SubCommand {
     public void run(Player player, String[] strings) {
         int index = 1;
 
-        if (strings.length > 1) {
+        if (strings.length > 1 && Util.isNumeric(strings[1])) {
             index = Integer.parseInt(strings[1]);
             if (strings[1].equals("0")) index = 1;
         }

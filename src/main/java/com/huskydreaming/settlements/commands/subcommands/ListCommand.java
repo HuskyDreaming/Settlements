@@ -5,7 +5,7 @@ import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.LIST)

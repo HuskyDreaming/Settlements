@@ -3,7 +3,7 @@ package com.huskydreaming.settlements.services.implementations;
 import com.google.common.reflect.TypeToken;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.storage.Json;
-import com.huskydreaming.settlements.persistence.Flag;
+import com.huskydreaming.settlements.enumeration.Flag;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.FlagService;
 
@@ -16,11 +16,10 @@ import java.util.concurrent.ConcurrentHashMap;
 public class FlagServiceImpl implements FlagService {
 
     private Map<String, Set<Flag>> flags;
-    private final Set<Flag> defaultFlags;
+    private final ConfigService configService;
 
     public FlagServiceImpl(HuskyPlugin plugin) {
-        ConfigService configService = plugin.provide(ConfigService.class);
-        defaultFlags = configService.deserializeDefaultFlags(plugin);
+        this.configService = plugin.provide(ConfigService.class);
     }
 
     @Override
@@ -31,8 +30,7 @@ public class FlagServiceImpl implements FlagService {
 
     @Override
     public void deserialize(HuskyPlugin plugin) {
-        Type type = new TypeToken<Map<String, Set<Flag>>>() {
-        }.getType();
+        Type type = new TypeToken<Map<String, Set<Flag>>>() {}.getType();
         flags = Json.read(plugin, "data/flags", type);
         if (flags == null) flags = new ConcurrentHashMap<>();
 
@@ -47,7 +45,8 @@ public class FlagServiceImpl implements FlagService {
 
     @Override
     public void setup(String string) {
-        flags.put(string, defaultFlags != null ? defaultFlags : new HashSet<>());
+        Set<Flag> flagSet = new HashSet<>(configService.getConfig().getFlags());
+        flags.put(string, flagSet);
     }
 
     @Override

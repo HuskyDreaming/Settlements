@@ -4,27 +4,29 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.enumeration.SettlementDefaultType;
+import com.huskydreaming.settlements.services.interfaces.ConfigService;
+import com.huskydreaming.settlements.storage.persistence.Config;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.entity.Player;
-
-import java.util.Map;
 
 @Command(label = CommandLabel.SET_TAG, arguments = " [tag]")
 public class SetTagCommand implements SubCommand {
 
+    private final ConfigService configService;
     private final MemberService memberService;
-
     private final RoleService roleService;
     private final SettlementService settlementService;
 
     public SetTagCommand(HuskyPlugin plugin) {
+        configService = plugin.provide(ConfigService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
@@ -45,9 +47,9 @@ public class SetTagCommand implements SubCommand {
             if (role.hasPermission(RolePermission.EDIT_TAGS) || settlement.isOwner(player)) {
                 String string = strings[1];
 
-                Map<String, Integer> defaults = settlementService.getDefaults();
-                int minimumTagLength = defaults.getOrDefault("min-tag-length", 2);
-                int maximumTagLength = defaults.getOrDefault("max-tag-length", 4);
+                Config config = configService.getConfig();
+                int minimumTagLength = config.getSettlementDefault(SettlementDefaultType.MIN_TAG_LENGTH);
+                int maximumTagLength = config.getSettlementDefault(SettlementDefaultType.MAX_TAG_LENGTH);
 
                 if (string.length() > maximumTagLength) {
                     player.sendMessage(Locale.SETTLEMENT_TAG_LONG.prefix(maximumTagLength));
@@ -62,7 +64,7 @@ public class SetTagCommand implements SubCommand {
                 settlement.setTag(string);
                 player.sendMessage(Locale.SETTLEMENT_TAG.prefix(string));
             } else {
-                player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.LAND_CLAIM.getName()));
+                player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.EDIT_TAGS));
             }
         }
     }

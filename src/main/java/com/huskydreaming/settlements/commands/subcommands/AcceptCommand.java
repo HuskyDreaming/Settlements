@@ -4,9 +4,9 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
@@ -18,14 +18,14 @@ import java.util.List;
 public class AcceptCommand implements SubCommand {
 
     private final BorderService borderService;
-    private final ChunkService chunkService;
+    private final ClaimService claimService;
     private final MemberService memberService;
     private final InvitationService invitationService;
     private final SettlementService settlementService;
 
     public AcceptCommand(HuskyPlugin plugin) {
         borderService = plugin.provide(BorderService.class);
-        chunkService = plugin.provide(ChunkService.class);
+        claimService = plugin.provide(ClaimService.class);
         memberService = plugin.provide(MemberService.class);
         invitationService = plugin.provide(InvitationService.class);
         settlementService = plugin.provide(SettlementService.class);
@@ -60,8 +60,8 @@ public class AcceptCommand implements SubCommand {
             borderService.removePlayer(player);
 
             Chunk chunk = player.getLocation().getChunk();
-            if (chunkService.isClaim(chunk)) {
-                String claim = chunkService.getClaim(player.getLocation().getChunk());
+            if (claimService.isClaim(chunk)) {
+                String claim = claimService.getClaim(player.getLocation().getChunk());
                 if (claim.equalsIgnoreCase(string)) {
                     borderService.addPlayer(player, claim, Color.AQUA);
                 } else {
@@ -75,7 +75,7 @@ public class AcceptCommand implements SubCommand {
 
     @Override
     public List<String> onTabComplete(Player player, String[] strings) {
-        if(strings.length == 2) return invitationService.getInvitations(player).stream().toList();
+        if (strings.length == 2) return invitationService.getInvitations(player).stream().toList();
         return List.of();
     }
 }

@@ -1,7 +1,7 @@
 package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.interfaces.Service;
-import com.huskydreaming.settlements.transience.BorderData;
+import com.huskydreaming.settlements.storage.transience.BorderData;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
 

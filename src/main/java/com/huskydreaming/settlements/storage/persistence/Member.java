@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.persistence;
+package com.huskydreaming.settlements.storage.persistence;
 
 import java.util.Objects;
 
@@ -7,7 +7,6 @@ public class Member {
     private String settlement;
     private String role;
     private String lastOnline;
-
     private boolean autoClaim;
 
     public static Member create(String name, String role) {

@@ -2,28 +2,45 @@ package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.interfaces.Service;
-import com.huskydreaming.settlements.inventories.InventoryAction;
-import com.huskydreaming.settlements.persistence.roles.Role;
+import com.huskydreaming.huskycore.inventories.InventoryModule;
+import com.huskydreaming.settlements.inventories.base.InventoryAction;
+import com.huskydreaming.settlements.inventories.base.InventoryActionType;
+import com.huskydreaming.settlements.storage.persistence.Role;
 import fr.minuskube.inv.SmartInventory;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 
 public interface InventoryService extends Service {
 
-    SmartInventory getRoleInventory(HuskyPlugin plugin, String name, Role role);
+    void removeModule(Class<?> moduleClass);
 
-    SmartInventory getSettlementInventory(HuskyPlugin plugin, String name);
+    void addModule(InventoryModule module);
+
+    void addAction(Player player, InventoryAction action);
+
+    void runAction(Player player);
+
+    InventoryActionType getActionType(Player player);
+
+    SmartInventory getAdminInventory(HuskyPlugin plugin);
+
+    SmartInventory getWorldsInventory(HuskyPlugin plugin);
+
+    SmartInventory getRoleInventory(HuskyPlugin plugin, Player player, Role role);
+
+    SmartInventory getMainInventory(HuskyPlugin plugin, Player player);
 
     SmartInventory getSettlementsInventory(HuskyPlugin plugin);
 
-    SmartInventory getConfirmationInventory(HuskyPlugin plugin, String settlementName, InventoryAction inventoryAction);
+    SmartInventory getConfirmationInventory(HuskyPlugin plugin, Player player);
 
-    SmartInventory getRolesInventory(HuskyPlugin plugin, String settlementName);
+    SmartInventory getRolesInventory(HuskyPlugin plugin, Player player);
 
-    SmartInventory getFlagsInventory(HuskyPlugin plugin, String settlementName);
+    SmartInventory getFlagsInventory(HuskyPlugin plugin, Player player);
 
-    SmartInventory getClaimsInventory(HuskyPlugin plugin, String settlementName);
+    SmartInventory getClaimsInventory(HuskyPlugin plugin, Player player);
 
-    SmartInventory getCitizensInventory(HuskyPlugin plugin, String settlementName);
+    SmartInventory getMembersInventory(HuskyPlugin plugin, Player player);
 
-    SmartInventory getCitizenInventory(HuskyPlugin plugin, String settlementName, OfflinePlayer offlinePlayer);
+    SmartInventory getMemberInventory(HuskyPlugin plugin, OfflinePlayer offlinePlayer);
 }

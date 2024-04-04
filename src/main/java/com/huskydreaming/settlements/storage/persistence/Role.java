@@ -1,6 +1,7 @@
-package com.huskydreaming.settlements.persistence.roles;
+package com.huskydreaming.settlements.storage.persistence;
 
 import com.huskydreaming.huskycore.utilities.Util;
+import com.huskydreaming.settlements.enumeration.RolePermission;
 
 import java.util.*;
 

@@ -4,10 +4,10 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.commands.AbstractCommand;
 import com.huskydreaming.huskycore.interfaces.Parseable;
 import com.huskydreaming.settlements.commands.subcommands.HelpCommand;
-import com.huskydreaming.settlements.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.entity.Player;
 
 public class BaseCommand extends AbstractCommand {
@@ -28,7 +28,7 @@ public class BaseCommand extends AbstractCommand {
     public void run(Player player, String[] strings) {
         Member member = memberService.getCitizen(player);
         if (member != null) {
-            inventoryService.getSettlementInventory(plugin, member.getSettlement()).open(player);
+            inventoryService.getMainInventory(plugin, player).open(player);
         } else {
             new HelpCommand(plugin).run(player, strings);
         }

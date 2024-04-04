@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.persistence;
+package com.huskydreaming.settlements.storage.persistence;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -13,13 +13,11 @@ import java.util.UUID;
 public class Settlement {
 
     private UUID owner;
-    private String name;
     private String tag;
     private String description;
     private String defaultRole;
     private Location location;
     private Material icon;
-
     private int maxLand;
     private int maxCitizens;
     private int maxRoles;
@@ -117,11 +115,6 @@ public class Settlement {
         return tag;
     }
 
-    @Deprecated
-    public String getName() {
-        return name;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -130,16 +123,15 @@ public class Settlement {
                 maxCitizens == that.maxCitizens &&
                 maxRoles == that.maxRoles &&
                 Objects.equals(owner, that.owner) &&
-                Objects.equals(name, that.name) &&
                 Objects.equals(tag, that.tag) &&
                 Objects.equals(description, that.description) &&
                 Objects.equals(defaultRole, that.defaultRole) &&
-                Objects.equals(location, that.location)
-                && icon == that.icon;
+                Objects.equals(location, that.location) &&
+                icon == that.icon;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(owner, name, tag, description, defaultRole, location, icon, maxLand, maxCitizens, maxRoles);
+        return Objects.hash(owner, tag, description, defaultRole, location, icon, maxLand, maxCitizens, maxRoles);
     }
 }

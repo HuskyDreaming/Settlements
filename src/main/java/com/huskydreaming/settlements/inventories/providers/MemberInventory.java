@@ -3,16 +3,16 @@ package com.huskydreaming.settlements.inventories.providers;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
-import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.Locale;
-import com.huskydreaming.settlements.storage.Menu;
+import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
@@ -29,9 +29,7 @@ public class MemberInventory implements InventoryProvider {
     private final SettlementService settlementService;
     private final OfflinePlayer offlinePlayer;
 
-    private final String settlementName;
-
-    public MemberInventory(HuskyPlugin plugin, String settlementName, OfflinePlayer offlinePlayer) {
+    public MemberInventory(HuskyPlugin plugin, OfflinePlayer offlinePlayer) {
         this.plugin = plugin;
 
         inventoryService = plugin.provide(InventoryService.class);
@@ -39,7 +37,6 @@ public class MemberInventory implements InventoryProvider {
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
 
-        this.settlementName = settlementName;
         this.offlinePlayer = offlinePlayer;
     }
 
@@ -51,7 +48,7 @@ public class MemberInventory implements InventoryProvider {
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
 
         contents.fillBorders(InventoryItem.border());
-        contents.set(0, 0, InventoryItem.back(player, inventoryService.getCitizensInventory(plugin, settlementName)));
+        contents.set(0, 0, InventoryItem.back(player, inventoryService.getMembersInventory(plugin, player)));
         contents.set(1, 3, setOwner(player, settlement, contents));
         contents.set(1, 4, roleItem(player, settlement.getDefaultRole(), contents));
         contents.set(1, 5, kickItem(player, settlement, contents));
@@ -89,7 +86,7 @@ public class MemberInventory implements InventoryProvider {
 
     private ClickableItem roleItem(Player player, String defaultRole, InventoryContents contents) {
         Member member = memberService.getCitizen(offlinePlayer);
-        int index = roleService.getIndex(settlementName, member);
+        int index = roleService.getIndex(member.getSettlement(), member);
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_SET_ROLE_TITLE.parse())
                 .setLore(Menu.MEMBER_SET_ROLE_LORE.parameterizeList(index, member.getRole()))
@@ -98,11 +95,11 @@ public class MemberInventory implements InventoryProvider {
 
             Role role = roleService.sync(member, defaultRole);
             if (e.isRightClick()) {
-                if (roleService.demote(settlementName, role, member)) {
+                if (roleService.demote(member.getSettlement(), role, member)) {
                     contents.inventory().open(player);
                 }
             } else if (e.isLeftClick()) {
-                if (roleService.promote(settlementName, role, member)) {
+                if (roleService.promote(member.getSettlement(), role, member)) {
                     contents.inventory().open(player);
                 }
             }
@@ -123,7 +120,7 @@ public class MemberInventory implements InventoryProvider {
             } else {
                 player.sendMessage(Locale.SETTLEMENT_KICK_PLAYER.prefix(offlinePlayer.getName()));
                 Player target = offlinePlayer.getPlayer();
-                if (target != null) target.sendMessage(Locale.SETTLEMENT_KICK.prefix(settlementName));
+                if (target != null) target.sendMessage(Locale.SETTLEMENT_KICK.prefix(member.getSettlement()));
                 memberService.remove(offlinePlayer);
             }
             contents.inventory().close(player);

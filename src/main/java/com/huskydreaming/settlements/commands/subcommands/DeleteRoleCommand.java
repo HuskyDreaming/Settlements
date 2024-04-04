@@ -4,14 +4,14 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class DeleteRoleCommand implements SubCommand {
 
     @Override
     public List<String> onTabComplete(Player player, String[] strings) {
-        if(strings.length == 2) {
+        if (strings.length == 2) {
             Member member = memberService.getCitizen(player);
             return roleService.getRoles(member.getSettlement()).stream().map(Role::getName).collect(Collectors.toList());
         }

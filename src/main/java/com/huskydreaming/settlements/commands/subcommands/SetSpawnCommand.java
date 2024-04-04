@@ -4,14 +4,14 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
-import com.huskydreaming.settlements.persistence.roles.Role;
-import com.huskydreaming.settlements.persistence.roles.RolePermission;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.SET_SPAWN)
@@ -38,8 +38,8 @@ public class SetSpawnCommand implements SubCommand {
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
         Role role = roleService.getRole(member);
 
-        if (!(role.hasPermission(RolePermission.SPAWN_SET) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.SPAWN_SET.getName()));
+        if (!(role.hasPermission(RolePermission.EDIT_SPAWN) || settlement.isOwner(player))) {
+            player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.EDIT_SPAWN));
             return;
         }
 

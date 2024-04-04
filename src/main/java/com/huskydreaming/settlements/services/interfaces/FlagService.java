@@ -1,7 +1,7 @@
 package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.interfaces.Service;
-import com.huskydreaming.settlements.persistence.Flag;
+import com.huskydreaming.settlements.enumeration.Flag;
 
 public interface FlagService extends Service {
     void clean(String name);

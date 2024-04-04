@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.transience;
+package com.huskydreaming.settlements.storage.transience;
 
 import org.bukkit.Color;
 import org.bukkit.Location;

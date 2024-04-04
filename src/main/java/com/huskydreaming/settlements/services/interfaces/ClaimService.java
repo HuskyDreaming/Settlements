@@ -3,12 +3,11 @@ package com.huskydreaming.settlements.services.interfaces;
 import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.huskycore.interfaces.Service;
 import org.bukkit.Chunk;
-import org.bukkit.World;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
 
-public interface ChunkService extends Service {
+public interface ClaimService extends Service {
 
     void setClaim(Chunk chunk, String name);
 
@@ -26,5 +25,9 @@ public interface ChunkService extends Service {
 
     Set<ChunkData> getClaims(String name);
 
-    boolean isDisabledWorld(World world);
+    boolean isAdjacent(String name, Chunk chunk);
+
+    boolean isAdjacentToOtherClaim(String string, Chunk chunk);
+
+    boolean isAdjacentToExistingClaim(Chunk chunk);
 }

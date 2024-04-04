@@ -23,5 +23,7 @@ public class CommandLabel {
     public final static String SET_TAG = "settag";
     public final static String SETTLEMENTS = "settlements";
     public final static String SPAWN = "spawn";
+    public static final String TRUST = "trust";
     public final static String UN_CLAIM = "unclaim";
+    public static final String UN_TRUST = "untrust";
 }

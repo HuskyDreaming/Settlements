@@ -4,25 +4,20 @@ import com.google.common.reflect.TypeToken;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.huskycore.storage.Json;
-import com.huskydreaming.settlements.services.interfaces.ChunkService;
-import com.huskydreaming.settlements.services.interfaces.ConfigService;
+import com.huskydreaming.huskycore.utilities.Util;
+import com.huskydreaming.settlements.services.interfaces.ClaimService;
 import org.bukkit.Chunk;
 import org.bukkit.World;
+import org.bukkit.block.BlockFace;
 
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class ChunkServiceImpl implements ChunkService {
+public class ClaimServiceImpl implements ClaimService {
 
-    private final ConfigService configService;
     private Map<ChunkData, String> chunks;
-    private List<String> disabledWorlds;
-
-    public ChunkServiceImpl(HuskyPlugin plugin) {
-        configService = plugin.provide(ConfigService.class);
-    }
 
     @Override
     public void serialize(HuskyPlugin plugin) {
@@ -38,9 +33,6 @@ public class ChunkServiceImpl implements ChunkService {
 
         int size = chunks.size();
         if (size > 0) plugin.getLogger().info("Registered " + size + " claim(s).");
-
-        if (disabledWorlds != null) disabledWorlds.clear();
-        disabledWorlds = configService.deserializeDisabledWorlds(plugin);
     }
 
     @Override
@@ -95,7 +87,46 @@ public class ChunkServiceImpl implements ChunkService {
     }
 
     @Override
-    public boolean isDisabledWorld(World world) {
-        return disabledWorlds.contains(world.getName());
+    public boolean isAdjacent(String name, Chunk chunk) {
+        boolean adjacent = false;
+        for (ChunkData data : getClaims(name)) {
+            if (Util.areAdjacentChunks(chunk, data.toChunk())) {
+                adjacent = true;
+            }
+        }
+        return adjacent;
+    }
+
+    @Override
+    public boolean isAdjacentToOtherClaim(String string, Chunk chunk) {
+        World world = chunk.getWorld();
+        boolean adjacent = false;
+
+        for (BlockFace blockFace : Util.chunkSteps) {
+            int modX = blockFace.getModX();
+            int modZ = blockFace.getModZ();
+            Chunk adjacentChunk = world.getChunkAt(chunk.getX() + modX, chunk.getZ() + modZ);
+            if (!isClaim(adjacentChunk)) continue;
+
+            String claim = getClaim(adjacentChunk);
+            if (!claim.equalsIgnoreCase(string)) adjacent = true;
+        }
+        return adjacent;
+    }
+
+    @Override
+    public boolean isAdjacentToExistingClaim(Chunk chunk) {
+        World world = chunk.getWorld();
+        boolean adjacent = false;
+
+        for (BlockFace blockFace : Util.chunkSteps) {
+            int modX = blockFace.getModX();
+            int modZ = blockFace.getModZ();
+            Chunk adjacentChunk = world.getChunkAt(chunk.getX() + modX, chunk.getZ() + modZ);
+            if (isClaim(adjacentChunk)) {
+                adjacent = true;
+            }
+        }
+        return adjacent;
     }
 }

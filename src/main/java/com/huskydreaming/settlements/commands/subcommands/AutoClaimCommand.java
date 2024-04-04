@@ -5,10 +5,10 @@ import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.persistence.Member;
-import com.huskydreaming.settlements.persistence.Settlement;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.Locale;
+import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.entity.Player;
 
 import java.util.Set;
@@ -16,12 +16,12 @@ import java.util.Set;
 @Command(label = CommandLabel.AUTO_CLAIM)
 public class AutoClaimCommand implements SubCommand {
 
-    private final ChunkService chunkService;
+    private final ClaimService claimService;
     private final MemberService memberService;
     private final SettlementService settlementService;
 
     public AutoClaimCommand(HuskyPlugin plugin) {
-        chunkService = plugin.provide(ChunkService.class);
+        claimService = plugin.provide(ClaimService.class);
         memberService = plugin.provide(MemberService.class);
         settlementService = plugin.provide(SettlementService.class);
     }
@@ -32,7 +32,7 @@ public class AutoClaimCommand implements SubCommand {
             if (memberService.hasSettlement(player)) {
                 Member member = memberService.getCitizen(player);
                 Settlement settlement = settlementService.getSettlement(member.getSettlement());
-                Set<ChunkData> chunks = chunkService.getClaims(member.getSettlement());
+                Set<ChunkData> chunks = claimService.getClaims(member.getSettlement());
                 if (chunks.size() >= settlement.getMaxLand()) {
                     player.sendMessage(Locale.SETTLEMENT_AUTO_CLAIM_ON_MAX_LAND.prefix());
                     return;

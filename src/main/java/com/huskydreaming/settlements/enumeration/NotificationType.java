@@ -1,0 +1,14 @@
+package com.huskydreaming.settlements.enumeration;
+
+import com.huskydreaming.huskycore.utilities.Util;
+
+public enum NotificationType {
+    BOSS_BAR,
+    ACTION_BAR,
+    TITLE;
+
+    @Override
+    public String toString() {
+        return Util.capitalize(name().toLowerCase().replace("_", " "));
+    }
+}
