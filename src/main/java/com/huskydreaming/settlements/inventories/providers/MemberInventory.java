@@ -3,14 +3,12 @@ package com.huskydreaming.settlements.inventories.providers;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
+import com.huskydreaming.settlements.services.interfaces.*;
+import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.enumeration.RolePermission;
-import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.services.interfaces.InventoryService;
-import com.huskydreaming.settlements.services.interfaces.RoleService;
-import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.storage.types.Locale;
 import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.ClickableItem;
@@ -23,6 +21,7 @@ import org.bukkit.entity.Player;
 public class MemberInventory implements InventoryProvider {
 
     private final HuskyPlugin plugin;
+    private final ConfigService configService;
     private final InventoryService inventoryService;
     private final MemberService memberService;
     private final RoleService roleService;
@@ -32,6 +31,7 @@ public class MemberInventory implements InventoryProvider {
     public MemberInventory(HuskyPlugin plugin, OfflinePlayer offlinePlayer) {
         this.plugin = plugin;
 
+        configService = plugin.provide(ConfigService.class);
         inventoryService = plugin.provide(InventoryService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
@@ -52,6 +52,11 @@ public class MemberInventory implements InventoryProvider {
         contents.set(1, 3, setOwner(player, settlement, contents));
         contents.set(1, 4, roleItem(player, settlement.getDefaultRole(), contents));
         contents.set(1, 5, kickItem(player, settlement, contents));
+
+        Config config = configService.getConfig();
+        if(config.isTeleportation() && offlinePlayer.isOnline() && offlinePlayer.getPlayer() != player) {
+            contents.set(1, 1, teleportItem(player));
+        }
     }
 
     @Override
@@ -62,7 +67,7 @@ public class MemberInventory implements InventoryProvider {
     private ClickableItem setOwner(Player player, Settlement settlement, InventoryContents contents) {
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_SET_OWNER_TITLE.parse())
-                .setLore(Menu.MEMBER_SET_OWNER_LORE.parseList())
+                .setLore(Menu.MEMBER_SET_OWNER_LORE.parameterizeList(settlement.getOwnerName()))
                 .setMaterial(Material.EMERALD)
                 .build(), e -> {
             if (settlement.isOwner(player)) {
@@ -81,6 +86,21 @@ public class MemberInventory implements InventoryProvider {
                 player.sendMessage(Locale.SETTLEMENT_NOT_OWNER_TRANSFER.prefix());
             }
             contents.inventory().close(player);
+        });
+    }
+
+    private ClickableItem teleportItem(Player player) {
+        return ClickableItem.of(ItemBuilder.create()
+                .setDisplayName(Menu.MEMBER_TELEPORT_TITLE.parse())
+                .setLore(Menu.MEMBER_TELEPORT_LORE.parseList())
+                .setMaterial(Material.ENDER_PEARL)
+                .build(), e -> {
+
+            Player onlinePlayer = offlinePlayer.getPlayer();
+            if(onlinePlayer != null) {
+                player.teleport(onlinePlayer);
+                player.sendMessage(Locale.PLAYER_TELEPORT.prefix(offlinePlayer.getName()));
+            }
         });
     }
 

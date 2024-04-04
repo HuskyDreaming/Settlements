@@ -36,7 +36,7 @@ public class DisbandInventoryAction implements InventoryAction {
     }
 
     @Override
-    public void run(Player player) {
+    public void onAccept(Player player) {
         claimService.clean(settlement);
         memberService.clean(settlement);
         flagService.clean(settlement);
@@ -46,6 +46,12 @@ public class DisbandInventoryAction implements InventoryAction {
         borderService.removePlayer(player);
 
         player.closeInventory();
-        player.sendMessage(Locale.SETTLEMENT_DISBAND.prefix());
+        player.sendMessage(Locale.SETTLEMENT_DISBAND_YES.prefix());
+    }
+
+    @Override
+    public void onDeny(Player player) {
+        player.closeInventory();
+        player.sendMessage(Locale.SETTLEMENT_DISBAND_NO.prefix());
     }
 }

@@ -6,5 +6,7 @@ public interface InventoryAction {
 
     InventoryActionType getType();
 
-    void run(Player player);
+    void onAccept(Player player);
+
+    void onDeny(Player player);
 }

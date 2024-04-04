@@ -75,7 +75,8 @@ public enum Locale implements Parseable {
     SETTLEMENT_TAG("You have set the settlement tag to: &b{0}"),
     SETTLEMENT_TAG_LONG("The tag can't be greater than &b{0} &7characters."),
     SETTLEMENT_TAG_SHORT("The tag has to be greater than &b{0} &7characters."),
-    SETTLEMENT_DISBAND("You have disbanded the settlement."),
+    SETTLEMENT_DISBAND_YES("You have disbanded the settlement."),
+    SETTLEMENT_DISBAND_NO("You decided not to disband the settlement"),
     SETTLEMENT_ESTABLISHED("A settlement has already been established here."),
     SETTLEMENT_ESTABLISHED_ADJACENT("You are too close to another settlement to create one here."),
     SETTLEMENT_EXIST("A settlement with that name already exists."),
@@ -156,7 +157,8 @@ public enum Locale implements Parseable {
     RELOAD("You have successfully reloaded all the configurations."),
     UNKNOWN_SUBCOMMAND("&b{0} &7is not a valid subcommand."),
     PLAYER_NULL("The player &b{0} &7has never played before."),
-    PLAYER_OFFLINE("The player &b{0} &7does not seem to be online.");
+    PLAYER_OFFLINE("The player &b{0} &7does not seem to be online."),
+    PLAYER_TELEPORT("You have been teleported to &b{0}&7.");
 
     private final String def;
     private final List<String> list;

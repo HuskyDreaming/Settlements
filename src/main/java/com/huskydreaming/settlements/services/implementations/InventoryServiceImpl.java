@@ -90,8 +90,14 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public void runAction(Player player) {
-        actions.get(player.getUniqueId()).run(player);
+    public void acceptAction(Player player) {
+        actions.get(player.getUniqueId()).onAccept(player);
+        actions.remove(player.getUniqueId());
+    }
+
+    @Override
+    public void denyAction(Player player) {
+        actions.get(player.getUniqueId()).onDeny(player);
         actions.remove(player.getUniqueId());
     }
 

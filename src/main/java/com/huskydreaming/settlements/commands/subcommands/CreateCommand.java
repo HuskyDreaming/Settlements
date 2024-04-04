@@ -11,6 +11,7 @@ import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.CREATE, arguments = " [name]")
@@ -74,7 +75,8 @@ public class CreateCommand implements SubCommand {
                 return;
             }
 
-            if (config.containsDisableWorld(player.getWorld())) {
+            World world = player.getWorld();
+            if (config.containsDisableWorld(world) || world.getEnvironment() != World.Environment.NORMAL) {
                 player.sendMessage(Locale.SETTLEMENT_CREATE_DISABLED_WORLD.prefix());
                 return;
             }

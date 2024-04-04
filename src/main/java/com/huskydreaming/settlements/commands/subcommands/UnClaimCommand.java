@@ -4,6 +4,7 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
+import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.storage.persistence.Role;
@@ -11,6 +12,7 @@ import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.Chunk;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 @Command(label = CommandLabel.UN_CLAIM)
@@ -19,12 +21,14 @@ public class UnClaimCommand implements SubCommand {
     private final BorderService borderService;
     private final MemberService memberService;
     private final ClaimService claimService;
+    private final ConfigService configService;
     private final RoleService roleService;
 
     private final SettlementService settlementService;
 
     public UnClaimCommand(HuskyPlugin plugin) {
         borderService = plugin.provide(BorderService.class);
+        configService = plugin.provide(ConfigService.class);
         memberService = plugin.provide(MemberService.class);
         claimService = plugin.provide(ClaimService.class);
         roleService = plugin.provide(RoleService.class);
@@ -35,6 +39,13 @@ public class UnClaimCommand implements SubCommand {
     public void run(Player player, String[] strings) {
         if (!memberService.hasSettlement(player)) {
             player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            return;
+        }
+
+        Config config = configService.getConfig();
+        World world = player.getWorld();
+        if (config.containsDisableWorld(world) || world.getEnvironment() != World.Environment.NORMAL) {
+            player.sendMessage(Locale.SETTLEMENT_LAND_DISABLED_WORLD.prefix());
             return;
         }
 

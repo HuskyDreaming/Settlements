@@ -43,7 +43,7 @@ public class ClaimsInventory extends InventoryPageProvider<ChunkData> {
                 .setDisplayName(Menu.CLAIMS_TITLE.parameterize(data.getX(), data.getZ()))
                 .setMaterial(Material.GRASS_BLOCK);
 
-        if (teleportation) builder.setLore(Menu.CLAIMS_LORE.parseList());
+        if (teleportation) builder.setLore(Menu.CLAIMS_LORE.parameterizeList(data.getWorld()));
         return builder.build();
     }
 

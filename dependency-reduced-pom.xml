@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.huskydreaming</groupId>
   <artifactId>Settlements</artifactId>
-  <version>0.8.0-ALPHA</version>
+  <version>0.8.1-ALPHA</version>
   <build>
     <plugins>
       <plugin>

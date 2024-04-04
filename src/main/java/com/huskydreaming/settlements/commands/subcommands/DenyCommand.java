@@ -10,6 +10,9 @@ import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.entity.Player;
 
+import java.util.List;
+import java.util.Set;
+
 @Command(label = CommandLabel.DENY, arguments = " [settlement]")
 public class DenyCommand implements SubCommand {
 
@@ -40,5 +43,14 @@ public class DenyCommand implements SubCommand {
             invitationService.removeInvitation(player, strings[1]);
             player.sendMessage(Locale.INVITATION_DENIED.prefix(string));
         }
+    }
+
+    @Override
+    public List<String> onTabComplete(Player player, String[] strings) {
+        if (strings.length == 2) {
+            Set<String> invitations = invitationService.getInvitations(player);
+            if (invitations != null) return invitations.stream().toList();
+        }
+        return List.of();
     }
 }

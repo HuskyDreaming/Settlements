@@ -4,6 +4,7 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
+import com.huskydreaming.settlements.inventories.actions.DisbandInventoryAction;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
@@ -13,22 +14,17 @@ import org.bukkit.entity.Player;
 @Command(label = CommandLabel.DISBAND)
 public class DisbandCommand implements SubCommand {
 
-    private final BorderService borderService;
+    private final HuskyPlugin plugin;
     private final MemberService memberService;
-    private final ClaimService claimService;
-    private final RoleService roleService;
-    private final FlagService flagService;
     private final SettlementService settlementService;
-    private final TrustService trustService;
+
+    private final InventoryService inventoryService;
 
     public DisbandCommand(HuskyPlugin plugin) {
-        borderService = plugin.provide(BorderService.class);
+        this.plugin = plugin;
+        inventoryService = plugin.provide(InventoryService.class);
         memberService = plugin.provide(MemberService.class);
-        claimService = plugin.provide(ClaimService.class);
-        roleService = plugin.provide(RoleService.class);
-        flagService = plugin.provide(FlagService.class);
         settlementService = plugin.provide(SettlementService.class);
-        trustService = plugin.provide(TrustService.class);
     }
 
     @Override
@@ -45,14 +41,7 @@ public class DisbandCommand implements SubCommand {
             return;
         }
 
-        flagService.clean(member.getSettlement());
-        claimService.clean(member.getSettlement());
-        memberService.clean(member.getSettlement());
-        roleService.clean(member.getSettlement());
-        trustService.clean(member.getSettlement());
-        settlementService.disbandSettlement(member.getSettlement());
-        borderService.removePlayer(player);
-
-        player.sendMessage(Locale.SETTLEMENT_DISBAND.prefix());
+        inventoryService.addAction(player, new DisbandInventoryAction(plugin, member.getSettlement()));
+        inventoryService.getConfirmationInventory(plugin, player).open(player);
     }
 }

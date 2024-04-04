@@ -89,6 +89,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 inventoryService.getRolesInventory(plugin, player).open(player);
             } else {
                 player.sendMessage(Locale.SETTLEMENT_ROLE_ONE.prefix());
+                player.closeInventory();
             }
         });
     }

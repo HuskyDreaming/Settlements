@@ -13,6 +13,7 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Set;
 
 @Command(label = CommandLabel.ACCEPT, arguments = " [settlement]")
 public class AcceptCommand implements SubCommand {
@@ -75,7 +76,10 @@ public class AcceptCommand implements SubCommand {
 
     @Override
     public List<String> onTabComplete(Player player, String[] strings) {
-        if (strings.length == 2) return invitationService.getInvitations(player).stream().toList();
+        if (strings.length == 2) {
+            Set<String> invitations = invitationService.getInvitations(player);
+            if(invitations != null) return invitations.stream().toList();
+        }
         return List.of();
     }
 }

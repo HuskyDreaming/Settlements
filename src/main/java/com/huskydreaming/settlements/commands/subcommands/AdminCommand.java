@@ -23,7 +23,9 @@ public class AdminCommand implements SubCommand {
     private final FlagService flagService;
     private final InventoryService inventoryService;
     private final MemberService memberService;
+    private final RoleService roleService;
     private final SettlementService settlementService;
+    private final TrustService trustService;
 
     public AdminCommand(HuskyPlugin plugin) {
         this.plugin = plugin;
@@ -31,8 +33,10 @@ public class AdminCommand implements SubCommand {
         claimService = plugin.provide(ClaimService.class);
         inventoryService = plugin.provide(InventoryService.class);
         flagService = plugin.provide(FlagService.class);
+        roleService = plugin.provide(RoleService.class);
         memberService = plugin.provide(MemberService.class);
         settlementService = plugin.provide(SettlementService.class);
+        trustService = plugin.provide(TrustService.class);
     }
 
     @Override
@@ -108,12 +112,14 @@ public class AdminCommand implements SubCommand {
             return;
         }
 
-        flagService.clean(string);
         claimService.clean(string);
         memberService.clean(string);
+        flagService.clean(string);
+        roleService.clean(string);
+        trustService.clean(string);
         settlementService.disbandSettlement(string);
 
-        player.sendMessage(Locale.SETTLEMENT_DISBAND.prefix());
+        player.sendMessage(Locale.SETTLEMENT_DISBAND_YES.prefix());
     }
 
     private void sendUnknown(Player player, String string) {

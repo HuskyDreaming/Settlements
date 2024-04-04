@@ -18,7 +18,9 @@ public interface InventoryService extends Service {
 
     void addAction(Player player, InventoryAction action);
 
-    void runAction(Player player);
+    void acceptAction(Player player);
+
+    void denyAction(Player player);
 
     InventoryActionType getActionType(Player player);
 

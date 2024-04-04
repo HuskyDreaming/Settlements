@@ -14,6 +14,7 @@ import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.Set;
@@ -47,7 +48,8 @@ public class ClaimCommand implements SubCommand {
         }
 
         Config config = configService.getConfig();
-        if (config.containsDisableWorld(player.getWorld())) {
+        World world = player.getWorld();
+        if (config.containsDisableWorld(world) || world.getEnvironment() != World.Environment.NORMAL) {
             player.sendMessage(Locale.SETTLEMENT_LAND_DISABLED_WORLD.prefix());
             return;
         }

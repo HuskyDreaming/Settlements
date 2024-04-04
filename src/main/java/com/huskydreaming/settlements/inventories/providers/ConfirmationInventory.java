@@ -14,11 +14,9 @@ import org.bukkit.inventory.ItemStack;
 
 public class ConfirmationInventory implements InventoryProvider {
 
-    private final HuskyPlugin plugin;
     private final InventoryService inventoryService;
 
     public ConfirmationInventory(HuskyPlugin plugin) {
-        this.plugin = plugin;
         this.inventoryService = plugin.provide(InventoryService.class);
     }
 
@@ -41,7 +39,7 @@ public class ConfirmationInventory implements InventoryProvider {
                 .setMaterial(Material.GREEN_TERRACOTTA)
                 .build();
 
-        return ClickableItem.of(itemStack, e -> inventoryService.runAction(player));
+        return ClickableItem.of(itemStack, e -> inventoryService.acceptAction(player));
     }
 
     private ClickableItem deny(Player player) {
@@ -50,6 +48,6 @@ public class ConfirmationInventory implements InventoryProvider {
                 .setMaterial(Material.RED_TERRACOTTA)
                 .build();
 
-        return ClickableItem.of(itemStack, e -> inventoryService.getMainInventory(plugin, player).open(player));
+        return ClickableItem.of(itemStack, e -> inventoryService.denyAction(player));
     }
 }

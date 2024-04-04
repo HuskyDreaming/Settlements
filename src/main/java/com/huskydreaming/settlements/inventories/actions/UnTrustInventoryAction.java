@@ -30,8 +30,13 @@ public class UnTrustInventoryAction implements InventoryAction {
     }
 
     @Override
-    public void run(Player player) {
+    public void onAccept(Player player) {
         trustService.unTrust(offlinePlayer, settlement);
         inventoryService.getMembersInventory(plugin, player).open(player);
+    }
+
+    @Override
+    public void onDeny(Player player) {
+        inventoryService.getMainInventory(plugin, player).open(player);
     }
 }
