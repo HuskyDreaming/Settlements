@@ -1,9 +1,9 @@
 package com.huskydreaming.settlements.storage.persistence;
 
 import com.huskydreaming.settlements.enumeration.Flag;
-import com.huskydreaming.settlements.enumeration.NotificationType;
+import com.huskydreaming.settlements.enumeration.types.NotificationType;
 import com.huskydreaming.settlements.enumeration.RolePermission;
-import com.huskydreaming.settlements.enumeration.SettlementDefaultType;
+import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import org.bukkit.World;
 
 import java.util.*;

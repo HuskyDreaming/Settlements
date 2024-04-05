@@ -4,6 +4,7 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.huskycore.inventories.InventoryModule;
 import com.huskydreaming.huskycore.utilities.Util;
+import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.inventories.base.InventoryAction;
 import com.huskydreaming.settlements.inventories.base.InventoryActionType;
 import com.huskydreaming.settlements.inventories.modules.admin.AdminDisabledWorldsModule;
@@ -243,23 +244,24 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public SmartInventory getMembersInventory(HuskyPlugin plugin, Player player) {
+    public SmartInventory getMembersInventory(HuskyPlugin plugin, Player player, MemberFilter memberFilter) {
         Member member = memberService.getCitizen(player);
         List<OfflinePlayer> trustedOfflinePlayers = new ArrayList<>();
         Config config = configService.getConfig();
-        if (config.isTrusting()) {
-            trustedOfflinePlayers = trustService.getOfflinePlayers(member.getSettlement());
-        }
 
+        if (config.isTrusting()) trustedOfflinePlayers = trustService.getOfflinePlayers(member.getSettlement());
         List<OfflinePlayer> memberOfflinePlayers = memberService.getOfflinePlayers(member.getSettlement());
-        List<OfflinePlayer> offlinePlayers = Stream
-                .concat(trustedOfflinePlayers.stream(), memberOfflinePlayers.stream())
-                .toList();
 
+        List<OfflinePlayer> offlinePlayers = switch (memberFilter) {
+            case ALL -> Stream.concat(trustedOfflinePlayers.stream(), memberOfflinePlayers.stream()).toList();
+            case MEMBER -> memberOfflinePlayers;
+            case TRUSTED -> trustedOfflinePlayers;
+        };
 
         int rows = (int) Math.ceil((double) offlinePlayers.size() / 9);
         OfflinePlayer[] array = offlinePlayers.toArray(new OfflinePlayer[0]);
         MembersInventory membersInventory = new MembersInventory(plugin, rows, array);
+        membersInventory.setMemberFilter(memberFilter);
 
         return SmartInventory.builder()
                 .manager(manager)

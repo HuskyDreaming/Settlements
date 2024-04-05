@@ -107,6 +107,7 @@ public enum Locale implements Parseable {
     SETTLEMENT_IS_OWNER("You are already the owner of the settlement."),
     SETTLEMENT_IS_MEMBER("The player &b{0} &7is already part of your settlement."),
     SETTLEMENT_IS_TRUSTED("The player &b{0} &7is already trusted."),
+    SETTLEMENT_IS_NOT_TRUSTED("The player &b{0} &7is not trusted to your settlement."),
     SETTLEMENT_OWNER_TRANSFERRED("You have transferred ownership of your settlement to &f{0}&7."),
     SETTLEMENT_PLAYER_EXISTS("You are already part of a settlement."),
     SETTLEMENT_PLAYER_HAS_SETTLEMENT("The player &b{0} &7already has a settlement."),
@@ -120,10 +121,11 @@ public enum Locale implements Parseable {
     SETTLEMENT_SPAWN("You have been teleported to the settlement spawn."),
     SETTLEMENT_SPAWN_NULL("The spawn for the settlement has been set."),
     SETTLEMENT_TELEPORT("You have teleported to &7x: &b{0}&7, z: &b{1}"),
-
     SETTLEMENT_TRUST("The player &b{0} &7has been trusted."),
+    SETTLEMENT_TRUST_OFFLINE_PLAYER("You have been trusted to the &b{0} &7settlement."),
     SETTLEMENT_TRUST_SELF("You can't trust yourself?!?"),
     SETTLEMENT_TRUST_REMOVE("The player &b{0} &7is not longer trusted."),
+    SETTLEMENT_TRUST_REMOVE_OFFLINE_PLAYER("The player &b{0} &7is not longer trusted."),
     SETTLEMENT_LIST_NULL("No settlements have been created."),
 
     // Notifications

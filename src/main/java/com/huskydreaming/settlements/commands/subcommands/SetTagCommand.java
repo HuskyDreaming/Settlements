@@ -4,7 +4,7 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.commands.Command;
 import com.huskydreaming.huskycore.commands.SubCommand;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.enumeration.SettlementDefaultType;
+import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.storage.persistence.Member;

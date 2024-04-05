@@ -93,7 +93,7 @@ public enum Menu implements Parseable {
     MEMBERS_STATUS_ONLINE("&aOnline"),
 
     DISBAND_TITLE("Disband Settlement?"),
-    UN_TRUST_TITLE("Remove Trust for {0}?"),
+    UN_TRUST_TITLE("Remove trust from player?"),
 
     // Claims Menu
     CLAIMS_TITLE("&a{0}, {1}"),

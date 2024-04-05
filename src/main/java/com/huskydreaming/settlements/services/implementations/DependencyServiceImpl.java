@@ -2,8 +2,8 @@ package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.settlements.dependencies.SettlementPlaceholderExpansion;
+import com.huskydreaming.settlements.enumeration.types.DependencyType;
 import com.huskydreaming.settlements.services.interfaces.DependencyService;
-import com.huskydreaming.settlements.services.base.DependencyType;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;

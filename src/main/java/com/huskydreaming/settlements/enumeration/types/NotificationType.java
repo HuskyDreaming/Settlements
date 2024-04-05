@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.enumeration;
+package com.huskydreaming.settlements.enumeration.types;
 
 import com.huskydreaming.huskycore.utilities.Util;
 

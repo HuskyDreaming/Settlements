@@ -1,6 +1,5 @@
 package com.huskydreaming.settlements.listeners;
 
-import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.storage.persistence.Config;
@@ -12,6 +11,7 @@ import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,6 +24,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.Set;
+import java.util.List;
 
 public class LandListener implements Listener {
 
@@ -33,9 +34,9 @@ public class LandListener implements Listener {
     private final DependencyService dependencyService;
     private final MemberService memberService;
     private final RoleService roleService;
-
     private final NotificationService notificationService;
     private final SettlementService settlementService;
+    private final TrustService trustService;
 
     public LandListener(SettlementPlugin plugin) {
 
@@ -47,6 +48,7 @@ public class LandListener implements Listener {
         notificationService = plugin.provide(NotificationService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
+        trustService = plugin.provide(TrustService.class);
     }
 
     @EventHandler
@@ -92,6 +94,16 @@ public class LandListener implements Listener {
     private void handleChunkChange(Player player, String toChunk) {
         Settlement settlement = settlementService.getSettlement(toChunk);
         if (settlement == null) return;
+
+        if(trustService.hasTrusts(player)) {
+            List<OfflinePlayer> offlinePlayers = trustService.getOfflinePlayers(toChunk);
+            if(offlinePlayers.contains(player)) {
+                borderService.removePlayer(player);
+                borderService.addPlayer(player, toChunk, Color.YELLOW);
+                notificationService.sendTrust(player, toChunk, settlement.getDescription());
+                return;
+            }
+        }
 
         boolean isClaim = false;
         if (memberService.hasSettlement(player)) {

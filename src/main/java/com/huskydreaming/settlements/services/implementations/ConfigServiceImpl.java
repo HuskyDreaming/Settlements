@@ -4,6 +4,8 @@ package com.huskydreaming.settlements.services.implementations;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.storage.Json;
 import com.huskydreaming.settlements.enumeration.*;
+import com.huskydreaming.settlements.enumeration.types.NotificationType;
+import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 

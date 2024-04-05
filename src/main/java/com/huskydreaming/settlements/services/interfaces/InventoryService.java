@@ -3,6 +3,7 @@ package com.huskydreaming.settlements.services.interfaces;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.interfaces.Service;
 import com.huskydreaming.huskycore.inventories.InventoryModule;
+import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.inventories.base.InventoryAction;
 import com.huskydreaming.settlements.inventories.base.InventoryActionType;
 import com.huskydreaming.settlements.storage.persistence.Role;
@@ -42,7 +43,7 @@ public interface InventoryService extends Service {
 
     SmartInventory getClaimsInventory(HuskyPlugin plugin, Player player);
 
-    SmartInventory getMembersInventory(HuskyPlugin plugin, Player player);
+    SmartInventory getMembersInventory(HuskyPlugin plugin, Player player, MemberFilter memberFilter);
 
     SmartInventory getMemberInventory(HuskyPlugin plugin, OfflinePlayer offlinePlayer);
 }

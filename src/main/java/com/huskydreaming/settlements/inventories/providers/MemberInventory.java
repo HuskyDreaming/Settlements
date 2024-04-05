@@ -3,6 +3,7 @@ package com.huskydreaming.settlements.inventories.providers;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
+import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.storage.persistence.Member;
@@ -48,7 +49,7 @@ public class MemberInventory implements InventoryProvider {
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
 
         contents.fillBorders(InventoryItem.border());
-        contents.set(0, 0, InventoryItem.back(player, inventoryService.getMembersInventory(plugin, player)));
+        contents.set(0, 0, InventoryItem.back(player, inventoryService.getMembersInventory(plugin, player, MemberFilter.ALL)));
         contents.set(1, 3, setOwner(player, settlement, contents));
         contents.set(1, 4, roleItem(player, settlement.getDefaultRole(), contents));
         contents.set(1, 5, kickItem(player, settlement, contents));

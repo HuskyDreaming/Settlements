@@ -5,6 +5,7 @@ import com.huskydreaming.huskycore.interfaces.Permission;
 import com.huskydreaming.huskycore.inventories.InventoryModule;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
 import com.huskydreaming.settlements.enumeration.RolePermission;
+import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.content.InventoryContents;
@@ -35,7 +36,7 @@ public class MembersModule implements InventoryModule {
     @Override
     public void run(InventoryClickEvent event, InventoryContents contents) {
         if (event.getWhoClicked() instanceof Player player) {
-            inventoryService.getMembersInventory(plugin, player).open(player);
+            inventoryService.getMembersInventory(plugin, player, MemberFilter.ALL).open(player);
         }
     }
 

@@ -6,7 +6,7 @@ import com.huskydreaming.huskycore.storage.Json;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.enumeration.SettlementDefaultType;
+import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import org.bukkit.entity.Player;

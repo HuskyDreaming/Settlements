@@ -28,17 +28,17 @@ public class SettlementPlugin extends HuskyPlugin {
     private void registerServices() {
         serviceRegistry.register(LocaleService.class, new LocaleServiceImpl(this));
         serviceRegistry.register(ConfigService.class, new ConfigServiceImpl(this));
+        serviceRegistry.register(DependencyService.class, new DependencyServiceImpl());
+        serviceRegistry.register(MemberService.class, new MemberServiceImpl());
+        serviceRegistry.register(SettlementService.class, new SettlementServiceImpl(this));
+        serviceRegistry.register(FlagService.class, new FlagServiceImpl(this));
+        serviceRegistry.register(NotificationService.class, new NotificationServiceImpl(this));
+        serviceRegistry.register(InvitationService.class, new InvitationServiceImpl());
+        serviceRegistry.register(RoleService.class, new RoleServiceImpl(this));
         serviceRegistry.register(TrustService.class, new TrustServiceImpl());
         serviceRegistry.register(ClaimService.class, new ClaimServiceImpl());
         serviceRegistry.register(BorderService.class, new BorderServiceImpl(this));
-        serviceRegistry.register(DependencyService.class, new DependencyServiceImpl());
-        serviceRegistry.register(InvitationService.class, new InvitationServiceImpl());
-        serviceRegistry.register(MemberService.class, new MemberServiceImpl());
-        serviceRegistry.register(FlagService.class, new FlagServiceImpl(this));
-        serviceRegistry.register(RoleService.class, new RoleServiceImpl(this));
-        serviceRegistry.register(SettlementService.class, new SettlementServiceImpl(this));
         serviceRegistry.register(InventoryService.class, new InventoryServiceImpl(this));
-        serviceRegistry.register(NotificationService.class, new NotificationServiceImpl(this));
 
         serviceRegistry.deserialize(this);
     }

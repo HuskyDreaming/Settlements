@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.enumeration;
+package com.huskydreaming.settlements.enumeration.types;
 
 public enum SettlementDefaultType {
     MAX_CLAIMS(15),

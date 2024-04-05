@@ -4,7 +4,7 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.interfaces.Permission;
 import com.huskydreaming.huskycore.inventories.InventoryModule;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
-import com.huskydreaming.settlements.enumeration.NotificationType;
+import com.huskydreaming.settlements.enumeration.types.NotificationType;
 import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.storage.persistence.Config;

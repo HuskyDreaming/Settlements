@@ -33,6 +33,28 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
+    public void sendTrust(Player player, String name, String description) {
+        String capitalizedChunk = Util.capitalize(name);
+
+        Config config = configService.getConfig();
+        switch (config.getNotificationType()) {
+            case TITLE -> {
+                String header = Locale.NOTIFICATION_TITLE_HEADER.parameterize(ChatColor.YELLOW, capitalizedChunk);
+                String footer = Locale.NOTIFICATION_TITLE_FOOTER.parameterize(description);
+                sendTitle(player, header, footer);
+            }
+            case BOSS_BAR -> {
+                String message = Locale.NOTIFICATION_BOSS_BAR.parameterize(ChatColor.YELLOW, capitalizedChunk);
+                sendBossBar(player, BarColor.YELLOW, message);
+            }
+            case ACTION_BAR -> {
+                String message = Locale.NOTIFICATION_ACTION_BAR.parameterize(ChatColor.YELLOW, capitalizedChunk);
+                sendActionBar(player, message);
+            }
+        }
+    }
+
+    @Override
     public void sendWilderness(Player player) {
         Config config = configService.getConfig();
         switch (config.getNotificationType()) {
@@ -65,7 +87,7 @@ public class NotificationServiceImpl implements NotificationService {
                 String footer = Locale.NOTIFICATION_TITLE_FOOTER.parameterize(description);
                 sendTitle(player, header, footer);
             }
-            case BOSS_BAR ->  {
+            case BOSS_BAR -> {
                 String message = Locale.NOTIFICATION_BOSS_BAR.parameterize(chatColor, capitalizedChunk);
                 sendBossBar(player, barColor, message);
             }
@@ -77,7 +99,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private void sendActionBar(Player player, String string) {
-        if(bossBarMap.containsKey(player.getUniqueId())) {
+        if (bossBarMap.containsKey(player.getUniqueId())) {
             bossBarMap.get(player.getUniqueId()).removePlayer(player);
             bossBarMap.remove(player.getUniqueId());
         }
@@ -85,7 +107,7 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     private void sendTitle(Player player, String header, String footer) {
-        if(bossBarMap.containsKey(player.getUniqueId())) {
+        if (bossBarMap.containsKey(player.getUniqueId())) {
             bossBarMap.get(player.getUniqueId()).removePlayer(player);
             bossBarMap.remove(player.getUniqueId());
         }
@@ -94,7 +116,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     private void sendBossBar(Player player, BarColor color, String message) {
         Bukkit.getBossBars().forEachRemaining(keyedBossBar -> player.sendMessage(keyedBossBar.getKey().getKey()));
-        if(bossBarMap.containsKey(player.getUniqueId())) {
+        if (bossBarMap.containsKey(player.getUniqueId())) {
             bossBarMap.get(player.getUniqueId()).removePlayer(player);
             bossBarMap.remove(player.getUniqueId());
         }
@@ -104,18 +126,19 @@ public class NotificationServiceImpl implements NotificationService {
 
         new BukkitRunnable() {
             double countdown = 40.0D;
+
             @Override
             public void run() {
-                if(bossBarMap.containsKey(player.getUniqueId())) {
+                if (bossBarMap.containsKey(player.getUniqueId())) {
                     BossBar fromMap = bossBarMap.get(player.getUniqueId());
-                    if(fromMap != bossBar) {
+                    if (fromMap != bossBar) {
                         bossBar.removePlayer(player);
                         cancel();
                         return;
                     }
                 }
 
-                if(countdown <= 0.0D) {
+                if (countdown <= 0.0D) {
                     bossBarMap.get(player.getUniqueId()).removePlayer(player);
                     bossBarMap.remove(player.getUniqueId());
                     cancel();

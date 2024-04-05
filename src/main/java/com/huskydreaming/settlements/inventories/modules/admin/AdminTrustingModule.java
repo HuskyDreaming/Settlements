@@ -8,7 +8,7 @@ import com.huskydreaming.huskycore.registries.CommandRegistry;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.commands.subcommands.TrustCommand;
 import com.huskydreaming.settlements.commands.subcommands.UnTrustCommand;
-import com.huskydreaming.settlements.enumeration.ConfigType;
+import com.huskydreaming.settlements.enumeration.types.ConfigType;
 import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.storage.persistence.Config;

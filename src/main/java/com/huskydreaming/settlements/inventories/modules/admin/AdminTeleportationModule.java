@@ -12,7 +12,7 @@ import com.huskydreaming.settlements.inventories.modules.general.SpawnModule;
 import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
-import com.huskydreaming.settlements.enumeration.ConfigType;
+import com.huskydreaming.settlements.enumeration.types.ConfigType;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.entity.Player;

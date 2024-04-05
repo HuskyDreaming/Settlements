@@ -1,6 +1,7 @@
 package com.huskydreaming.settlements.inventories.actions;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.inventories.base.InventoryAction;
 import com.huskydreaming.settlements.inventories.base.InventoryActionType;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
@@ -32,7 +33,7 @@ public class UnTrustInventoryAction implements InventoryAction {
     @Override
     public void onAccept(Player player) {
         trustService.unTrust(offlinePlayer, settlement);
-        inventoryService.getMembersInventory(plugin, player).open(player);
+        inventoryService.getMembersInventory(plugin, player, MemberFilter.ALL).open(player);
     }
 
     @Override

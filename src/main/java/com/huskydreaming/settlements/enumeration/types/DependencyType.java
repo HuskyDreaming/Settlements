@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.services.base;
+package com.huskydreaming.settlements.enumeration.types;
 
 public enum DependencyType {
     WORLD_GUARD("WorldGuard"),
