@@ -3,26 +3,27 @@ package com.huskydreaming.settlements.services.implementations;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.huskycore.inventories.InventoryModule;
+import com.huskydreaming.huskycore.inventories.InventoryModuleProvider;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
+import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import com.huskydreaming.settlements.inventories.base.InventoryAction;
 import com.huskydreaming.settlements.inventories.base.InventoryActionType;
+import com.huskydreaming.settlements.inventories.modules.admin.AdminDefaultsModule;
 import com.huskydreaming.settlements.inventories.modules.admin.AdminDisabledWorldsModule;
 import com.huskydreaming.settlements.inventories.modules.admin.AdminNotificationModule;
-import com.huskydreaming.settlements.inventories.modules.admin.AdminTeleportationModule;
 import com.huskydreaming.settlements.inventories.modules.admin.AdminTrustingModule;
-import com.huskydreaming.settlements.inventories.providers.SettlementInventory;
 import com.huskydreaming.settlements.inventories.modules.general.*;
+import com.huskydreaming.settlements.inventories.providers.SettlementInventory;
 import com.huskydreaming.settlements.inventories.providers.*;
-import com.huskydreaming.settlements.storage.persistence.Config;
+import com.huskydreaming.settlements.storage.persistence.*;
 import com.huskydreaming.settlements.enumeration.Flag;
-import com.huskydreaming.settlements.storage.persistence.Member;
-import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.*;
 import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.SmartInventory;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -36,17 +37,17 @@ public class InventoryServiceImpl implements InventoryService {
     private InventoryManager manager;
     private final ClaimService claimService;
     private final ConfigService configService;
+    private final HomeService homeService;
     private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
     private final TrustService trustService;
-    private final List<InventoryModule> modules = new ArrayList<>();
-    private final List<InventoryModule> adminModules = new ArrayList<>();
     private final Map<UUID, InventoryAction> actions = new ConcurrentHashMap<>();
 
     public InventoryServiceImpl(HuskyPlugin plugin) {
         claimService = plugin.provide(ClaimService.class);
         configService = plugin.provide(ConfigService.class);
+        homeService = plugin.provide(HomeService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
         trustService = plugin.provide(TrustService.class);
@@ -57,32 +58,6 @@ public class InventoryServiceImpl implements InventoryService {
     public void deserialize(HuskyPlugin plugin) {
         manager = new InventoryManager(plugin);
         manager.init();
-
-        modules.add(new MembersModule(plugin));
-        modules.add(new ClaimModule(plugin));
-        modules.add(new RoleModule(plugin));
-        modules.add(new InformationModule(plugin));
-        modules.add(new FlagModule(plugin));
-
-        Config config = configService.getConfig();
-        if (config.isTeleportation()) {
-            modules.add(new SpawnModule(plugin));
-        }
-
-        adminModules.add(new AdminTrustingModule(plugin));
-        adminModules.add(new AdminTeleportationModule(plugin));
-        adminModules.add(new AdminNotificationModule(plugin));
-        adminModules.add(new AdminDisabledWorldsModule(plugin));
-    }
-
-    @Override
-    public void removeModule(Class<?> moduleClass) {
-        modules.removeIf(module -> module.getClass().isAssignableFrom(moduleClass));
-    }
-
-    @Override
-    public void addModule(InventoryModule module) {
-        modules.add(module);
     }
 
     @Override
@@ -108,14 +83,21 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public SmartInventory getAdminInventory(HuskyPlugin plugin) {
-        int rows = (int) Math.ceil((double) adminModules.size() / 9);
-        AdminInventory adminInventory = new AdminInventory(rows);
-        adminInventory.setArray(adminModules.toArray(new InventoryModule[0]));
+    public SmartInventory getAdminInventory(Player player, HuskyPlugin plugin) {
+        InventoryModuleProvider adminInventory = new InventoryModuleProvider();
+
+        adminInventory.deserialize(player,
+                new AdminDefaultsModule(plugin),
+                new AdminDisabledWorldsModule(plugin),
+                new AdminNotificationModule(plugin),
+                new AdminTrustingModule(plugin),
+                new AdminTrustingModule(plugin)
+        );
+
         return SmartInventory.builder()
                 .manager(manager)
                 .id("adminInventory")
-                .size(Math.min(rows + 2, 5), 9)
+                .size(Math.min(adminInventory.getRows() + 2, 5), 9)
                 .provider(adminInventory)
                 .title("Admin Panel")
                 .build();
@@ -155,15 +137,33 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public SmartInventory getMainInventory(HuskyPlugin plugin, Player player) {
-        int rows = (int) Math.ceil((double) modules.size() / 9);
         Member member = memberService.getCitizen(player);
+        Config config = configService.getConfig();
+        SettlementInventory settlementInventory = new SettlementInventory(plugin);
 
-        SettlementInventory settlementInventory = new SettlementInventory(plugin, rows);
-        settlementInventory.setArray(modules.toArray(new InventoryModule[0]));
+        List<InventoryModule> modules = new ArrayList<>();
+        modules.add(new MembersModule(plugin));
+        modules.add(new ClaimModule(plugin));
+        modules.add(new RoleModule(plugin));
+        modules.add(new InformationModule(plugin));
+        modules.add(new FlagModule(plugin));
+
+        if(config.isHomes() && homeService.hasHomes(member.getSettlement())) {
+            if(!homeService.getHomes(member.getSettlement()).isEmpty()) {
+                modules.add(new HomeModule(plugin));
+            }
+        }
+
+        if(config.isTeleportation()) {
+            modules.add(new SpawnModule(plugin));
+        }
+
+        settlementInventory.deserialize(player, modules);
+
         return SmartInventory.builder()
                 .id("settlementInventory")
                 .manager(manager)
-                .size(Math.min(rows + 2, 5), 9)
+                .size(Math.min(settlementInventory.getRows() + 2, 5), 9)
                 .provider(settlementInventory)
                 .title("Editing: " + Util.capitalize(member.getSettlement()))
                 .build();
@@ -214,6 +214,32 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
+    public SmartInventory getHomesInventory(HuskyPlugin plugin, Player player) {
+        Member member = memberService.getCitizen(player);
+        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+
+        List<Home> homes = new ArrayList<>();;
+        if(homeService.hasHomes(member.getSettlement())) {
+            homes = new ArrayList<>(homeService.getHomes(member.getSettlement()));
+        }
+
+        homes.add(0, Home.create("spawn", Material.ENDER_PEARL, settlement.getLocation()));
+        Home[] finalHomes = homes.toArray(new Home[0]);
+
+        int rows = (int) Math.ceil((double) finalHomes.length / 9);
+        HomesInventory homesInventory = new HomesInventory(plugin, rows);
+        homesInventory.setArray(finalHomes);
+
+        return SmartInventory.builder()
+                .manager(manager)
+                .id("homesInventory")
+                .size(Math.min(rows + 2, 5), 9)
+                .provider(homesInventory)
+                .title("Homes")
+                .build();
+    }
+
+    @Override
     public SmartInventory getFlagsInventory(HuskyPlugin plugin, Player player) {
         Flag[] flags = Flag.values();
         int rows = (int) Math.ceil((double) flags.length / 9);
@@ -240,6 +266,22 @@ public class InventoryServiceImpl implements InventoryService {
                 .size(Math.min(rows + 2, 5), 9)
                 .provider(claimsInventory)
                 .title("Claims")
+                .build();
+    }
+
+    @Override
+    public SmartInventory getSettlementDefaultsInventory(HuskyPlugin plugin) {
+        SettlementDefaultType[] types = SettlementDefaultType.values();
+        int rows = (int) Math.ceil((double) types.length / 9);
+        DefaultsInventory defaultsInventory = new DefaultsInventory(plugin, rows);
+        defaultsInventory.setArray(types);
+
+        return SmartInventory.builder()
+                .manager(manager)
+                .id("defaultsInventory")
+                .size(Math.min(rows + 2, 5), 9)
+                .provider(defaultsInventory)
+                .title("Defaults")
                 .build();
     }
 

@@ -1,8 +1,8 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.Command;
-import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
@@ -16,10 +16,11 @@ import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.Set;
 
-@Command(label = CommandLabel.UN_TRUST)
-public class UnTrustCommand implements SubCommand {
+@CommandAnnotation(label = CommandLabel.UN_TRUST)
+public class UnTrustCommand implements PlayerCommandProvider {
 
     private final BorderService borderService;
     private final ClaimService claimService;
@@ -38,69 +39,77 @@ public class UnTrustCommand implements SubCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
-        if (strings.length == 2) {
-            if (!memberService.hasSettlement(player)) {
-                player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
-                return;
-            }
-
-            Member member = memberService.getCitizen(player);
-            Settlement settlement = settlementService.getSettlement(member.getSettlement());
-            Role role = roleService.getRole(member);
-
-            if (!(role.hasPermission(RolePermission.MEMBER_TRUST) || settlement.isOwner(player))) {
-                player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.MEMBER_TRUST));
-                return;
-            }
-
-            String string = strings[1];
-            OfflinePlayer offlinePlayer = Util.getOfflinePlayer(string);
-            if (offlinePlayer == null) {
-                player.sendMessage(Locale.PLAYER_NULL.prefix(string));
-                return;
-            }
-
-            if (memberService.hasSettlement(offlinePlayer)) {
-                Member offlineMember = memberService.getCitizen(offlinePlayer);
-                if (offlineMember.getSettlement().equalsIgnoreCase(member.getSettlement())) {
-                    player.sendMessage(Locale.SETTLEMENT_IS_MEMBER.prefix(offlinePlayer.getName()));
-                    return;
-                }
-            }
-
-            Set<String> trustedSettlements = trustService.getSettlements(offlinePlayer);
-            if (trustedSettlements != null && !trustedSettlements.contains(member.getSettlement())) {
-                player.sendMessage(Locale.SETTLEMENT_IS_NOT_TRUSTED.prefix(offlinePlayer.getName()));
-                return;
-            }
-
-            trustService.unTrust(offlinePlayer, member.getSettlement());
-            player.sendMessage(Locale.SETTLEMENT_TRUST_REMOVE.prefix(offlinePlayer.getName()));
-
-            if (!offlinePlayer.isOnline()) return;
-            Player target = offlinePlayer.getPlayer();
-            borderService.removePlayer(target);
-
-            if (target == null) return;
-            target.sendMessage(Locale.SETTLEMENT_TRUST_REMOVE_OFFLINE_PLAYER.prefix(member.getSettlement()));
-
-            Chunk chunk = player.getLocation().getChunk();
-            if (!claimService.isClaim(chunk)) return;
-
-            String settlementName = claimService.getClaim(chunk);
-            if (memberService.hasSettlement(offlinePlayer)) {
-                Member targetMember = memberService.getCitizen(offlinePlayer);
-
-                if (settlementName.equalsIgnoreCase(targetMember.getSettlement())) {
-                    borderService.addPlayer(player, settlementName, Color.AQUA);
-                } else {
-                    borderService.addPlayer(player, settlementName, Color.RED);
-                }
-                return;
-            }
-
-            borderService.addPlayer(player, settlementName, Color.RED);
+    public void onCommand(Player player, String[] strings) {
+        if (strings.length != 2) return;
+        if (!memberService.hasSettlement(player)) {
+            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            return;
         }
+
+        Member member = memberService.getCitizen(player);
+        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Role role = roleService.getRole(member);
+
+        if(!(role.hasPermission(RolePermission.MEMBER_TRUST) || settlement.isOwner(player))) {
+            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            return;
+        }
+
+        String string = strings[1];
+        OfflinePlayer offlinePlayer = Util.getOfflinePlayer(string);
+        if (offlinePlayer == null) {
+            player.sendMessage(Locale.PLAYER_NULL.prefix(string));
+            return;
+        }
+
+        if (memberService.hasSettlement(offlinePlayer)) {
+            Member offlineMember = memberService.getCitizen(offlinePlayer);
+            if (offlineMember.getSettlement().equalsIgnoreCase(member.getSettlement())) {
+                player.sendMessage(Locale.SETTLEMENT_IS_MEMBER.prefix(offlinePlayer.getName()));
+                return;
+            }
+        }
+
+        Set<String> trustedSettlements = trustService.getSettlements(offlinePlayer);
+        if (trustedSettlements != null && !trustedSettlements.contains(member.getSettlement())) {
+            player.sendMessage(Locale.SETTLEMENT_IS_NOT_TRUSTED.prefix(offlinePlayer.getName()));
+            return;
+        }
+
+        trustService.unTrust(offlinePlayer, member.getSettlement());
+        player.sendMessage(Locale.SETTLEMENT_TRUST_REMOVE.prefix(offlinePlayer.getName()));
+
+        if (!offlinePlayer.isOnline()) return;
+        Player target = offlinePlayer.getPlayer();
+        borderService.removePlayer(target);
+
+        if (target == null) return;
+        target.sendMessage(Locale.SETTLEMENT_TRUST_REMOVE_OFFLINE_PLAYER.prefix(member.getSettlement()));
+
+        Chunk chunk = player.getLocation().getChunk();
+        if (!claimService.isClaim(chunk)) return;
+
+        String settlementName = claimService.getClaim(chunk);
+        if (memberService.hasSettlement(offlinePlayer)) {
+            Member targetMember = memberService.getCitizen(offlinePlayer);
+
+            if (settlementName.equalsIgnoreCase(targetMember.getSettlement())) {
+                borderService.addPlayer(player, settlementName, Color.AQUA);
+            } else {
+                borderService.addPlayer(player, settlementName, Color.RED);
+            }
+            return;
+        }
+
+        borderService.addPlayer(player, settlementName, Color.RED);
+    }
+
+    @Override
+    public List<String> onTabComplete(Player player, String[] strings) {
+        if(strings.length == 2 && memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+            return trustService.getOfflinePlayers(member.getSettlement()).stream().map(OfflinePlayer::getName).toList();
+        }
+        return List.of();
     }
 }

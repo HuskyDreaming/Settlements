@@ -1,8 +1,8 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.Command;
-import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.inventories.actions.DisbandInventoryAction;
 import com.huskydreaming.settlements.storage.persistence.Member;
@@ -11,8 +11,10 @@ import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.entity.Player;
 
-@Command(label = CommandLabel.DISBAND)
-public class DisbandCommand implements SubCommand {
+import java.util.List;
+
+@CommandAnnotation(label = CommandLabel.DISBAND)
+public class DisbandCommand implements PlayerCommandProvider {
 
     private final HuskyPlugin plugin;
     private final MemberService memberService;
@@ -28,7 +30,7 @@ public class DisbandCommand implements SubCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
+    public void onCommand(Player player, String[] strings) {
         if (!memberService.hasSettlement(player)) {
             player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
             return;

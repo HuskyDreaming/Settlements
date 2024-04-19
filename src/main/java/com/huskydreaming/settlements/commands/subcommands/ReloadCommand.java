@@ -1,18 +1,20 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.Command;
-import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.providers.CommandProvider;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.types.Locale;
-import org.bukkit.entity.Player;
+import org.bukkit.command.CommandSender;
 
-@Command(label = CommandLabel.RELOAD)
-public class ReloadCommand implements SubCommand {
+@CommandAnnotation(label = CommandLabel.RELOAD)
+public class ReloadCommand implements CommandProvider {
 
     private final HuskyPlugin plugin;
     private final ClaimService claimService;
+
+    private final ConfigService configService;
     private final FlagService flagService;
     private final LocaleService localeService;
     private final MemberService memberService;
@@ -23,6 +25,7 @@ public class ReloadCommand implements SubCommand {
         this.plugin = plugin;
 
         claimService = plugin.provide(ClaimService.class);
+        configService = plugin.provide(ConfigService.class);
         flagService = plugin.provide(FlagService.class);
         localeService = plugin.provide(LocaleService.class);
         memberService = plugin.provide(MemberService.class);
@@ -31,21 +34,17 @@ public class ReloadCommand implements SubCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
+    public void onCommand(CommandSender sender, String[] strings) {
         localeService.getLocale().reload(plugin);
         localeService.getMenu().reload(plugin);
 
-        plugin.reloadConfig();
-        plugin.saveDefaultConfig();
-        plugin.getConfig().options().copyDefaults(true);
-        plugin.saveConfig();
-
         claimService.serialize(plugin);
+        configService.deserialize(plugin);
         flagService.serialize(plugin);
         memberService.serialize(plugin);
         roleService.serialize(plugin);
         settlementService.serialize(plugin);
 
-        player.sendMessage(Locale.RELOAD.prefix());
+        sender.sendMessage(Locale.RELOAD.prefix());
     }
 }

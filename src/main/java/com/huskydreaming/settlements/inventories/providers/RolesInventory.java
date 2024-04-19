@@ -4,6 +4,7 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.inventories.InventoryPageProvider;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
+import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.storage.persistence.Role;
@@ -48,34 +49,45 @@ public class RolesInventory extends InventoryPageProvider<Role> {
 
     @Override
     public ItemStack construct(Player player, int index, Role role) {
+        if (!memberService.hasSettlement(player)) {
+            player.closeInventory();
+            return null;
+        }
+
         Member member = memberService.getCitizen(player);
+        Role memberRole = roleService.getRole(member);
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
         boolean isDefault = settlement.getDefaultRole().equalsIgnoreCase(role.getName());
 
         Material material = isDefault ? Material.BOOK : Material.PAPER;
         String defaultRole = isDefault ? Menu.SETTLEMENT_ROLE_EDIT_DEFAULT.parse() : "";
 
+        List<String> lore = Menu.SETTLEMENT_ROLE_EDIT_LORE.parameterizeList();
+        if (memberRole.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player)) {
+            lore.add("");
+            lore.add(Menu.SETTLEMENT_ROLE_EDIT_CLICK.parse());
+        }
+
         return ItemBuilder.create()
                 .setDisplayName(Menu.SETTLEMENT_ROLE_EDIT_TITLE.parameterize(index, role.getName(), defaultRole))
-                .setLore(Menu.SETTLEMENT_ROLE_EDIT_LORE.parseList())
                 .setMaterial(material)
                 .setEnchanted(isDefault)
                 .setAmount(index)
+                .setLore(lore)
                 .build();
     }
 
     @Override
     public void run(InventoryClickEvent event, Role role, InventoryContents contents) {
         if (event.getWhoClicked() instanceof Player player) {
+            if (!memberService.hasSettlement(player)) return;
+
             Member member = memberService.getCitizen(player);
-            if (event.isLeftClick()) {
-                inventoryService.getRoleInventory(plugin, player, role).open(player);
-            } else if (event.isRightClick()) {
-                List<Role> roles = roleService.getRoles(member.getSettlement());
-                int index = roleService.getIndex(member.getSettlement(), role.getName());
-                if (index < roles.size() - 1) Collections.swap(roles, index, index + 1);
-                contents.inventory().open(player);
-            }
+            Role memberRole = roleService.getRole(member);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            if (!(memberRole.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player))) return;
+
+            inventoryService.getRoleInventory(plugin, player, role).open(player);
         }
     }
 }

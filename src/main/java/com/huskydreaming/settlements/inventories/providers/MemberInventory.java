@@ -18,6 +18,7 @@ import fr.minuskube.inv.content.InventoryProvider;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 
 public class MemberInventory implements InventoryProvider {
 
@@ -44,15 +45,16 @@ public class MemberInventory implements InventoryProvider {
 
     @Override
     public void init(Player player, InventoryContents contents) {
+        if(!memberService.hasSettlement(player)) return;
 
         Member member = memberService.getCitizen(player);
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
 
         contents.fillBorders(InventoryItem.border());
         contents.set(0, 0, InventoryItem.back(player, inventoryService.getMembersInventory(plugin, player, MemberFilter.ALL)));
-        contents.set(1, 3, setOwner(player, settlement, contents));
-        contents.set(1, 4, roleItem(player, settlement.getDefaultRole(), contents));
-        contents.set(1, 5, kickItem(player, settlement, contents));
+        contents.set(1, 3, setOwner(settlement, contents));
+        contents.set(1, 4, roleItem(contents));
+        contents.set(1, 5, kickItem(contents));
 
         Config config = configService.getConfig();
         if(config.isTeleportation() && offlinePlayer.isOnline() && offlinePlayer.getPlayer() != player) {
@@ -65,12 +67,21 @@ public class MemberInventory implements InventoryProvider {
 
     }
 
-    private ClickableItem setOwner(Player player, Settlement settlement, InventoryContents contents) {
+    private ClickableItem setOwner(Settlement settlement, InventoryContents contents) {
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_SET_OWNER_TITLE.parse())
                 .setLore(Menu.MEMBER_SET_OWNER_LORE.parameterizeList(settlement.getOwnerName()))
                 .setMaterial(Material.EMERALD)
-                .build(), e -> {
+                .build(), e -> setOwnerClick(e, contents));
+    }
+
+    private void setOwnerClick(InventoryClickEvent event, InventoryContents contents) {
+        if(event.getWhoClicked() instanceof Player player) {
+            if (!memberService.hasSettlement(player)) return;
+            if (!memberService.hasSettlement(offlinePlayer)) return;
+
+            Member member = memberService.getCitizen(offlinePlayer);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
             if (settlement.isOwner(player)) {
 
                 if (offlinePlayer.getUniqueId().equals(player.getUniqueId())) {
@@ -87,7 +98,7 @@ public class MemberInventory implements InventoryProvider {
                 player.sendMessage(Locale.SETTLEMENT_NOT_OWNER_TRANSFER.prefix());
             }
             contents.inventory().close(player);
-        });
+        }
     }
 
     private ClickableItem teleportItem(Player player) {
@@ -105,36 +116,53 @@ public class MemberInventory implements InventoryProvider {
         });
     }
 
-    private ClickableItem roleItem(Player player, String defaultRole, InventoryContents contents) {
+    private ClickableItem roleItem(InventoryContents contents) {
         Member member = memberService.getCitizen(offlinePlayer);
         int index = roleService.getIndex(member.getSettlement(), member);
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_SET_ROLE_TITLE.parse())
                 .setLore(Menu.MEMBER_SET_ROLE_LORE.parameterizeList(index, member.getRole()))
                 .setMaterial(Material.WRITABLE_BOOK)
-                .build(), e -> {
+                .build(), e -> roleItemClick(e, contents));
+    }
 
-            Role role = roleService.sync(member, defaultRole);
-            if (e.isRightClick()) {
+    private void roleItemClick(InventoryClickEvent event, InventoryContents contents) {
+        if(event.getWhoClicked() instanceof Player player) {
+            if (!memberService.hasSettlement(player)) return;
+            if (!memberService.hasSettlement(offlinePlayer)) return;
+
+            Member member = memberService.getCitizen(offlinePlayer);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            Role role = roleService.sync(member, settlement.getDefaultRole());
+
+            if (event.isRightClick()) {
                 if (roleService.demote(member.getSettlement(), role, member)) {
                     contents.inventory().open(player);
                 }
-            } else if (e.isLeftClick()) {
+            } else if (event.isLeftClick()) {
                 if (roleService.promote(member.getSettlement(), role, member)) {
                     contents.inventory().open(player);
                 }
             }
-        });
+        }
     }
 
-    private ClickableItem kickItem(Player player, Settlement settlement, InventoryContents contents) {
+    private ClickableItem kickItem(InventoryContents contents) {
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_KICK_TITLE.parse())
                 .setLore(Menu.MEMBER_KICK_LORE.parseList())
                 .setMaterial(Material.ANVIL)
-                .build(), e -> {
+                .build(), e -> kickItemClick(e, contents));
+    }
+
+    private void kickItemClick(InventoryClickEvent event, InventoryContents contents) {
+        if (event.getWhoClicked() instanceof Player player) {
+            if (!memberService.hasSettlement(player)) return;
+            if (!memberService.hasSettlement(offlinePlayer)) return;
+
             Member member = memberService.getCitizen(offlinePlayer);
             Role role = roleService.getRole(member);
+            Settlement settlement = settlementService.getSettlement(member.getSettlement());
 
             if (settlement.isOwner(offlinePlayer) || role.hasPermission(RolePermission.MEMBER_KICK_EXEMPT)) {
                 player.sendMessage(Locale.SETTLEMENT_KICK_EXEMPT.prefix());
@@ -145,6 +173,6 @@ public class MemberInventory implements InventoryProvider {
                 memberService.remove(offlinePlayer);
             }
             contents.inventory().close(player);
-        });
+        }
     }
 }

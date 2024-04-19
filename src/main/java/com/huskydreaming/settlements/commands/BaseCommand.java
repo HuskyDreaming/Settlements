@@ -1,15 +1,18 @@
 package com.huskydreaming.settlements.commands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.AbstractCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.abstraction.AbstractCommand;
 import com.huskydreaming.huskycore.interfaces.Parseable;
 import com.huskydreaming.settlements.commands.subcommands.HelpCommand;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.storage.types.Locale;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+@CommandAnnotation(label = CommandLabel.SETTLEMENTS)
 public class BaseCommand extends AbstractCommand {
 
     private final HuskyPlugin plugin;
@@ -17,7 +20,7 @@ public class BaseCommand extends AbstractCommand {
     private final InventoryService inventoryService;
 
     public BaseCommand(HuskyPlugin plugin) {
-        super(CommandLabel.SETTLEMENTS, plugin);
+        super(plugin);
         this.plugin = plugin;
 
         this.memberService = plugin.provide(MemberService.class);
@@ -25,22 +28,23 @@ public class BaseCommand extends AbstractCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
-        Member member = memberService.getCitizen(player);
-        if (member != null) {
-            inventoryService.getMainInventory(plugin, player).open(player);
-        } else {
-            new HelpCommand(plugin).run(player, strings);
-        }
-    }
-
-    @Override
-    public Parseable getPermissionsLocale() {
+    public Parseable getPermission() {
         return Locale.NO_PERMISSIONS;
     }
 
     @Override
-    public Parseable getUnknownSubCommandLocale() {
+    public Parseable getUsage() {
         return Locale.UNKNOWN_SUBCOMMAND;
+    }
+
+    @Override
+    public void onCommand(CommandSender commandSender, String[] strings) {
+        if(commandSender instanceof  Player player) {
+            if(memberService.hasSettlement(player)) {
+                inventoryService.getMainInventory(plugin, player).open(player);
+            } else {
+                new HelpCommand(plugin).onCommand(player, strings);
+            }
+        }
     }
 }

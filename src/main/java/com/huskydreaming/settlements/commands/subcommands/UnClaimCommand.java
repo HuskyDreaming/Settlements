@@ -1,10 +1,9 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.Command;
-import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.storage.persistence.Role;
@@ -12,11 +11,12 @@ import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.Chunk;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-@Command(label = CommandLabel.UN_CLAIM)
-public class UnClaimCommand implements SubCommand {
+import java.util.List;
+
+@CommandAnnotation(label = CommandLabel.UN_CLAIM)
+public class UnClaimCommand implements PlayerCommandProvider {
 
     private final BorderService borderService;
     private final MemberService memberService;
@@ -36,24 +36,20 @@ public class UnClaimCommand implements SubCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
+    public void onCommand(Player player, String[] strings) {
         if (!memberService.hasSettlement(player)) {
             player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
             return;
         }
 
-        Config config = configService.getConfig();
-        World world = player.getWorld();
-        if (config.containsDisableWorld(world) || world.getEnvironment() != World.Environment.NORMAL) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_DISABLED_WORLD.prefix());
-            return;
-        }
+        if(configService.isDisabledWorld(player)) return;
 
         Member member = memberService.getCitizen(player);
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
         Role role = roleService.getRole(member);
-        if (!(role.hasPermission(RolePermission.CLAIM_LAND) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.CLAIM_LAND));
+
+        if(!(role.hasPermission(RolePermission.CLAIM_LAND) || settlement.isOwner(player))) {
+            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
             return;
         }
 

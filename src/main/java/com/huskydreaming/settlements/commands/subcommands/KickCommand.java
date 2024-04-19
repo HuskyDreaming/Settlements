@@ -1,7 +1,7 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.huskycore.commands.Command;
-import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -20,8 +20,8 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
-@Command(label = CommandLabel.KICK, arguments = " [player]")
-public class KickCommand implements SubCommand {
+@CommandAnnotation(label = CommandLabel.KICK, arguments = " [player]")
+public class KickCommand implements PlayerCommandProvider {
 
     private final BorderService borderService;
     private final MemberService memberService;
@@ -36,49 +36,65 @@ public class KickCommand implements SubCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
-        if (strings.length == 2) {
-            String string = strings[1];
-            OfflinePlayer offlinePlayer = Util.getOfflinePlayer(string);
-            if (offlinePlayer == null) {
-                player.sendMessage(Locale.PLAYER_NULL.prefix(string));
-                return;
-            }
+    public void onCommand(Player player, String[] strings) {
+        if (strings.length != 2) return;
 
-            if (!memberService.hasSettlement(player)) {
-                player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
-                return;
-            }
+        String string = strings[1];
+        OfflinePlayer offlinePlayer = Util.getOfflinePlayer(string);
 
-            Member member = memberService.getCitizen(player);
-            Settlement settlement = settlementService.getSettlement(member.getSettlement());
-            Role role = roleService.getRole(member);
-
-            if (!(role.hasPermission(RolePermission.MEMBER_KICK) || settlement.isOwner(player))) {
-                player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.MEMBER_KICK));
-                return;
-            }
-
-            if (role.hasPermission(RolePermission.MEMBER_KICK_EXEMPT) || settlement.isOwner(offlinePlayer)) {
-                player.sendMessage(Locale.SETTLEMENT_KICK_EXEMPT.prefix());
-            } else {
-                memberService.remove(offlinePlayer);
-                borderService.removePlayer(player);
-                borderService.addPlayer(player, member.getSettlement(), Color.RED);
-
-                Player onlinePlayer = offlinePlayer.getPlayer();
-                if (onlinePlayer != null) onlinePlayer.sendMessage(Locale.SETTLEMENT_KICK.prefix());
-
-                List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(member.getSettlement());
-                offlinePlayers.forEach(off -> {
-                    if (off.isOnline()) {
-                        Player on = off.getPlayer();
-                        if (on != null) {
-                            on.sendMessage(Locale.SETTLEMENT_LEAVE_PLAYER.prefix(offlinePlayer.getName()));
-                        }
-                    }
-                });
-            }
+        if (offlinePlayer == null) {
+            player.sendMessage(Locale.PLAYER_NULL.prefix(string));
+            return;
         }
+
+        if (!memberService.hasSettlement(player)) {
+            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            return;
+        }
+
+        Member member = memberService.getCitizen(player);
+        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Role role = roleService.getRole(member);
+
+
+        if(!(role.hasPermission(RolePermission.MEMBER_KICK) || settlement.isOwner(player))) {
+            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            return;
+        }
+
+        Member offlineMember = memberService.getCitizen(offlinePlayer);
+        Role offlineRole = roleService.getRole(offlineMember);
+
+        if (offlineRole.hasPermission(RolePermission.MEMBER_KICK_EXEMPT) || settlement.isOwner(offlinePlayer)) {
+            player.sendMessage(Locale.SETTLEMENT_KICK_EXEMPT.prefix());
+            return;
+        }
+
+        memberService.remove(offlinePlayer);
+
+        Player onlinePlayer = offlinePlayer.getPlayer();
+        if (onlinePlayer != null) {
+            onlinePlayer.closeInventory();
+            borderService.removePlayer(onlinePlayer);
+            borderService.addPlayer(onlinePlayer, member.getSettlement(), Color.RED);
+            onlinePlayer.sendMessage(Locale.SETTLEMENT_KICK.parameterize(member.getSettlement()));
+        }
+
+        for (OfflinePlayer offline : memberService.getOfflinePlayers(member.getSettlement())) {
+            if (!offline.isOnline()) return;
+            Player on = offline.getPlayer();
+
+            if (on == null) return;
+            on.sendMessage(Locale.SETTLEMENT_LEAVE_PLAYER.prefix(offlinePlayer.getName()));
+        }
+    }
+
+    @Override
+    public List<String> onTabComplete(Player player, String[] strings) {
+        if(strings.length == 2 && memberService.hasSettlement(player)) {
+            Member member = memberService.getCitizen(player);
+            return memberService.getOfflinePlayers(member.getSettlement()).stream().map(OfflinePlayer::getName).toList();
+        }
+        return List.of();
     }
 }

@@ -12,6 +12,7 @@ public class Config {
 
     private boolean trusting;
     private boolean teleportation;
+    private boolean homes;
     private String emptyPlaceholder;
     private NotificationType notificationType;
     private List<String> disabledWorlds;
@@ -55,6 +56,10 @@ public class Config {
         return settlementDefaults.get(type);
     }
 
+    public void setSettlementDefault(SettlementDefaultType type, int value) {
+        settlementDefaults.put(type, value);
+    }
+
     public void setSettlementDefaults(Map<SettlementDefaultType, Integer> settlementDefaults) {
         this.settlementDefaults = settlementDefaults;
     }
@@ -77,6 +82,14 @@ public class Config {
 
     public boolean isTeleportation() {
         return teleportation;
+    }
+
+    public boolean isHomes() {
+        return homes;
+    }
+
+    public void setHomes(boolean homes) {
+        this.homes = homes;
     }
 
     public void setTeleportation(boolean teleportation) {

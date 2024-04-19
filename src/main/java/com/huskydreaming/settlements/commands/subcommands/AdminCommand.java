@@ -1,8 +1,8 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.Command;
-import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -15,8 +15,8 @@ import org.bukkit.entity.Player;
 import java.util.List;
 
 
-@Command(label = CommandLabel.ADMIN, arguments = " [claim|disband|help|unclaim]")
-public class AdminCommand implements SubCommand {
+@CommandAnnotation(label = CommandLabel.ADMIN, arguments = " [claim|disband|help|unclaim]")
+public class AdminCommand implements PlayerCommandProvider {
 
     private final HuskyPlugin plugin;
     private final ClaimService claimService;
@@ -40,9 +40,9 @@ public class AdminCommand implements SubCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
+    public void onCommand(Player player, String[] strings) {
         if (strings.length == 1) {
-            inventoryService.getAdminInventory(plugin).open(player);
+            inventoryService.getAdminInventory(player, plugin).open(player);
         } else if (strings.length == 2) {
             String string = strings[1].toUpperCase();
 
@@ -63,6 +63,13 @@ public class AdminCommand implements SubCommand {
                 sendUnknown(player, string);
             }
         }
+    }
+
+    @Override
+    public List<String> onTabComplete(Player player, String[] strings) {
+        if (strings.length == 2)
+            return List.of(CommandLabel.CLAIM, CommandLabel.DISBAND, CommandLabel.HELP, CommandLabel.UN_CLAIM);
+        return List.of();
     }
 
     private void sendClaim(Player player, String string) {
@@ -131,12 +138,5 @@ public class AdminCommand implements SubCommand {
         if (strings == null) return;
 
         strings.stream().map(s -> ChatColor.translateAlternateColorCodes('&', s)).forEach(player::sendMessage);
-    }
-
-    @Override
-    public List<String> onTabComplete(Player player, String[] strings) {
-        if (strings.length == 2)
-            return List.of(CommandLabel.CLAIM, CommandLabel.DISBAND, CommandLabel.HELP, CommandLabel.UN_CLAIM);
-        return List.of();
     }
 }

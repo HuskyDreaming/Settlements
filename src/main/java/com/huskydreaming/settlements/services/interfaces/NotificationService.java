@@ -1,6 +1,7 @@
 package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.interfaces.Service;
+import com.huskydreaming.settlements.enumeration.types.NotificationType;
 import org.bukkit.entity.Player;
 
 public interface NotificationService extends Service {

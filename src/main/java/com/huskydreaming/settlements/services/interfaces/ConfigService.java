@@ -3,10 +3,11 @@ package com.huskydreaming.settlements.services.interfaces;
 import com.huskydreaming.huskycore.interfaces.Service;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.enumeration.types.NotificationType;
+import org.bukkit.entity.Player;
 
 public interface ConfigService extends Service {
 
-    void selectNotificationType(NotificationType notificationType);
+    boolean isDisabledWorld(Player player);
 
     Config getConfig();
 }

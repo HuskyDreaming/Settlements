@@ -2,8 +2,12 @@ package com.huskydreaming.settlements.storage.types;
 
 import com.google.common.base.Functions;
 import com.huskydreaming.huskycore.interfaces.Parseable;
+import com.huskydreaming.settlements.enumeration.RolePermission;
+import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -33,6 +37,7 @@ public enum Locale implements Parseable {
     CONFIG_NOTIFICATION("Type of notification entering/exiting claim"),
 
     // Flags
+    FLAGS_ANIMAL_KILLING("Allows animals to be killed inside the claim"),
     FLAGS_ANIMAL_SPAWNING("Allow animals to spawn inside claim"),
     FLAGS_MONSTER_SPAWNING("Allow monsters to spawn inside claim"),
     FLAGS_ENTITY_GRIEF("Entities breaking/placing blocks inside claim"),
@@ -44,8 +49,10 @@ public enum Locale implements Parseable {
     PERMISSIONS_CLAIM_PLACE("Members can place blocks"),
     PERMISSIONS_CLAIM_INTERACT("Members can interact with blocks"),
     PERMISSIONS_CLAIM_LAND("Members can claim and un-claim land"),
+    PERMISSIONS_CLAIM_TELEPORT("Members can teleport to claim coordinates"),
     PERMISSIONS_EDIT_MEMBERS("Access to edit members via commands and ui"),
     PERMISSIONS_EDIT_CLAIMS("Access to edit claims via commands and ui"),
+    PERMISSIONS_EDIT_HOMES("Access to edit homes via commands and ui"),
     PERMISSIONS_EDIT_SPAWN("Access to edit spawn via commands and ui"),
     PERMISSIONS_EDIT_ROLES("Access to edit roles via commands and ui"),
     PERMISSIONS_EDIT_FLAGS("Access to edit flags via ui"),
@@ -56,6 +63,7 @@ public enum Locale implements Parseable {
     PERMISSIONS_MEMBER_INVITE("Invite members to the settlements"),
     PERMISSIONS_MEMBER_KICK_EXEMPT("Exempts members from being kicked"),
     PERMISSIONS_MEMBER_FRIENDLY_FIRE("Allows members to damage other members"),
+    PERMISSIONS_HOME_TELEPORT("Allows members to teleport to a home"),
     PERMISSIONS_SPAWN_TELEPORT("Allows members to teleport to spawn"),
 
     // Settlements
@@ -112,14 +120,9 @@ public enum Locale implements Parseable {
     SETTLEMENT_PLAYER_EXISTS("You are already part of a settlement."),
     SETTLEMENT_PLAYER_HAS_SETTLEMENT("The player &b{0} &7already has a settlement."),
     SETTLEMENT_PLAYER_NULL("You do not seem to belong to a settlement."),
-    SETTLEMENT_ROLE_CREATE("Successfully created the &b{0} &7role."),
-    SETTLEMENT_ROLE_DELETE("Successfully deleted the &b{0} &7role."),
-    SETTLEMENT_ROLE_EXISTS("The settlement already has the &b{0} &7role."),
-    SETTLEMENT_ROLE_NULL("The role you are trying to delete doesn't exist."),
-    SETTLEMENT_ROLE_ONE("The settlement must have at least one role available."),
-    SETTLEMENT_SET_SPAWN("You have set the spawn for the settlement at your location."),
-    SETTLEMENT_SPAWN("You have been teleported to the settlement spawn."),
-    SETTLEMENT_SPAWN_NULL("The spawn for the settlement has been set."),
+    SPAWN_SET("You have set the spawn for the settlement at your location."),
+    SPAWN_TELEPORT("You have been teleported to the settlement spawn."),
+    SPAWN_NULL("The settlement spawn does not seem to exist."),
     SETTLEMENT_TELEPORT("You have teleported to &7x: &b{0}&7, z: &b{1}"),
     SETTLEMENT_TRUST("The player &b{0} &7has been trusted."),
     SETTLEMENT_TRUST_OFFLINE_PLAYER("You have been trusted to the &b{0} &7settlement."),
@@ -158,9 +161,20 @@ public enum Locale implements Parseable {
     NO_PERMISSIONS("You do not have permissions."),
     RELOAD("You have successfully reloaded all the configurations."),
     UNKNOWN_SUBCOMMAND("&b{0} &7is not a valid subcommand."),
+    ROLE_CREATE("Successfully created the &b{0} &7role."),
+    ROLE_DELETE("Successfully deleted the &b{0} &7role."),
+    ROLE_EXISTS("The settlement already has the &b{0} &7role."),
+    ROLE_NULL("The &b{0} &7role does not seem to exist."),
+    ROLE_ONE("The settlement must have at least one role available."),
+    ROLE_SET("You have set the role of &b{0} &7to &b{1}&7."),
+    ROLE_SET_OTHER("You have been assigned the &b{0}&7 role."),
     PLAYER_NULL("The player &b{0} &7has never played before."),
     PLAYER_OFFLINE("The player &b{0} &7does not seem to be online."),
-    PLAYER_TELEPORT("You have been teleported to &b{0}&7.");
+    PLAYER_TELEPORT("You have been teleported to &b{0}&7."),
+    HOME_DELETE("You have deleted &b{0} &7home."),
+    HOME_SET("You have created &b{0} &7home."),
+    HOME_NULL("The home &b{0} &7does not seem to exist."),
+    HOME_TELEPORT("You have been teleported to &b{0}&7.");
 
     private final String def;
     private final List<String> list;
@@ -178,6 +192,14 @@ public enum Locale implements Parseable {
 
     public String prefix(Object... objects) {
         return Locale.PREFIX.parse() + parameterize(objects);
+    }
+
+    public static boolean hasPermissions(Player player, Role role, Settlement settlement, RolePermission rolePermission) {
+        if (!(role.hasPermission(rolePermission) || settlement.isOwner(player))) {
+            player.sendMessage(NO_PERMISSIONS.prefix(rolePermission));
+            return false;
+        }
+        return true;
     }
 
     @Nullable

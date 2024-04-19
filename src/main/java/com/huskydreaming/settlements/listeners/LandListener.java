@@ -2,6 +2,8 @@ package com.huskydreaming.settlements.listeners;
 
 import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.settlements.SettlementPlugin;
+import com.huskydreaming.settlements.enumeration.types.NotificationType;
+import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
@@ -18,6 +20,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -98,7 +101,6 @@ public class LandListener implements Listener {
         if(trustService.hasTrusts(player)) {
             List<OfflinePlayer> offlinePlayers = trustService.getOfflinePlayers(toChunk);
             if(offlinePlayers.contains(player)) {
-                borderService.removePlayer(player);
                 borderService.addPlayer(player, toChunk, Color.YELLOW);
                 notificationService.sendTrust(player, toChunk, settlement.getDescription());
                 return;
@@ -138,9 +140,8 @@ public class LandListener implements Listener {
             return false;
         }
 
-        Settlement settlement = settlementService.getSettlement(member.getSettlement());
         Set<ChunkData> chunks = claimService.getClaims(member.getSettlement());
-        if (chunks.size() >= settlement.getMaxLand()) {
+        if (chunks.size() >= config.getSettlementDefault(SettlementDefaultType.MAX_CLAIMS)) {
             player.sendMessage(Locale.SETTLEMENT_AUTO_CLAIM_OFF_MAX_LAND.prefix());
             member.setAutoClaim(false);
             return false;

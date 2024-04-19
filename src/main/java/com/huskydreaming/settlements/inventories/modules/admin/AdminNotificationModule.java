@@ -1,11 +1,9 @@
 package com.huskydreaming.settlements.inventories.modules.admin;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.interfaces.Permission;
 import com.huskydreaming.huskycore.inventories.InventoryModule;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
 import com.huskydreaming.settlements.enumeration.types.NotificationType;
-import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.storage.types.Menu;
@@ -14,6 +12,8 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.List;
 
 public class AdminNotificationModule implements InventoryModule {
 
@@ -29,6 +29,7 @@ public class AdminNotificationModule implements InventoryModule {
         NotificationType notificationType = config.getNotificationType();
 
         Material material = switch (notificationType) {
+            case NONE -> Material.BARRIER;
             case ACTION_BAR -> Material.BOOK;
             case BOSS_BAR -> Material.WRITABLE_BOOK;
             case TITLE -> Material.PAPER;
@@ -46,13 +47,17 @@ public class AdminNotificationModule implements InventoryModule {
         if (event.getWhoClicked() instanceof Player player) {
             Config config = configService.getConfig();
             NotificationType notificationType = config.getNotificationType();
-            configService.selectNotificationType(notificationType);
+            List<NotificationType> notificationTypes = List.of(NotificationType.values());
+
+            int index = notificationTypes.indexOf(notificationType);
+            if (index < notificationTypes.size() - 1) {
+                index += 1;
+            } else {
+                index = 0;
+            }
+
+            config.setNotificationType(notificationTypes.get(index));
             contents.inventory().open(player);
         }
-    }
-
-    @Override
-    public Permission getPermission() {
-        return RolePermission.DEFAULT;
     }
 }

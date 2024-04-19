@@ -1,8 +1,8 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.Command;
-import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.InvitationService;
@@ -13,8 +13,8 @@ import org.bukkit.entity.Player;
 import java.util.List;
 import java.util.Set;
 
-@Command(label = CommandLabel.DENY, arguments = " [settlement]")
-public class DenyCommand implements SubCommand {
+@CommandAnnotation(label = CommandLabel.DENY, arguments = " [settlement]")
+public class DenyCommand implements PlayerCommandProvider {
 
     private final InvitationService invitationService;
     private final SettlementService settlementService;
@@ -25,25 +25,25 @@ public class DenyCommand implements SubCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
-        if (strings.length == 2) {
+    public void onCommand(Player player, String[] strings) {
+        if (strings.length != 2) return;
 
-            String string = strings[1];
-            if (invitationService.hasNoInvitation(player, string)) {
-                player.sendMessage(Locale.INVITATION_NULL.prefix(string));
-                return;
-            }
-
-            Settlement settlement = settlementService.getSettlement(string);
-            if (settlement == null) {
-                player.sendMessage(Locale.SETTLEMENT_NULL.prefix(string));
-                return;
-            }
-
-            invitationService.removeInvitation(player, strings[1]);
-            player.sendMessage(Locale.INVITATION_DENIED.prefix(string));
+        String string = strings[1];
+        if (invitationService.hasNoInvitation(player, string)) {
+            player.sendMessage(Locale.INVITATION_NULL.prefix(string));
+            return;
         }
+
+        Settlement settlement = settlementService.getSettlement(string);
+        if (settlement == null) {
+            player.sendMessage(Locale.SETTLEMENT_NULL.prefix(string));
+            return;
+        }
+
+        invitationService.removeInvitation(player, strings[1]);
+        player.sendMessage(Locale.INVITATION_DENIED.prefix(string));
     }
+
 
     @Override
     public List<String> onTabComplete(Player player, String[] strings) {

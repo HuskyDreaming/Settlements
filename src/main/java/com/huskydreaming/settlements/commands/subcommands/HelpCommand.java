@@ -1,8 +1,9 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.Command;
-import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.interfaces.Command;
+import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.huskycore.registries.CommandRegistry;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.commands.CommandLabel;
@@ -11,13 +12,10 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
-@Command(label = CommandLabel.HELP, arguments = " [page]")
-public class HelpCommand implements SubCommand {
+@CommandAnnotation(label = CommandLabel.HELP, arguments = " [page]")
+public class HelpCommand implements PlayerCommandProvider {
 
     private final CommandRegistry commandRegistry;
 
@@ -26,7 +24,7 @@ public class HelpCommand implements SubCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
+    public void onCommand(Player player, String[] strings) {
         int index = 1;
 
         if (strings.length > 1 && Util.isNumeric(strings[1])) {
@@ -34,60 +32,61 @@ public class HelpCommand implements SubCommand {
             if (strings[1].equals("0")) index = 1;
         }
 
-        Set<SubCommand> subCommands = commandRegistry.getSubCommands();
+        Set<Command> subCommands = commandRegistry.getCommands();
         int page = (int) Math.ceil((double) subCommands.size() / 6);
 
         if (index > page) {
             player.sendMessage(Locale.HELP_PAGE_LIMIT.prefix(page));
-        } else {
-            for (int i = 0; i < 10; i++) {
-                player.sendMessage("");
-            }
+            return;
+        }
 
-            player.sendMessage(Locale.HELP_PAGE_HEADER.parameterize(index, page));
-            player.sendMessage("");
-
-            List<String> stringList = new ArrayList<>();
-
-            subCommands.forEach(command -> stringList.add("/settlements " + command.getLabel().toLowerCase() + command.getArguments()));
-            Collections.sort(stringList);
-
-            for (int i = 0; i < stringList.size(); i++) {
-                if (i >= 5) break;
-                int number = i + ((index - 1) * 5);
-                if (number >= stringList.size()) {
-                    player.sendMessage("");
-                } else {
-                    String string = stringList.get(number);
-                    TextComponent message = new TextComponent(Locale.HELP_PAGE_FORMAT.parameterize(number + 1, string));
-                    message.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, string));
-                    player.spigot().sendMessage(message);
-                }
-            }
-
-            player.sendMessage("");
-
-            TextComponent next = new TextComponent(Locale.HELP_PAGE_NEXT.parse());
-            TextComponent previous = new TextComponent(Locale.HELP_PAGE_PREVIOUS.parse());
-            TextComponent spacer = new TextComponent("            ");
-
-            if (index == 1) {
-                previous.setText(Locale.HELP_PAGE_DISABLED.parse() + previous.getText());
-                next.setText(Locale.HELP_PAGE_ENABLED.parse() + next.getText());
-                next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index + 1)));
-            } else if ((index + 1) > page) {
-                next.setText(Locale.HELP_PAGE_DISABLED.parse() + next.getText());
-                previous.setText(Locale.HELP_PAGE_ENABLED.parse() + previous.getText());
-                previous.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index - 1)));
-            } else {
-                next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index + 1)));
-                next.setText(Locale.HELP_PAGE_ENABLED.parse() + next.getText());
-                previous.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index - 1)));
-                previous.setText(Locale.HELP_PAGE_ENABLED.parse() + previous.getText());
-            }
-
-            player.spigot().sendMessage(spacer, previous, spacer, next, spacer);
+        for (int i = 0; i < 10; i++) {
             player.sendMessage("");
         }
+
+        player.sendMessage(Locale.HELP_PAGE_HEADER.parameterize(index, page));
+        player.sendMessage("");
+
+        List<String> stringList = new ArrayList<>();
+
+        subCommands.forEach(command -> stringList.add("/settlements " + command.getLabel().toLowerCase() + Arrays.toString(command.getArguments())));
+        Collections.sort(stringList);
+
+        for (int i = 0; i < stringList.size(); i++) {
+            if (i >= 5) break;
+            int number = i + ((index - 1) * 5);
+            if (number >= stringList.size()) {
+                player.sendMessage("");
+            } else {
+                String string = stringList.get(number);
+                TextComponent message = new TextComponent(Locale.HELP_PAGE_FORMAT.parameterize(number + 1, string));
+                message.setClickEvent(new ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, string));
+                player.spigot().sendMessage(message);
+            }
+        }
+
+        player.sendMessage("");
+
+        TextComponent next = new TextComponent(Locale.HELP_PAGE_NEXT.parse());
+        TextComponent previous = new TextComponent(Locale.HELP_PAGE_PREVIOUS.parse());
+        TextComponent spacer = new TextComponent("            ");
+
+        if (index == 1) {
+            previous.setText(Locale.HELP_PAGE_DISABLED.parse() + previous.getText());
+            next.setText(Locale.HELP_PAGE_ENABLED.parse() + next.getText());
+            next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index + 1)));
+        } else if ((index + 1) > page) {
+            next.setText(Locale.HELP_PAGE_DISABLED.parse() + next.getText());
+            previous.setText(Locale.HELP_PAGE_ENABLED.parse() + previous.getText());
+            previous.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index - 1)));
+        } else {
+            next.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index + 1)));
+            next.setText(Locale.HELP_PAGE_ENABLED.parse() + next.getText());
+            previous.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/s help " + (index - 1)));
+            previous.setText(Locale.HELP_PAGE_ENABLED.parse() + previous.getText());
+        }
+
+        player.spigot().sendMessage(spacer, previous, spacer, next, spacer);
+        player.sendMessage("");
     }
 }

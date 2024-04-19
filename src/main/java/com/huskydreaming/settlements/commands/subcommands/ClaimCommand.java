@@ -1,10 +1,11 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.Command;
-import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.settlements.commands.CommandLabel;
+import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
@@ -14,13 +15,13 @@ import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.util.List;
 import java.util.Set;
 
-@Command(label = CommandLabel.CLAIM)
-public class ClaimCommand implements SubCommand {
+@CommandAnnotation(label = CommandLabel.CLAIM)
+public class ClaimCommand implements PlayerCommandProvider {
 
     private final BorderService borderService;
     private final ClaimService claimService;
@@ -41,28 +42,14 @@ public class ClaimCommand implements SubCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
+    public void onCommand(Player player, String[] strings) {
         if (!memberService.hasSettlement(player)) {
             player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
             return;
         }
 
-        Config config = configService.getConfig();
-        World world = player.getWorld();
-        if (config.containsDisableWorld(world) || world.getEnvironment() != World.Environment.NORMAL) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_DISABLED_WORLD.prefix());
-            return;
-        }
-
-        if (dependencyService.isTowny(player)) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_TOWNY.prefix());
-            return;
-        }
-
-        if (dependencyService.isWorldGuard(player)) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_WORLDGUARD.prefix());
-            return;
-        }
+        if (configService.isDisabledWorld(player)) return;
+        if (dependencyService.isDependency(player)) return;
 
         Chunk chunk = player.getLocation().getChunk();
         if (claimService.isClaim(chunk)) {
@@ -74,30 +61,33 @@ public class ClaimCommand implements SubCommand {
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
         Role role = roleService.getRole(member);
 
-        if (role.hasPermission(RolePermission.CLAIM_LAND) || settlement.isOwner(player)) {
-            Set<ChunkData> chunks = claimService.getClaims(member.getSettlement());
-            if (chunks.size() >= settlement.getMaxLand()) {
-                player.sendMessage(Locale.SETTLEMENT_LAND_CLAIMED_MAX.prefix(settlement.getMaxLand()));
-                return;
-            }
-
-            if (claimService.isAdjacentToOtherClaim(member.getSettlement(), chunk)) {
-                player.sendMessage(Locale.SETTLEMENT_LAND_ADJACENT_OTHER.prefix());
-                return;
-            }
-
-            if (claimService.isAdjacent(member.getSettlement(), chunk)) {
-                String x = String.valueOf(chunk.getX());
-                String z = String.valueOf(chunk.getZ());
-
-                player.sendMessage(Locale.SETTLEMENT_LAND_CLAIM.prefix(x, z));
-                claimService.setClaim(chunk, member.getSettlement());
-                borderService.addPlayer(player, member.getSettlement(), Color.AQUA);
-            } else {
-                player.sendMessage(Locale.SETTLEMENT_LAND_ADJACENT.prefix());
-            }
-        } else {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix(RolePermission.CLAIM_LAND));
+        if(!(role.hasPermission(RolePermission.CLAIM_LAND) || settlement.isOwner(player))) {
+            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            return;
         }
+
+        Set<ChunkData> chunks = claimService.getClaims(member.getSettlement());
+        Config config = configService.getConfig();
+        if (chunks.size() >= config.getSettlementDefault(SettlementDefaultType.MAX_CLAIMS)) {
+            player.sendMessage(Locale.SETTLEMENT_LAND_CLAIMED_MAX.prefix(settlement.getMaxLand()));
+            return;
+        }
+
+        if (claimService.isAdjacentToOtherClaim(member.getSettlement(), chunk)) {
+            player.sendMessage(Locale.SETTLEMENT_LAND_ADJACENT_OTHER.prefix());
+            return;
+        }
+
+        if (!claimService.isAdjacent(member.getSettlement(), chunk)) {
+            player.sendMessage(Locale.SETTLEMENT_LAND_ADJACENT.prefix());
+            return;
+        }
+
+        String x = String.valueOf(chunk.getX());
+        String z = String.valueOf(chunk.getZ());
+
+        player.sendMessage(Locale.SETTLEMENT_LAND_CLAIM.prefix(x, z));
+        claimService.setClaim(chunk, member.getSettlement());
+        borderService.addPlayer(player, member.getSettlement(), Color.AQUA);
     }
 }

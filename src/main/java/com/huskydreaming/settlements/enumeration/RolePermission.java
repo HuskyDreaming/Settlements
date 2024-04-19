@@ -11,10 +11,12 @@ public enum RolePermission implements Permission {
     CLAIM_PLACE(Locale.PERMISSIONS_CLAIM_PLACE.parse()),
     CLAIM_INTERACT(Locale.PERMISSIONS_CLAIM_INTERACT.parse()),
     CLAIM_LAND(Locale.PERMISSIONS_CLAIM_LAND.parse()),
+    CLAIM_TELEPORT(Locale.PERMISSIONS_CLAIM_TELEPORT.parse()),
 
     // EDIT
     EDIT_MEMBERS(Locale.PERMISSIONS_EDIT_MEMBERS.parse()),
     EDIT_CLAIMS(Locale.PERMISSIONS_EDIT_CLAIMS.parse()),
+    EDIT_HOMES(Locale.PERMISSIONS_EDIT_HOMES.parse()),
     EDIT_SPAWN(Locale.PERMISSIONS_EDIT_SPAWN.parse()),
     EDIT_ROLES(Locale.PERMISSIONS_EDIT_ROLES.parse()),
     EDIT_FLAGS(Locale.PERMISSIONS_EDIT_FLAGS.parse()),
@@ -26,7 +28,7 @@ public enum RolePermission implements Permission {
     MEMBER_TRUST(Locale.PERMISSIONS_MEMBER_TRUST.parse()),
     MEMBER_INVITE(Locale.PERMISSIONS_MEMBER_INVITE.parse()),
     MEMBER_KICK_EXEMPT(Locale.PERMISSIONS_MEMBER_KICK_EXEMPT.parse()),
-    MEMBER_FRIENDLY_FIRE(Locale.PERMISSIONS_MEMBER_FRIENDLY_FIRE.parse()),
+    HOME_TELEPORT(Locale.PERMISSIONS_HOME_TELEPORT.parse()),
     SPAWN_TELEPORT(Locale.PERMISSIONS_SPAWN_TELEPORT.parse());
 
     private final String description;

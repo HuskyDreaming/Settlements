@@ -5,8 +5,11 @@ import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.inventories.InventoryPageProvider;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
-import com.huskydreaming.settlements.services.interfaces.ConfigService;
-import com.huskydreaming.settlements.services.interfaces.InventoryService;
+import com.huskydreaming.settlements.enumeration.RolePermission;
+import com.huskydreaming.settlements.services.interfaces.*;
+import com.huskydreaming.settlements.storage.persistence.Member;
+import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.storage.types.Locale;
 import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.content.InventoryContents;
@@ -17,17 +20,24 @@ import org.bukkit.inventory.ItemStack;
 
 public class ClaimsInventory extends InventoryPageProvider<ChunkData> {
 
-    private final boolean teleportation;
     private final HuskyPlugin plugin;
     private final InventoryService inventoryService;
+    private final MemberService memberService;
+    private final RoleService roleService;
+    private final SettlementService settlementService;
+
+    private final boolean teleportation;
 
     public ClaimsInventory(HuskyPlugin plugin, int rows, ChunkData[] chunks) {
         super(rows, chunks);
         this.plugin = plugin;
 
         ConfigService configService = plugin.provide(ConfigService.class);
-        this.teleportation = configService.getConfig().isTeleportation();
-        this.inventoryService = plugin.provide(InventoryService.class);
+        inventoryService = plugin.provide(InventoryService.class);
+        memberService = plugin.provide(MemberService.class);
+        roleService = plugin.provide(RoleService.class);
+        settlementService = plugin.provide(SettlementService.class);
+        teleportation = configService.getConfig().isTeleportation();
     }
 
     @Override
@@ -43,7 +53,14 @@ public class ClaimsInventory extends InventoryPageProvider<ChunkData> {
                 .setDisplayName(Menu.CLAIMS_TITLE.parameterize(data.getX(), data.getZ()))
                 .setMaterial(Material.GRASS_BLOCK);
 
-        if (teleportation) builder.setLore(Menu.CLAIMS_LORE.parameterizeList(data.getWorld()));
+        Member member = memberService.getCitizen(player);
+        Role role = roleService.getRole(member);
+        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+
+        if (teleportation && (role.hasPermission(RolePermission.CLAIM_TELEPORT) || settlement.isOwner(player))) {
+            builder.setLore(Menu.CLAIMS_LORE.parameterizeList(data.getWorld()));
+        }
+
         return builder.build();
     }
 

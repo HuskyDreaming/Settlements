@@ -2,7 +2,6 @@ package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.interfaces.Service;
-import com.huskydreaming.huskycore.inventories.InventoryModule;
 import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.inventories.base.InventoryAction;
 import com.huskydreaming.settlements.inventories.base.InventoryActionType;
@@ -13,10 +12,6 @@ import org.bukkit.entity.Player;
 
 public interface InventoryService extends Service {
 
-    void removeModule(Class<?> moduleClass);
-
-    void addModule(InventoryModule module);
-
     void addAction(Player player, InventoryAction action);
 
     void acceptAction(Player player);
@@ -25,7 +20,7 @@ public interface InventoryService extends Service {
 
     InventoryActionType getActionType(Player player);
 
-    SmartInventory getAdminInventory(HuskyPlugin plugin);
+    SmartInventory getAdminInventory(Player player, HuskyPlugin plugin);
 
     SmartInventory getWorldsInventory(HuskyPlugin plugin);
 
@@ -39,9 +34,13 @@ public interface InventoryService extends Service {
 
     SmartInventory getRolesInventory(HuskyPlugin plugin, Player player);
 
+    SmartInventory getHomesInventory(HuskyPlugin plugin, Player player);
+
     SmartInventory getFlagsInventory(HuskyPlugin plugin, Player player);
 
     SmartInventory getClaimsInventory(HuskyPlugin plugin, Player player);
+
+    SmartInventory getSettlementDefaultsInventory(HuskyPlugin plugin);
 
     SmartInventory getMembersInventory(HuskyPlugin plugin, Player player, MemberFilter memberFilter);
 

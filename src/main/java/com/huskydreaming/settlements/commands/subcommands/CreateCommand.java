@@ -1,8 +1,8 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.Command;
-import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import com.huskydreaming.settlements.storage.persistence.Config;
@@ -14,8 +14,8 @@ import org.bukkit.Color;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-@Command(label = CommandLabel.CREATE, arguments = " [name]")
-public class CreateCommand implements SubCommand {
+@CommandAnnotation(label = CommandLabel.CREATE, arguments = " [name]")
+public class CreateCommand implements PlayerCommandProvider {
 
     private final BorderService borderService;
     private final ClaimService claimService;
@@ -38,69 +38,61 @@ public class CreateCommand implements SubCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
-        if (strings.length == 2) {
-            if (memberService.hasSettlement(player)) {
-                player.sendMessage(Locale.SETTLEMENT_PLAYER_EXISTS.prefix());
-                return;
-            }
-
-            if (dependencyService.isTowny(player)) {
-
-                player.sendMessage(Locale.SETTLEMENT_LAND_TOWNY.prefix());
-                return;
-            }
-            if (dependencyService.isWorldGuard(player)) {
-                player.sendMessage(Locale.SETTLEMENT_CREATE_WORLDGUARD.prefix());
-                return;
-            }
-
-            String name = strings[1].toLowerCase();
-            Config config = configService.getConfig();
-            int minimumNameLength = config.getSettlementDefault(SettlementDefaultType.MIN_NAME_LENGTH);
-            int maximumNameLength = config.getSettlementDefault(SettlementDefaultType.MAX_NAME_LENGTH);
-
-            if (settlementService.isSettlement(name)) {
-                player.sendMessage(Locale.SETTLEMENT_EXIST.prefix());
-                return;
-            }
-
-            if (name.length() < minimumNameLength) {
-                player.sendMessage(Locale.SETTLEMENT_CREATE_MIN_NAME_LENGTH.prefix(minimumNameLength));
-                return;
-            }
-
-            if (name.length() > maximumNameLength) {
-                player.sendMessage(Locale.SETTLEMENT_CREATE_MAX_NAME_LENGTH.prefix(maximumNameLength));
-                return;
-            }
-
-            World world = player.getWorld();
-            if (config.containsDisableWorld(world) || world.getEnvironment() != World.Environment.NORMAL) {
-                player.sendMessage(Locale.SETTLEMENT_CREATE_DISABLED_WORLD.prefix());
-                return;
-            }
-
-            Chunk chunk = player.getLocation().getChunk();
-            if (claimService.isClaim(chunk)) {
-                player.sendMessage(Locale.SETTLEMENT_ESTABLISHED.prefix());
-                return;
-            }
-
-            if (claimService.isAdjacentToExistingClaim(chunk)) {
-                player.sendMessage(Locale.SETTLEMENT_ESTABLISHED_ADJACENT.prefix());
-                return;
-            }
-
-            Settlement settlement = settlementService.createSettlement(player, name);
-
-            flagService.setup(name);
-            roleService.setup(name, settlement);
-            claimService.setClaim(chunk, name);
-            memberService.add(player, name, settlement.getDefaultRole());
-            borderService.addPlayer(player, name, Color.AQUA);
-
-            player.sendMessage(Locale.SETTLEMENT_CREATED.prefix(name));
+    public void onCommand(Player player, String[] strings) {
+        if (strings.length != 2) return;
+        if (memberService.hasSettlement(player)) {
+            player.sendMessage(Locale.SETTLEMENT_PLAYER_EXISTS.prefix());
+            return;
         }
+
+        if (configService.isDisabledWorld(player)) return;
+        if (dependencyService.isTowny(player)) return;
+
+        String name = strings[1].toLowerCase();
+        Config config = configService.getConfig();
+        int minimumNameLength = config.getSettlementDefault(SettlementDefaultType.MIN_NAME_LENGTH);
+        int maximumNameLength = config.getSettlementDefault(SettlementDefaultType.MAX_NAME_LENGTH);
+
+        if (settlementService.isSettlement(name)) {
+            player.sendMessage(Locale.SETTLEMENT_EXIST.prefix());
+            return;
+        }
+
+        if (name.length() < minimumNameLength) {
+            player.sendMessage(Locale.SETTLEMENT_CREATE_MIN_NAME_LENGTH.prefix(minimumNameLength));
+            return;
+        }
+
+        if (name.length() > maximumNameLength) {
+            player.sendMessage(Locale.SETTLEMENT_CREATE_MAX_NAME_LENGTH.prefix(maximumNameLength));
+            return;
+        }
+
+        World world = player.getWorld();
+        if (config.containsDisableWorld(world) || world.getEnvironment() != World.Environment.NORMAL) {
+            player.sendMessage(Locale.SETTLEMENT_CREATE_DISABLED_WORLD.prefix());
+            return;
+        }
+
+        Chunk chunk = player.getLocation().getChunk();
+        if (claimService.isClaim(chunk)) {
+            player.sendMessage(Locale.SETTLEMENT_ESTABLISHED.prefix());
+            return;
+        }
+
+        if (claimService.isAdjacentToExistingClaim(chunk)) {
+            player.sendMessage(Locale.SETTLEMENT_ESTABLISHED_ADJACENT.prefix());
+            return;
+        }
+
+        Settlement settlement = settlementService.createSettlement(player, name);
+
+        flagService.setup(name);
+        roleService.setup(name, settlement);
+        claimService.setClaim(chunk, name);
+        memberService.add(player, name, settlement.getDefaultRole());
+        borderService.addPlayer(player, name, Color.AQUA);
+
+        player.sendMessage(Locale.SETTLEMENT_CREATED.prefix(name));
     }
 }

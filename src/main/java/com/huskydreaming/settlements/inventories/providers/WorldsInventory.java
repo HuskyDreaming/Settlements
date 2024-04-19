@@ -34,7 +34,7 @@ public class WorldsInventory extends InventoryPageProvider<String> {
     public void init(Player player, InventoryContents contents) {
         super.init(player, contents);
 
-        contents.set(0, 0, InventoryItem.back(player, inventoryService.getAdminInventory(plugin)));
+        contents.set(0, 0, InventoryItem.back(player, inventoryService.getAdminInventory(player, plugin)));
     }
 
     @Override

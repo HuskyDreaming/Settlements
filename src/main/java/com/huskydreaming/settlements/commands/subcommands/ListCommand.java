@@ -1,15 +1,15 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.huskycore.commands.Command;
-import com.huskydreaming.huskycore.commands.SubCommand;
+import com.huskydreaming.huskycore.commands.CommandAnnotation;
+import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.types.Locale;
 import org.bukkit.entity.Player;
 
-@Command(label = CommandLabel.LIST)
-public class ListCommand implements SubCommand {
+@CommandAnnotation(label = CommandLabel.LIST)
+public class ListCommand implements PlayerCommandProvider {
 
     private final SettlementPlugin plugin;
     private final InventoryService inventoryService;
@@ -23,13 +23,15 @@ public class ListCommand implements SubCommand {
     }
 
     @Override
-    public void run(Player player, String[] strings) {
-        if (strings.length == 1) {
-            if (settlementService.getSettlements().isEmpty()) {
-                player.sendMessage(Locale.SETTLEMENT_LIST_NULL.prefix());
-            } else {
-                inventoryService.getSettlementsInventory(plugin).open(player);
-            }
+    public void onCommand(Player player, String[] strings) {
+        if (strings.length != 1) return;
+
+        if (settlementService.getSettlements().isEmpty()) {
+            player.sendMessage(Locale.SETTLEMENT_LIST_NULL.prefix());
+            return;
         }
+
+        inventoryService.getSettlementsInventory(plugin).open(player);
+
     }
 }

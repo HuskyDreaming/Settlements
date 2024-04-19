@@ -3,11 +3,13 @@ package com.huskydreaming.settlements;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.settlements.commands.BaseCommand;
 import com.huskydreaming.settlements.commands.subcommands.*;
+import com.huskydreaming.settlements.listeners.FlagListener;
 import com.huskydreaming.settlements.listeners.LandListener;
 import com.huskydreaming.settlements.listeners.MemberListener;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.services.implementations.*;
 import com.huskydreaming.settlements.services.interfaces.*;
+import com.sk89q.worldguard.protection.flags.Flag;
 
 public class SettlementPlugin extends HuskyPlugin {
 
@@ -17,7 +19,7 @@ public class SettlementPlugin extends HuskyPlugin {
 
         registerServices();
         registerCommands();
-        registerListeners(new LandListener(this), new MemberListener(this));
+        registerListeners(new LandListener(this), new MemberListener(this), new FlagListener(this));
     }
 
     @Override
@@ -29,6 +31,7 @@ public class SettlementPlugin extends HuskyPlugin {
         serviceRegistry.register(LocaleService.class, new LocaleServiceImpl(this));
         serviceRegistry.register(ConfigService.class, new ConfigServiceImpl(this));
         serviceRegistry.register(DependencyService.class, new DependencyServiceImpl());
+        serviceRegistry.register(HomeService.class, new HomeServiceImpl());
         serviceRegistry.register(MemberService.class, new MemberServiceImpl());
         serviceRegistry.register(SettlementService.class, new SettlementServiceImpl(this));
         serviceRegistry.register(FlagService.class, new FlagServiceImpl(this));
@@ -77,7 +80,36 @@ public class SettlementPlugin extends HuskyPlugin {
             commandRegistry.add(new UnTrustCommand(this));
         }
 
+        if(config.isHomes()) {
+            commandRegistry.add(new DeleteHomeCommand(this));
+            commandRegistry.add(new HomeCommand(this));
+            commandRegistry.add(new SetHomeCommand(this));
+        }
+
         commandRegistry.add(new UnClaimCommand(this));
         commandRegistry.deserialize(this);
     }
 }
+
+/* TODO:
+
+FIX: ACTIONBAR
+FIX: DISBAND IN MENU [DONE]
+FIX: Pressure plates/shulk sensors/tripwires
+FIX: Minecarts
+FIX: ENDER PORTALSA
+FIX: PVP
+FIX: FLAGS
+FIX: TRUSTING MEMBERS MENU
+FIX: ANIMAL KILLING
+FIX: ENDER_PEARLING INTO CLAIM
+FIX: LEADING ANIMALS
+FIX: SETTLEMENT DETAULTS
+
+CREATE: HOMES [IN-PROGRESS]
+
+CREATE: SETROLE [DONE]
+
+EDIT: VIEWING MENU [DONE]
+
+ */

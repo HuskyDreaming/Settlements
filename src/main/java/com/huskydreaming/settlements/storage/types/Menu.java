@@ -13,11 +13,14 @@ import java.util.stream.Collectors;
 public enum Menu implements Parseable {
 
     // ADMIN Menu
+    ADMIN_DEFAULTS_TITLE("&eDefaults"),
+    ADMIN_DEFAULTS_LORE(List.of("&7{0}", "", "&fClick to edit defaults")),
+    ADMIN_DEFAULT_TITLE("&e{0}"),
+    ADMIN_DEFAULT_LORE(List.of("&7Current Value: &b{0}", "", "&fLeft-Click to increase", "&fRight-Click to decrease")),
     ADMIN_DISABLED_WORLD_TITLE("&e{0}"),
     ADMIN_DISABLED_WORLD_LORE(List.of("&7This world is not available")),
     ADMIN_DISABLED_WORLDS_TITLE("&eDisabled Worlds"),
     ADMIN_DISABLED_WORLDS_LORE(List.of("&7{0}", "", "&fClick to edit worlds")),
-
     ADMIN_NOTIFICATION_TITLE("&eNotifications ⚠"),
     ADMIN_NOTIFICATION_LORE(List.of(
             "&7Current Notification: &b{0}",
@@ -43,13 +46,22 @@ public enum Menu implements Parseable {
     SETTLEMENT_ROLES_LORE(List.of("&7Shows all available roles", "", "&fClick to view roles")),
     SETTLEMENT_ROLE_EDIT_TITLE("&a{0}. {1} &7{2}"),
     SETTLEMENT_ROLE_EDIT_DEFAULT("(Default)"),
-    SETTLEMENT_ROLE_EDIT_LORE(List.of("&7Role part of your settlement", "", "&fClick to edit role")),
+    SETTLEMENT_ROLE_EDIT_LORE(List.of("&7Role part of your settlement")),
+    SETTLEMENT_ROLE_EDIT_CLICK("&fClick to view roles."),
     SETTLEMENT_CLAIMS_TITLE("&aClaims"),
-    SETTLEMENT_CLAIMS_LORE(List.of("&7Shows All available claims", "", "&fClick to edit claims")),
+    SETTLEMENT_CLAIMS_LORE(List.of("&7Shows All available claims", "", "&fClick to view claims")),
     SETTLEMENT_FLAGS_TITLE("&aFlags"),
     SETTLEMENT_FLAGS_LORE(List.of("&7Click to adjust flags.", "", "&f&oFlags currently don't function")),
+
+    SETTLEMENT_HOME_TITLE("&a{0}"),
+    SETTLEMENT_HOME_LORE(List.of("&7x: &b{0}&7, y: &b{1}&7, z: &b{2} ", "", "&fClick to teleport to {3}")),
+    SETTLEMENT_HOMES_TITLE("&aHomes"),
+    SETTLEMENT_HOMES_LORE(List.of("&7Shows homes you can teleport to", "", "&fClick to view homes")),
     SETTLEMENT_SPAWN_TITLE("&aSpawn"),
-    SETTLEMENT_SPAWN_LORE(List.of("&7Spawn is set at your location", "", "&fClick to set spawn")),
+    SETTLEMENT_SPAWN_LORE(List.of("&7Teleports you to the settlement spawn", "", "&fClick to teleport.")),
+    SETTLEMENT_SPAWN_LORE_SET(List.of("&7Spawn is set at your location/teleport to spawn", "", "&fRight-Click | Set Spawn",
+            "&fLeft-Click | Teleport to Spawn")),
+    SETTLEMENT_SPAWN_TELEPORT(List.of("&7Spawn is set at your location", "", "&fClick to set spawn")),
     SETTLEMENT_DISBAND_TITLE("&cDisband"),
     SETTLEMENT_DISBAND_LORE(List.of("&7This will permenantly delete the settlement", "", "&fClick to disband settlement")),
     SETTLEMENT_INFO_TITLE("&aSettlement Info"),
@@ -81,14 +93,14 @@ public enum Menu implements Parseable {
     MEMBERS_LORE(List.of(
             "&7Last Online {2}",
             "",
-            "&f{0} &7| {1}",
-            "",
-            "&fClick to edit player."
+            "&f{0} &7| {1}"
     )),
 
-    TRUSTED_TITLE("&e{0}. {1} &f[Trusted]"),
-    TRUSTED_LORE(List.of("&7A trusted member", "", "&fClick to remove trusted player")),
+    MEMBERS_LORE_EDIT("&fClick to edit member"),
 
+    TRUSTED_TITLE("&e{0}. {1} &f[Trusted]"),
+    TRUSTED_LORE(List.of("&7A trusted member")),
+    TRUSTED_LORE_REMOVE("&fClick to remove member"),
     MEMBERS_STATUS_OFFLINE("&cOffline"),
     MEMBERS_STATUS_ONLINE("&aOnline"),
 

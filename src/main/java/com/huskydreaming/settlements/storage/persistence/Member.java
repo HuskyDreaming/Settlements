@@ -1,5 +1,7 @@
 package com.huskydreaming.settlements.storage.persistence;
 
+import com.huskydreaming.settlements.enumeration.types.NotificationType;
+
 import java.util.Objects;
 
 public class Member {
@@ -49,6 +51,7 @@ public class Member {
     public boolean hasAutoClaim() {
         return autoClaim;
     }
+
 
     @Override
     public boolean equals(Object o) {

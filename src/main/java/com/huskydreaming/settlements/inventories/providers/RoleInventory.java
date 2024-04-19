@@ -61,8 +61,9 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
 
     @Override
     public void run(InventoryClickEvent event, RolePermission rolePermission, InventoryContents contents) {
-        if (event.getWhoClicked() instanceof Player) {
-            Player player = ((Player) event.getWhoClicked()).getPlayer();
+        if (event.getWhoClicked() instanceof Player player) {
+            if(!memberService.hasSettlement(player)) return;
+
             if (role.hasPermission(rolePermission)) {
                 role.remove(rolePermission);
             } else {
@@ -88,7 +89,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 roleService.remove(name, role);
                 inventoryService.getRolesInventory(plugin, player).open(player);
             } else {
-                player.sendMessage(Locale.SETTLEMENT_ROLE_ONE.prefix());
+                player.sendMessage(Locale.ROLE_ONE.prefix());
                 player.closeInventory();
             }
         });

@@ -4,6 +4,7 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.settlements.dependencies.SettlementPlaceholderExpansion;
 import com.huskydreaming.settlements.enumeration.types.DependencyType;
 import com.huskydreaming.settlements.services.interfaces.DependencyService;
+import com.huskydreaming.settlements.storage.types.Locale;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -23,6 +24,20 @@ import java.util.Set;
 public class DependencyServiceImpl implements DependencyService {
 
     private final Set<String> types = new HashSet<>();
+
+    @Override
+    public boolean isDependency(Player player) {
+        if (isTowny(player)) {
+            player.sendMessage(Locale.SETTLEMENT_LAND_TOWNY.prefix());
+            return true;
+        }
+
+        if (isWorldGuard(player)) {
+            player.sendMessage(Locale.SETTLEMENT_LAND_WORLDGUARD.prefix());
+            return true;
+        }
+        return false;
+    }
 
     @Override
     public boolean isTowny(Player player) {
@@ -62,14 +77,14 @@ public class DependencyServiceImpl implements DependencyService {
 
     @Override
     public boolean isWorldGuard(Block block) {
-        if (types.contains(DependencyType.WORLD_GUARD.toString())) {
-            Location location = BukkitAdapter.adapt(block.getLocation());
-            RegionContainer regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
-            RegionQuery query = regionContainer.createQuery();
-            ApplicableRegionSet set = query.getApplicableRegions(location);
-            return set.size() != 0;
-        }
-        return false;
+        if (!types.contains(DependencyType.WORLD_GUARD.toString())) return false;
+
+        Location location = BukkitAdapter.adapt(block.getLocation());
+        RegionContainer regionContainer = WorldGuard.getInstance().getPlatform().getRegionContainer();
+        RegionQuery query = regionContainer.createQuery();
+        ApplicableRegionSet set = query.getApplicableRegions(location);
+
+        return set.size() != 0;
     }
 
     @Override

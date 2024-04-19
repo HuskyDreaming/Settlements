@@ -53,9 +53,4 @@ public class AdminTrustingModule implements InventoryModule {
             contents.inventory().open(player);
         }
     }
-
-    @Override
-    public Permission getPermission() {
-        return RolePermission.DEFAULT;
-    }
 }

@@ -25,13 +25,10 @@ public class AdminTeleportationModule implements InventoryModule {
     private final ConfigService configService;
     private final CommandRegistry commandRegistry;
 
-    private final InventoryService inventoryService;
-
     public AdminTeleportationModule(HuskyPlugin plugin) {
         this.plugin = plugin;
 
         this.configService = plugin.provide(ConfigService.class);
-        this.inventoryService = plugin.provide(InventoryService.class);
         this.commandRegistry = plugin.getCommandRegistry();
     }
 
@@ -47,22 +44,15 @@ public class AdminTeleportationModule implements InventoryModule {
         if (event.getWhoClicked() instanceof Player player) {
             Config config = configService.getConfig();
             if (config.isTeleportation()) {
-                inventoryService.removeModule(SpawnModule.class);
                 config.setTeleportation(false);
                 commandRegistry.remove(CommandLabel.SPAWN);
                 commandRegistry.remove(CommandLabel.SET_SPAWN);
             } else {
-                inventoryService.addModule(new SpawnModule(plugin));
                 config.setTeleportation(true);
                 commandRegistry.add(new SpawnCommand(plugin));
                 commandRegistry.add(new SetSpawnCommand(plugin));
             }
             contents.inventory().open(player);
         }
-    }
-
-    @Override
-    public Permission getPermission() {
-        return RolePermission.DEFAULT;
     }
 }

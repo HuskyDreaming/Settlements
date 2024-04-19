@@ -6,6 +6,8 @@ import org.bukkit.entity.Player;
 
 public interface DependencyService extends Service {
 
+    boolean isDependency(Player player);
+
     boolean isTowny(Player player);
 
     boolean isTowny(Player player, Block block);

@@ -1,6 +1,7 @@
 package com.huskydreaming.settlements.listeners;
 
 import com.huskydreaming.settlements.SettlementPlugin;
+import com.huskydreaming.settlements.services.interfaces.TrustService;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.ClaimService;
@@ -22,11 +23,13 @@ public class MemberListener implements Listener {
     private final BorderService borderService;
     private final ClaimService claimService;
     private final MemberService memberService;
+    private final TrustService trustService;
 
     public MemberListener(SettlementPlugin plugin) {
         borderService = plugin.provide(BorderService.class);
         claimService = plugin.provide(ClaimService.class);
         memberService = plugin.provide(MemberService.class);
+        trustService = plugin.provide(TrustService.class);
     }
 
     @EventHandler
@@ -42,7 +45,14 @@ public class MemberListener implements Listener {
 
             if (claimService.isClaim(player.getLocation().getChunk())) {
                 String claim = claimService.getClaim(event.getPlayer().getLocation().getChunk());
-                borderService.addPlayer(player, claim, claim.equalsIgnoreCase(member.getSettlement()) ? Color.AQUA : Color.RED);
+
+                if(claim.equalsIgnoreCase(member.getSettlement())){
+                    borderService.addPlayer(player, claim, Color.AQUA);
+                } else if(trustService.getOfflinePlayers(claim).contains(player)) {
+                    borderService.addPlayer(player, claim, Color.YELLOW);
+                } else {
+                    borderService.addPlayer(player, claim, Color.RED);
+                }
             }
         }
     }
