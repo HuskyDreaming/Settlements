@@ -15,12 +15,13 @@ public class LocaleServiceImpl implements LocaleService {
     private Yaml menus;
 
     public LocaleServiceImpl(HuskyPlugin plugin) {
-
         ConfigService configService = plugin.provide(ConfigService.class);
-        Config config = configService.getConfig();
+        Config config = configService.setupLanguage(plugin);
 
         loadMessages(plugin, config.getLocalization());
         loadMenus(plugin, config.getLocalization());
+
+        configService.setupConfig(plugin, config);
     }
 
     @Override

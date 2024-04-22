@@ -18,15 +18,6 @@ public class ConfigServiceImpl implements ConfigService {
 
     private Config config;
 
-    public ConfigServiceImpl(HuskyPlugin plugin) {
-        setupConfig(plugin);
-    }
-
-    @Override
-    public void deserialize(HuskyPlugin plugin) {
-        setupConfig(plugin);
-    }
-
     @Override
     public void serialize(HuskyPlugin plugin) {
         Json.write(plugin, "config", config);
@@ -47,11 +38,18 @@ public class ConfigServiceImpl implements ConfigService {
         return config;
     }
 
-    private void setupConfig(HuskyPlugin plugin) {
+    @Override
+    public Config setupLanguage(HuskyPlugin plugin) {
         config = Json.read(plugin, "config", Config.class);
-        if (config != null) return;
+        if (config != null) return config;
 
         config = new Config();
+        config.setLocalization("en");
+        return config;
+    }
+
+    @Override
+    public void setupConfig(HuskyPlugin plugin, Config config) {
         config.setFlags(List.of(Flag.ANIMAL_SPAWNING, Flag.MONSTER_SPAWNING));
         config.setNotificationType(NotificationType.TITLE);
         config.setDisabledWorlds(List.of("world_nether", "world_the_end"));

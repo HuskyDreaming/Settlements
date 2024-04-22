@@ -28,8 +28,8 @@ public class SettlementPlugin extends HuskyPlugin {
     }
 
     private void registerServices() {
+        serviceRegistry.register(ConfigService.class, new ConfigServiceImpl());
         serviceRegistry.register(LocaleService.class, new LocaleServiceImpl(this));
-        serviceRegistry.register(ConfigService.class, new ConfigServiceImpl(this));
         serviceRegistry.register(DependencyService.class, new DependencyServiceImpl());
         serviceRegistry.register(HomeService.class, new HomeServiceImpl());
         serviceRegistry.register(MemberService.class, new MemberServiceImpl());
