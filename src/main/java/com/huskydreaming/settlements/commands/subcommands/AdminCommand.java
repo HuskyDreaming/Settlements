@@ -7,7 +7,7 @@ import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -85,14 +85,14 @@ public class AdminCommand implements PlayerCommandProvider {
                 String x = String.valueOf(chunk.getX());
                 String z = String.valueOf(chunk.getZ());
 
-                player.sendMessage(Locale.SETTLEMENT_LAND_CLAIM.prefix(x, z));
+                player.sendMessage(Message.LAND_CLAIM.prefix(x, z));
                 claimService.setClaim(chunk, string);
             } else {
-                player.sendMessage(Locale.SETTLEMENT_LAND_ADJACENT.prefix());
+                player.sendMessage(Message.LAND_ADJACENT.prefix());
             }
 
         } else {
-            player.sendMessage(Locale.SETTLEMENT_NULL.prefix(string));
+            player.sendMessage(Message.NULL.prefix(string));
         }
     }
 
@@ -100,22 +100,22 @@ public class AdminCommand implements PlayerCommandProvider {
         Chunk chunk = player.getLocation().getChunk();
 
         if (!claimService.isClaim(chunk)) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_NOT_CLAIMED.prefix());
+            player.sendMessage(Message.LAND_NOT_CLAIMED.prefix());
             return;
         }
 
         String claim = claimService.getClaim(chunk);
         if (claimService.getClaims(claim).size() == 1) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_UNCLAIM_ONE.prefix());
+            player.sendMessage(Message.LAND_UN_CLAIM_ONE.prefix());
         } else {
             claimService.removeClaim(chunk);
-            player.sendMessage(Locale.SETTLEMENT_LAND_UNCLAIM.prefix());
+            player.sendMessage(Message.LAND_UN_CLAIM.prefix());
         }
     }
 
     private void sendDisband(Player player, String string) {
         if (!settlementService.isSettlement(string)) {
-            player.sendMessage(Locale.SETTLEMENT_NULL.prefix(string));
+            player.sendMessage(Message.NULL.prefix(string));
             return;
         }
 
@@ -126,15 +126,15 @@ public class AdminCommand implements PlayerCommandProvider {
         trustService.clean(string);
         settlementService.disbandSettlement(string);
 
-        player.sendMessage(Locale.SETTLEMENT_DISBAND_YES.prefix());
+        player.sendMessage(Message.DISBAND_YES.prefix());
     }
 
     private void sendUnknown(Player player, String string) {
-        player.sendMessage(Locale.UNKNOWN_SUBCOMMAND.prefix(string));
+        player.sendMessage(Message.GENERAL_UNKNOWN_SUBCOMMAND.prefix(string));
     }
 
     private void sendHelp(Player player) {
-        List<String> strings = Locale.ADMIN_HELP.parseList();
+        List<String> strings = Message.GENERAL_ADMIN_HELP.parseList();
         if (strings == null) return;
 
         strings.stream().map(s -> ChatColor.translateAlternateColorCodes('&', s)).forEach(player::sendMessage);

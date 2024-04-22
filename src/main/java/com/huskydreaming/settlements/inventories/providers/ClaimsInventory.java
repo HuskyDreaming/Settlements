@@ -10,7 +10,7 @@ import com.huskydreaming.settlements.services.interfaces.*;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.*;
@@ -76,7 +76,7 @@ public class ClaimsInventory extends InventoryPageProvider<ChunkData> {
 
                 Location location = new Location(world, x, y + 1, z);
                 player.teleport(location);
-                player.sendMessage(Locale.SETTLEMENT_TELEPORT.prefix(x, z));
+                player.sendMessage(Message.GENERAL_TELEPORT.prefix(x, z));
             }
         }
     }

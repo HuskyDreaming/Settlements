@@ -9,7 +9,7 @@ import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -32,21 +32,21 @@ public class LeaveCommand implements PlayerCommandProvider {
     @Override
     public void onCommand(Player player, String[] strings) {
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
         Member member = memberService.getCitizen(player);
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
         if (settlement.isOwner(player)) {
-            player.sendMessage(Locale.SETTLEMENT_LEAVE_OWNER.prefix());
+            player.sendMessage(Message.LEAVE_OWNER.prefix());
             return;
         }
 
         memberService.remove(player);
         borderService.removePlayer(player);
         borderService.addPlayer(player, member.getSettlement(), Color.RED);
-        player.sendMessage(Locale.SETTLEMENT_LEAVE.prefix());
+        player.sendMessage(Message.LEAVE.prefix());
 
         List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(member.getSettlement());
         for (OfflinePlayer offlinePlayer : offlinePlayers) {
@@ -54,7 +54,7 @@ public class LeaveCommand implements PlayerCommandProvider {
             Player onlinePlayer = offlinePlayer.getPlayer();
 
             if (onlinePlayer == null) return;
-            onlinePlayer.sendMessage(Locale.SETTLEMENT_LEAVE_PLAYER.prefix(player.getName()));
+            onlinePlayer.sendMessage(Message.LEAVE_PLAYER.prefix(player.getName()));
         }
     }
 

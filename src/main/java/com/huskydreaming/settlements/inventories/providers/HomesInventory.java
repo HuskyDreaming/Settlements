@@ -8,7 +8,7 @@ import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.storage.persistence.Home;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Location;
@@ -63,7 +63,7 @@ public class HomesInventory extends InventoryPageProvider<Home> {
             if (!memberService.hasSettlement(player)) return;
 
             player.teleport(home.location());
-            player.sendMessage(Locale.HOME_TELEPORT.prefix(Util.capitalize(home.name())));
+            player.sendMessage(Message.HOME_TELEPORT.prefix(Util.capitalize(home.name())));
         }
     }
 }

@@ -7,7 +7,7 @@ import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.InvitationService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -30,18 +30,18 @@ public class DenyCommand implements PlayerCommandProvider {
 
         String string = strings[1];
         if (invitationService.hasNoInvitation(player, string)) {
-            player.sendMessage(Locale.INVITATION_NULL.prefix(string));
+            player.sendMessage(Message.INVITATION_NULL.prefix(string));
             return;
         }
 
         Settlement settlement = settlementService.getSettlement(string);
         if (settlement == null) {
-            player.sendMessage(Locale.SETTLEMENT_NULL.prefix(string));
+            player.sendMessage(Message.NULL.prefix(string));
             return;
         }
 
         invitationService.removeInvitation(player, strings[1]);
-        player.sendMessage(Locale.INVITATION_DENIED.prefix(string));
+        player.sendMessage(Message.INVITATION_DENIED.prefix(string));
     }
 
 

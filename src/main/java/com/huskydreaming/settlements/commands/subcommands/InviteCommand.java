@@ -12,7 +12,7 @@ import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.InvitationService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -39,23 +39,23 @@ public class InviteCommand implements PlayerCommandProvider {
         if (strings.length != 2) return;
 
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
         Player target = Bukkit.getPlayer(strings[1]);
         if (target == null) {
-            player.sendMessage(Locale.PLAYER_OFFLINE.prefix(strings[1]));
+            player.sendMessage(Message.PLAYER_OFFLINE.prefix(strings[1]));
             return;
         }
 
         if (target == player) {
-            player.sendMessage(Locale.INVITATION_SELF.prefix());
+            player.sendMessage(Message.INVITATION_SELF.prefix());
             return;
         }
 
         if (memberService.hasSettlement(target)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_HAS_SETTLEMENT.prefix(target.getName()));
+            player.sendMessage(Message.PLAYER_HAS_SETTLEMENT.prefix(target.getName()));
             return;
         }
 
@@ -65,13 +65,13 @@ public class InviteCommand implements PlayerCommandProvider {
 
 
         if(!(role.hasPermission(RolePermission.MEMBER_INVITE) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
-        target.sendMessage(Locale.INVITATION_RECEIVED.prefix(member.getSettlement()));
+        target.sendMessage(Message.INVITATION_RECEIVED.prefix(member.getSettlement()));
         invitationService.sendInvitation(target, member.getSettlement());
-        player.sendMessage(Locale.INVITATION_SENT.prefix(target.getName()));
+        player.sendMessage(Message.INVITATION_SENT.prefix(target.getName()));
     }
 
     @Override

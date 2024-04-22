@@ -7,7 +7,7 @@ import com.huskydreaming.settlements.enumeration.types.NotificationType;
 import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -36,7 +36,7 @@ public class ConfigServiceImpl implements ConfigService {
     public boolean isDisabledWorld(Player player) {
         World world = player.getWorld();
         if (config.containsDisableWorld(world) || world.getEnvironment() != World.Environment.NORMAL) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_DISABLED_WORLD.prefix());
+            player.sendMessage(Message.LAND_DISABLED_WORLD.prefix());
             return true;
         }
         return false;

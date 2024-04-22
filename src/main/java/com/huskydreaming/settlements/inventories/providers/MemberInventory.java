@@ -10,7 +10,7 @@ import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.enumeration.RolePermission;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
@@ -85,17 +85,17 @@ public class MemberInventory implements InventoryProvider {
             if (settlement.isOwner(player)) {
 
                 if (offlinePlayer.getUniqueId().equals(player.getUniqueId())) {
-                    player.sendMessage(Locale.SETTLEMENT_IS_OWNER.prefix());
+                    player.sendMessage(Message.OWNER_CURRENT.prefix());
                 } else {
                     Player target = offlinePlayer.getPlayer();
                     if (target != null) {
-                        target.sendMessage(Locale.SETTLEMENT_OWNER.prefix());
+                        target.sendMessage(Message.OWNER.prefix());
                     }
-                    player.sendMessage(Locale.SETTLEMENT_OWNER_TRANSFERRED.prefix(offlinePlayer.getName()));
+                    player.sendMessage(Message.OWNER_TRANSFERRED.prefix(offlinePlayer.getName()));
                     settlement.setOwner(offlinePlayer);
                 }
             } else {
-                player.sendMessage(Locale.SETTLEMENT_NOT_OWNER_TRANSFER.prefix());
+                player.sendMessage(Message.OWNER_TRANSFER_FALSE.prefix());
             }
             contents.inventory().close(player);
         }
@@ -111,7 +111,7 @@ public class MemberInventory implements InventoryProvider {
             Player onlinePlayer = offlinePlayer.getPlayer();
             if(onlinePlayer != null) {
                 player.teleport(onlinePlayer);
-                player.sendMessage(Locale.PLAYER_TELEPORT.prefix(offlinePlayer.getName()));
+                player.sendMessage(Message.PLAYER_TELEPORT.prefix(offlinePlayer.getName()));
             }
         });
     }
@@ -165,11 +165,11 @@ public class MemberInventory implements InventoryProvider {
             Settlement settlement = settlementService.getSettlement(member.getSettlement());
 
             if (settlement.isOwner(offlinePlayer) || role.hasPermission(RolePermission.MEMBER_KICK_EXEMPT)) {
-                player.sendMessage(Locale.SETTLEMENT_KICK_EXEMPT.prefix());
+                player.sendMessage(Message.KICK_EXEMPT.prefix());
             } else {
-                player.sendMessage(Locale.SETTLEMENT_KICK_PLAYER.prefix(offlinePlayer.getName()));
+                player.sendMessage(Message.KICK_PLAYER.prefix(offlinePlayer.getName()));
                 Player target = offlinePlayer.getPlayer();
-                if (target != null) target.sendMessage(Locale.SETTLEMENT_KICK.prefix(member.getSettlement()));
+                if (target != null) target.sendMessage(Message.KICK.prefix(member.getSettlement()));
                 memberService.remove(offlinePlayer);
             }
             contents.inventory().close(player);

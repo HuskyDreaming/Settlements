@@ -5,7 +5,7 @@ import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.entity.Player;
 
 @CommandAnnotation(label = CommandLabel.LIST)
@@ -27,7 +27,7 @@ public class ListCommand implements PlayerCommandProvider {
         if (strings.length != 1) return;
 
         if (settlementService.getSettlements().isEmpty()) {
-            player.sendMessage(Locale.SETTLEMENT_LIST_NULL.prefix());
+            player.sendMessage(Message.GENERAL_NULL.prefix());
             return;
         }
 

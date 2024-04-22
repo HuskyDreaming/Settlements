@@ -1,19 +1,19 @@
 package com.huskydreaming.settlements.enumeration;
 
 import com.huskydreaming.huskycore.utilities.Util;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 
 public enum Flag {
-    ANIMAL_KILLING(Locale.FLAGS_ANIMAL_KILLING.parse()),
-    ANIMAL_SPAWNING(Locale.FLAGS_ANIMAL_SPAWNING.parse()),
-    MONSTER_SPAWNING(Locale.FLAGS_MONSTER_SPAWNING.parse()),
-    ENTITY_GRIEF(Locale.FLAGS_ENTITY_GRIEF.parse()),
-    LEAF_DECAY(Locale.FLAGS_LEAF_DECAY.parse()),
-    PVP(Locale.FLAGS_LEAF_DECAY.parse()),
-    EXPLOSIONS(Locale.FLAGS_EXPLOSIONS.parse()),
-    END_PORTAL(Locale.FLAGS_EXPLOSIONS.parse()),
-    LAVA_SPREAD(Locale.FLAGS_EXPLOSIONS.parse()),
-    ENDER_PEARL(Locale.FLAGS_EXPLOSIONS.parse());
+    ANIMAL_KILLING(Message.FLAGS_ANIMAL_KILLING.parse()),
+    ANIMAL_SPAWNING(Message.FLAGS_ANIMAL_SPAWNING.parse()),
+    MONSTER_SPAWNING(Message.FLAGS_MONSTER_SPAWNING.parse()),
+    ENTITY_GRIEF(Message.FLAGS_ENTITY_GRIEF.parse()),
+    LEAF_DECAY(Message.FLAGS_LEAF_DECAY.parse()),
+    PVP(Message.FLAGS_LEAF_DECAY.parse()),
+    EXPLOSIONS(Message.FLAGS_EXPLOSIONS.parse()),
+    END_PORTAL(Message.FLAGS_EXPLOSIONS.parse()),
+    LAVA_SPREAD(Message.FLAGS_EXPLOSIONS.parse()),
+    ENDER_PEARL(Message.FLAGS_EXPLOSIONS.parse());
 
     private final String description;
 

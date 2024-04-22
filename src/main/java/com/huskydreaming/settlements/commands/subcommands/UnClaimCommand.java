@@ -9,11 +9,9 @@ import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 @CommandAnnotation(label = CommandLabel.UN_CLAIM)
 public class UnClaimCommand implements PlayerCommandProvider {
@@ -38,7 +36,7 @@ public class UnClaimCommand implements PlayerCommandProvider {
     @Override
     public void onCommand(Player player, String[] strings) {
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
@@ -49,30 +47,30 @@ public class UnClaimCommand implements PlayerCommandProvider {
         Role role = roleService.getRole(member);
 
         if(!(role.hasPermission(RolePermission.CLAIM_LAND) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
         Chunk chunk = player.getLocation().getChunk();
         String claim = claimService.getClaim(chunk);
         if (claim == null) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_NOT_CLAIMED.prefix());
+            player.sendMessage(Message.LAND_NOT_CLAIMED.prefix());
             return;
         }
 
 
         if (claimService.getClaims(member.getSettlement()).size() == 1) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_UNCLAIM_ONE.prefix());
+            player.sendMessage(Message.LAND_UN_CLAIM_ONE.prefix());
             return;
         }
 
         if (member.getSettlement().equalsIgnoreCase(claim)) {
             claimService.removeClaim(chunk);
             borderService.removePlayer(player);
-            player.sendMessage(Locale.SETTLEMENT_LAND_UNCLAIM.prefix());
+            player.sendMessage(Message.LAND_UN_CLAIM.prefix());
             return;
         }
 
-        player.sendMessage(Locale.SETTLEMENT_LAND_CLAIMED.prefix());
+        player.sendMessage(Message.LAND_CLAIMED.prefix());
     }
 }

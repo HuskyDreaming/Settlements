@@ -11,7 +11,7 @@ import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.entity.Player;
 
 @CommandAnnotation(label = CommandLabel.CREATE_ROLE, arguments = " [role]")
@@ -31,7 +31,7 @@ public class CreateRoleCommand implements PlayerCommandProvider {
     public void onCommand(Player player, String[] strings) {
         if (strings.length != 2) return;
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
@@ -40,17 +40,17 @@ public class CreateRoleCommand implements PlayerCommandProvider {
         Role role = roleService.getRole(member);
 
         if(!(role.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
         String roleName = strings[1];
         if (roleService.hasRole(member.getSettlement(), roleName)) {
-            player.sendMessage(Locale.ROLE_EXISTS.prefix(roleName));
+            player.sendMessage(Message.ROLE_EXISTS.prefix(roleName));
             return;
         }
 
         roleService.add(member.getSettlement(), roleName);
-        player.sendMessage(Locale.ROLE_CREATE.prefix(roleName));
+        player.sendMessage(Message.ROLE_CREATE.prefix(roleName));
     }
 }

@@ -14,7 +14,7 @@ import com.huskydreaming.settlements.storage.persistence.Home;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class DeleteHomeCommand implements PlayerCommandProvider {
     public void onCommand(Player player, String[] strings) {
         if (strings.length != 2) return;
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
@@ -48,18 +48,18 @@ public class DeleteHomeCommand implements PlayerCommandProvider {
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
 
         if (!(role.hasPermission(RolePermission.EDIT_HOMES) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
         String home = strings[1];
         if (!homeService.hasHome(member.getSettlement(), home)) {
-            player.sendMessage(Locale.HOME_NULL.prefix(Util.capitalize(home)));
+            player.sendMessage(Message.HOME_NULL.prefix(Util.capitalize(home)));
             return;
         }
 
         homeService.deleteHome(member.getSettlement(), home);
-        player.sendMessage(Locale.HOME_DELETE.prefix(home));
+        player.sendMessage(Message.HOME_DELETE.prefix(home));
     }
 
     @Override

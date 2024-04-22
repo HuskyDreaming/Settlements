@@ -14,7 +14,7 @@ import com.huskydreaming.settlements.storage.persistence.Home;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.entity.Player;
 
 import java.util.List;
@@ -39,7 +39,7 @@ public class HomeCommand implements PlayerCommandProvider {
     public void onCommand(Player player, String[] strings) {
         if (strings.length != 2) return;
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
@@ -49,18 +49,18 @@ public class HomeCommand implements PlayerCommandProvider {
 
 
         if (!(role.hasPermission(RolePermission.HOME_TELEPORT) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
         if (!homeService.hasHome(member.getSettlement(), strings[1])) {
-            player.sendMessage(Locale.HOME_NULL.prefix(Util.capitalize(strings[1])));
+            player.sendMessage(Message.HOME_NULL.prefix(Util.capitalize(strings[1])));
             return;
         }
 
         Home home = homeService.getHome(member.getSettlement(), strings[1]);
         player.teleport(home.location());
-        player.sendMessage(Locale.HOME_TELEPORT.prefix(Util.capitalize(home.name())));
+        player.sendMessage(Message.HOME_TELEPORT.prefix(Util.capitalize(home.name())));
     }
 
     @Override

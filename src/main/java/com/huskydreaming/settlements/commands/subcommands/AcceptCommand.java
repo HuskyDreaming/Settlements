@@ -6,7 +6,7 @@ import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
@@ -39,13 +39,13 @@ public class AcceptCommand implements PlayerCommandProvider {
         if (strings.length != 2) return;
         String string = strings[1];
         if (invitationService.hasNoInvitation(player, string)) {
-            player.sendMessage(Locale.INVITATION_NULL.prefix(string));
+            player.sendMessage(Message.INVITATION_NULL.prefix(string));
             return;
         }
 
         Settlement settlement = settlementService.getSettlement(string);
         if (settlement == null) {
-            player.sendMessage(Locale.SETTLEMENT_NULL.prefix(string));
+            player.sendMessage(Message.NULL.prefix(string));
             return;
         }
 
@@ -54,7 +54,7 @@ public class AcceptCommand implements PlayerCommandProvider {
             Player onlinePlayer = offlinePlayer.getPlayer();
 
             if (onlinePlayer == null) return;
-            onlinePlayer.sendMessage(Locale.SETTLEMENT_JOIN_PLAYER.prefix(player.getName()));
+            onlinePlayer.sendMessage(Message.JOIN_PLAYER.prefix(player.getName()));
         }
 
         borderService.removePlayer(player);
@@ -62,7 +62,7 @@ public class AcceptCommand implements PlayerCommandProvider {
         trustService.unTrust(player, string);
 
         memberService.add(player, string, settlement.getDefaultRole());
-        player.sendMessage(Locale.SETTLEMENT_JOIN.prefix(string));
+        player.sendMessage(Message.JOIN.prefix(string));
 
         Chunk chunk = player.getLocation().getChunk();
         if (!claimService.isClaim(chunk)) return;

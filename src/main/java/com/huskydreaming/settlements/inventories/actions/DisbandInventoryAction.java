@@ -4,7 +4,7 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.settlements.inventories.base.InventoryAction;
 import com.huskydreaming.settlements.inventories.base.InventoryActionType;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.entity.Player;
 
 public class DisbandInventoryAction implements InventoryAction {
@@ -46,12 +46,12 @@ public class DisbandInventoryAction implements InventoryAction {
         borderService.removePlayer(player);
 
         player.closeInventory();
-        player.sendMessage(Locale.SETTLEMENT_DISBAND_YES.prefix());
+        player.sendMessage(Message.DISBAND_YES.prefix());
     }
 
     @Override
     public void onDeny(Player player) {
         player.closeInventory();
-        player.sendMessage(Locale.SETTLEMENT_DISBAND_NO.prefix());
+        player.sendMessage(Message.DISBAND_NO.prefix());
     }
 }

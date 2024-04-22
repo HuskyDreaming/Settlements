@@ -10,7 +10,7 @@ import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.enumeration.RolePermission;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
@@ -42,7 +42,7 @@ public class UnTrustCommand implements PlayerCommandProvider {
     public void onCommand(Player player, String[] strings) {
         if (strings.length != 2) return;
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
@@ -51,40 +51,40 @@ public class UnTrustCommand implements PlayerCommandProvider {
         Role role = roleService.getRole(member);
 
         if(!(role.hasPermission(RolePermission.MEMBER_TRUST) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
         String string = strings[1];
         OfflinePlayer offlinePlayer = Util.getOfflinePlayer(string);
         if (offlinePlayer == null) {
-            player.sendMessage(Locale.PLAYER_NULL.prefix(string));
+            player.sendMessage(Message.PLAYER_NULL.prefix(string));
             return;
         }
 
         if (memberService.hasSettlement(offlinePlayer)) {
             Member offlineMember = memberService.getCitizen(offlinePlayer);
             if (offlineMember.getSettlement().equalsIgnoreCase(member.getSettlement())) {
-                player.sendMessage(Locale.SETTLEMENT_IS_MEMBER.prefix(offlinePlayer.getName()));
+                player.sendMessage(Message.MEMBER_ALREADY.prefix(offlinePlayer.getName()));
                 return;
             }
         }
 
         Set<String> trustedSettlements = trustService.getSettlements(offlinePlayer);
         if (trustedSettlements != null && !trustedSettlements.contains(member.getSettlement())) {
-            player.sendMessage(Locale.SETTLEMENT_IS_NOT_TRUSTED.prefix(offlinePlayer.getName()));
+            player.sendMessage(Message.TRUSTED_NOT.prefix(offlinePlayer.getName()));
             return;
         }
 
         trustService.unTrust(offlinePlayer, member.getSettlement());
-        player.sendMessage(Locale.SETTLEMENT_TRUST_REMOVE.prefix(offlinePlayer.getName()));
+        player.sendMessage(Message.TRUST_REMOVE.prefix(offlinePlayer.getName()));
 
         if (!offlinePlayer.isOnline()) return;
         Player target = offlinePlayer.getPlayer();
         borderService.removePlayer(target);
 
         if (target == null) return;
-        target.sendMessage(Locale.SETTLEMENT_TRUST_REMOVE_OFFLINE_PLAYER.prefix(member.getSettlement()));
+        target.sendMessage(Message.TRUST_REMOVE_OFFLINE_PLAYER.prefix(member.getSettlement()));
 
         Chunk chunk = player.getLocation().getChunk();
         if (!claimService.isClaim(chunk)) return;

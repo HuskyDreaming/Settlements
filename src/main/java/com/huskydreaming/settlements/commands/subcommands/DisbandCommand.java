@@ -8,10 +8,8 @@ import com.huskydreaming.settlements.inventories.actions.DisbandInventoryAction;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 @CommandAnnotation(label = CommandLabel.DISBAND)
 public class DisbandCommand implements PlayerCommandProvider {
@@ -32,14 +30,14 @@ public class DisbandCommand implements PlayerCommandProvider {
     @Override
     public void onCommand(Player player, String[] strings) {
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
         Member member = memberService.getCitizen(player);
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
         if (!settlement.isOwner(player)) {
-            player.sendMessage(Locale.SETTLEMENT_NOT_OWNER.prefix());
+            player.sendMessage(Message.OWNER_NOT.prefix());
             return;
         }
 

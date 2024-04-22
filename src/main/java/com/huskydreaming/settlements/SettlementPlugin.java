@@ -90,26 +90,3 @@ public class SettlementPlugin extends HuskyPlugin {
         commandRegistry.deserialize(this);
     }
 }
-
-/* TODO:
-
-FIX: ACTIONBAR
-FIX: DISBAND IN MENU [DONE]
-FIX: Pressure plates/shulk sensors/tripwires
-FIX: Minecarts
-FIX: ENDER PORTALSA
-FIX: PVP
-FIX: FLAGS
-FIX: TRUSTING MEMBERS MENU
-FIX: ANIMAL KILLING
-FIX: ENDER_PEARLING INTO CLAIM
-FIX: LEADING ANIMALS
-FIX: SETTLEMENT DETAULTS
-
-CREATE: HOMES [IN-PROGRESS]
-
-CREATE: SETROLE [DONE]
-
-EDIT: VIEWING MENU [DONE]
-
- */

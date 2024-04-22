@@ -5,7 +5,7 @@ import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.NotificationService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -39,16 +39,16 @@ public class NotificationServiceImpl implements NotificationService {
         Config config = configService.getConfig();
         switch (config.getNotificationType()) {
             case TITLE -> {
-                String header = Locale.NOTIFICATION_TITLE_HEADER.parameterize(ChatColor.YELLOW, capitalizedChunk);
-                String footer = Locale.NOTIFICATION_TITLE_FOOTER.parameterize(description);
+                String header = Message.NOTIFICATION_TITLE_HEADER.parameterize(ChatColor.YELLOW, capitalizedChunk);
+                String footer = Message.NOTIFICATION_TITLE_FOOTER.parameterize(description);
                 sendTitle(player, header, footer);
             }
             case BOSS_BAR -> {
-                String message = Locale.NOTIFICATION_BOSS_BAR.parameterize(ChatColor.YELLOW, capitalizedChunk);
+                String message = Message.NOTIFICATION_BOSS_BAR.parameterize(ChatColor.YELLOW, capitalizedChunk);
                 sendBossBar(player, BarColor.YELLOW, message);
             }
             case ACTION_BAR -> {
-                String message = Locale.NOTIFICATION_ACTION_BAR.parameterize(ChatColor.YELLOW, capitalizedChunk);
+                String message = Message.NOTIFICATION_ACTION_BAR.parameterize(ChatColor.YELLOW, capitalizedChunk);
                 sendActionBar(player, message);
             }
         }
@@ -59,16 +59,16 @@ public class NotificationServiceImpl implements NotificationService {
         Config config = configService.getConfig();
         switch (config.getNotificationType()) {
             case TITLE -> {
-                String header = Locale.NOTIFICATION_WILDERNESS_TITLE_HEADER.parse();
-                String footer = Locale.NOTIFICATION_WILDERNESS_TITLE_FOOTER.parse();
+                String header = Message.NOTIFICATION_WILDERNESS_TITLE_HEADER.parse();
+                String footer = Message.NOTIFICATION_WILDERNESS_TITLE_FOOTER.parse();
                 sendTitle(player, header, footer);
             }
             case BOSS_BAR -> {
-                String title = Locale.NOTIFICATION_WILDERNESS_BOSS_BAR.parse();
+                String title = Message.NOTIFICATION_WILDERNESS_BOSS_BAR.parse();
                 sendBossBar(player, BarColor.GREEN, title);
             }
             case ACTION_BAR -> {
-                String title = Locale.NOTIFICATION_WILDERNESS_ACTION_BAR.parse();
+                String title = Message.NOTIFICATION_WILDERNESS_ACTION_BAR.parse();
                 sendActionBar(player, title);
             }
         }
@@ -83,16 +83,16 @@ public class NotificationServiceImpl implements NotificationService {
         Config config = configService.getConfig();
         switch (config.getNotificationType()) {
             case TITLE -> {
-                String header = Locale.NOTIFICATION_TITLE_HEADER.parameterize(chatColor, capitalizedChunk);
-                String footer = Locale.NOTIFICATION_TITLE_FOOTER.parameterize(description);
+                String header = Message.NOTIFICATION_TITLE_HEADER.parameterize(chatColor, capitalizedChunk);
+                String footer = Message.NOTIFICATION_TITLE_FOOTER.parameterize(description);
                 sendTitle(player, header, footer);
             }
             case BOSS_BAR -> {
-                String message = Locale.NOTIFICATION_BOSS_BAR.parameterize(chatColor, capitalizedChunk);
+                String message = Message.NOTIFICATION_BOSS_BAR.parameterize(chatColor, capitalizedChunk);
                 sendBossBar(player, barColor, message);
             }
             case ACTION_BAR -> {
-                String message = Locale.NOTIFICATION_ACTION_BAR.parameterize(chatColor, capitalizedChunk);
+                String message = Message.NOTIFICATION_ACTION_BAR.parameterize(chatColor, capitalizedChunk);
                 sendActionBar(player, message);
             }
         }

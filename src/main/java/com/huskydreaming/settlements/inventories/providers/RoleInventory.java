@@ -12,7 +12,7 @@ import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
@@ -89,7 +89,7 @@ public class RoleInventory extends InventoryPageProvider<RolePermission> {
                 roleService.remove(name, role);
                 inventoryService.getRolesInventory(plugin, player).open(player);
             } else {
-                player.sendMessage(Locale.ROLE_ONE.prefix());
+                player.sendMessage(Message.ROLE_ONE.prefix());
                 player.closeInventory();
             }
         });

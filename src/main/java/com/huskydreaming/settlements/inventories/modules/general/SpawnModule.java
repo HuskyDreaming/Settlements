@@ -11,7 +11,7 @@ import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import com.huskydreaming.settlements.storage.types.Menu;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Material;
@@ -65,20 +65,20 @@ public class SpawnModule implements InventoryModule {
 
             if (!(role.hasPermission(RolePermission.EDIT_SPAWN) || settlement.isOwner(player))) {
                 player.teleport(settlement.getLocation());
-                player.sendMessage(Locale.SETTLEMENT_TELEPORT.prefix());
+                player.sendMessage(Message.GENERAL_TELEPORT.prefix());
                 return;
             }
 
             if (event.isRightClick()) {
                 settlement.setLocation(player.getLocation());
                 player.closeInventory();
-                player.sendMessage(Locale.SPAWN_SET.prefix());
+                player.sendMessage(Message.SPAWN_SET.prefix());
                 return;
             }
 
             if (event.isRightClick()) {
                 player.teleport(settlement.getLocation());
-                player.sendMessage(Locale.SETTLEMENT_TELEPORT.prefix());
+                player.sendMessage(Message.GENERAL_TELEPORT.prefix());
             }
         }
     }

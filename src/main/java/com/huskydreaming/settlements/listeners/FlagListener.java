@@ -13,10 +13,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
-import org.bukkit.event.entity.CreatureSpawnEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
-import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityInteractEvent;
+import org.bukkit.event.entity.*;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.material.Redstone;
 
@@ -114,8 +111,7 @@ public class FlagListener implements Listener {
 
     @EventHandler
     public void onLavaSpread(BlockFromToEvent event) {
-        Material material = event.getBlock().getType();
-        if(material == Material.LAVA || material == Material.WATER) {
+        if (event.getToBlock().getType() == Material.LAVA) {
             if (claimService.isClaim(event.getToBlock().getChunk())) {
                 String settlement = claimService.getClaim(event.getBlock().getChunk());
                 event.setCancelled(!flagService.hasFlag(settlement, Flag.LAVA_SPREAD));
@@ -141,9 +137,18 @@ public class FlagListener implements Listener {
     }
 
     @EventHandler
+    public void onChangeBlock(EntityChangeBlockEvent event) {
+        if (event.getEntity() instanceof Monster) {
+            if (claimService.isClaim(event.getBlock().getChunk())) {
+                String settlement = claimService.getClaim(event.getBlock().getChunk());
+                event.setCancelled(!flagService.hasFlag(settlement, Flag.LAVA_SPREAD));
+            }
+        }
+    }
+
+    @EventHandler
     public void onLavaSpread(BlockSpreadEvent event) {
-        Material material = event.getBlock().getType();
-        if(material == Material.LAVA || material == Material.WATER) {
+        if (event.getBlock().getType() == Material.LAVA) {
             if (claimService.isClaim(event.getBlock().getChunk())) {
                 String settlement = claimService.getClaim(event.getBlock().getChunk());
                 event.setCancelled(!flagService.hasFlag(settlement, Flag.LAVA_SPREAD));

@@ -5,7 +5,7 @@ import com.huskydreaming.huskycore.commands.CommandAnnotation;
 import com.huskydreaming.huskycore.commands.providers.CommandProvider;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.command.CommandSender;
 
 @CommandAnnotation(label = CommandLabel.RELOAD)
@@ -35,16 +35,16 @@ public class ReloadCommand implements CommandProvider {
 
     @Override
     public void onCommand(CommandSender sender, String[] strings) {
-        localeService.getLocale().reload(plugin);
-        localeService.getMenu().reload(plugin);
+        localeService.getMessages().reload(plugin);
+        localeService.getMenus().reload(plugin);
 
         claimService.serialize(plugin);
-        configService.deserialize(plugin);
+        configService.serialize(plugin);
         flagService.serialize(plugin);
         memberService.serialize(plugin);
         roleService.serialize(plugin);
         settlementService.serialize(plugin);
 
-        sender.sendMessage(Locale.RELOAD.prefix());
+        sender.sendMessage(Message.GENERAL_RELOAD.prefix());
     }
 }

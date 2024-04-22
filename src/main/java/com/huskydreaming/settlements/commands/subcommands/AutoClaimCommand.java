@@ -12,7 +12,7 @@ import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.entity.Player;
 
 import java.util.Set;
@@ -41,7 +41,7 @@ public class AutoClaimCommand implements PlayerCommandProvider {
         if (configService.isDisabledWorld(player)) return;
 
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
@@ -49,22 +49,22 @@ public class AutoClaimCommand implements PlayerCommandProvider {
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
         Role role = roleService.getRole(member);
 
-        if(!(role.hasPermission(RolePermission.CLAIM_LAND) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+        if (!(role.hasPermission(RolePermission.CLAIM_LAND) || settlement.isOwner(player))) {
+            player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
         Set<ChunkData> chunks = claimService.getClaims(member.getSettlement());
         Config config = configService.getConfig();
         if (chunks.size() >= config.getSettlementDefault(SettlementDefaultType.MAX_CLAIMS)) {
-            player.sendMessage(Locale.SETTLEMENT_AUTO_CLAIM_ON_MAX_LAND.prefix());
+            player.sendMessage(Message.AUTO_CLAIM_ON_MAX_LAND.prefix());
             return;
         }
 
         boolean autoClaim = member.hasAutoClaim();
-        Locale locale = autoClaim ? Locale.SETTLEMENT_AUTO_CLAIM_OFF : Locale.SETTLEMENT_AUTO_CLAIM_ON;
+        Message message = autoClaim ? Message.AUTO_CLAIM_OFF : Message.AUTO_CLAIM_ON;
 
-        player.sendMessage(locale.prefix());
+        player.sendMessage(message.prefix());
         member.setAutoClaim(!autoClaim);
     }
 }

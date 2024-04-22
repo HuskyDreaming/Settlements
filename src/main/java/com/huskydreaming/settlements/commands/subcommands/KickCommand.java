@@ -13,7 +13,7 @@ import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -43,12 +43,12 @@ public class KickCommand implements PlayerCommandProvider {
         OfflinePlayer offlinePlayer = Util.getOfflinePlayer(string);
 
         if (offlinePlayer == null) {
-            player.sendMessage(Locale.PLAYER_NULL.prefix(string));
+            player.sendMessage(Message.PLAYER_NULL.prefix(string));
             return;
         }
 
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
@@ -58,7 +58,7 @@ public class KickCommand implements PlayerCommandProvider {
 
 
         if(!(role.hasPermission(RolePermission.MEMBER_KICK) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
@@ -66,7 +66,7 @@ public class KickCommand implements PlayerCommandProvider {
         Role offlineRole = roleService.getRole(offlineMember);
 
         if (offlineRole.hasPermission(RolePermission.MEMBER_KICK_EXEMPT) || settlement.isOwner(offlinePlayer)) {
-            player.sendMessage(Locale.SETTLEMENT_KICK_EXEMPT.prefix());
+            player.sendMessage(Message.KICK_EXEMPT.prefix());
             return;
         }
 
@@ -77,7 +77,7 @@ public class KickCommand implements PlayerCommandProvider {
             onlinePlayer.closeInventory();
             borderService.removePlayer(onlinePlayer);
             borderService.addPlayer(onlinePlayer, member.getSettlement(), Color.RED);
-            onlinePlayer.sendMessage(Locale.SETTLEMENT_KICK.parameterize(member.getSettlement()));
+            onlinePlayer.sendMessage(Message.KICK.parameterize(member.getSettlement()));
         }
 
         for (OfflinePlayer offline : memberService.getOfflinePlayers(member.getSettlement())) {
@@ -85,7 +85,7 @@ public class KickCommand implements PlayerCommandProvider {
             Player on = offline.getPlayer();
 
             if (on == null) return;
-            on.sendMessage(Locale.SETTLEMENT_LEAVE_PLAYER.prefix(offlinePlayer.getName()));
+            on.sendMessage(Message.LEAVE_PLAYER.prefix(offlinePlayer.getName()));
         }
     }
 

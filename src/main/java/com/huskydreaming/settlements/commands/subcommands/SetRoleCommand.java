@@ -10,7 +10,7 @@ import com.huskydreaming.settlements.services.interfaces.SettlementService;
 import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -34,7 +34,7 @@ public class SetRoleCommand implements PlayerCommandProvider {
     public void onCommand(Player player, String[] strings) {
         if (strings.length != 3) return;
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
@@ -43,30 +43,30 @@ public class SetRoleCommand implements PlayerCommandProvider {
         Settlement settlement = settlementService.getSettlement(member.getSettlement());
 
         if (!(role.hasPermission(RolePermission.EDIT_ROLES) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
         OfflinePlayer offlinePlayer = Util.getOfflinePlayer(strings[1]);
         if (offlinePlayer == null) {
-            player.sendMessage(Locale.PLAYER_OFFLINE.prefix(strings[1]));
+            player.sendMessage(Message.PLAYER_OFFLINE.prefix(strings[1]));
             return;
         }
 
         Role setRole = roleService.getRole(member.getSettlement(), strings[2]);
         if (setRole == null) {
-            player.sendMessage(Locale.ROLE_NULL.prefix(strings[1]));
+            player.sendMessage(Message.ROLE_NULL.prefix(strings[1]));
             return;
         }
 
         member.setRole(strings[2]);
-        player.sendMessage(Locale.ROLE_SET.prefix(offlinePlayer.getName(), setRole.getName()));
+        player.sendMessage(Message.ROLE_SET.prefix(offlinePlayer.getName(), setRole.getName()));
 
         if (!offlinePlayer.isOnline()) return;
         Player onlinePlayer = offlinePlayer.getPlayer();
 
         if (onlinePlayer == null) return;
-        onlinePlayer.sendMessage(Locale.ROLE_SET_OTHER.prefix(offlinePlayer.getName(), setRole.getName()));
+        onlinePlayer.sendMessage(Message.ROLE_SET_OTHER.prefix(offlinePlayer.getName(), setRole.getName()));
     }
 
     @Override

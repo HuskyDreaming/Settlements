@@ -2,7 +2,6 @@ package com.huskydreaming.settlements.listeners;
 
 import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.enumeration.types.NotificationType;
 import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.storage.persistence.Member;
@@ -10,7 +9,7 @@ import com.huskydreaming.settlements.storage.persistence.Settlement;
 import com.huskydreaming.settlements.storage.persistence.Role;
 import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
@@ -20,7 +19,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
@@ -126,23 +124,23 @@ public class LandListener implements Listener {
 
         Config config = configService.getConfig();
         if (config.containsDisableWorld(player.getWorld())) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_DISABLED_WORLD.prefix());
+            player.sendMessage(Message.LAND_DISABLED_WORLD.prefix());
             return false;
         }
 
         if (dependencyService.isTowny(player)) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_TOWNY.prefix());
+            player.sendMessage(Message.LAND_TOWNY.prefix());
             return false;
         }
 
         if (dependencyService.isWorldGuard(player)) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_WORLDGUARD.prefix());
+            player.sendMessage(Message.LAND_WORLD_GUARD.prefix());
             return false;
         }
 
         Set<ChunkData> chunks = claimService.getClaims(member.getSettlement());
         if (chunks.size() >= config.getSettlementDefault(SettlementDefaultType.MAX_CLAIMS)) {
-            player.sendMessage(Locale.SETTLEMENT_AUTO_CLAIM_OFF_MAX_LAND.prefix());
+            player.sendMessage(Message.AUTO_CLAIM_OFF_MAX_LAND.prefix());
             member.setAutoClaim(false);
             return false;
         }
@@ -151,7 +149,7 @@ public class LandListener implements Listener {
         borderService.removePlayer(player);
         borderService.addPlayer(player, member.getSettlement(), Color.AQUA);
 
-        player.sendMessage(Locale.SETTLEMENT_LAND_CLAIM.prefix(chunk.getX(), chunk.getZ()));
+        player.sendMessage(Message.LAND_CLAIM.prefix(chunk.getX(), chunk.getZ()));
         return true;
     }
 

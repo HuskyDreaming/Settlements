@@ -9,10 +9,7 @@ import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import com.huskydreaming.settlements.inventories.base.InventoryAction;
 import com.huskydreaming.settlements.inventories.base.InventoryActionType;
-import com.huskydreaming.settlements.inventories.modules.admin.AdminDefaultsModule;
-import com.huskydreaming.settlements.inventories.modules.admin.AdminDisabledWorldsModule;
-import com.huskydreaming.settlements.inventories.modules.admin.AdminNotificationModule;
-import com.huskydreaming.settlements.inventories.modules.admin.AdminTrustingModule;
+import com.huskydreaming.settlements.inventories.modules.admin.*;
 import com.huskydreaming.settlements.inventories.modules.general.*;
 import com.huskydreaming.settlements.inventories.providers.SettlementInventory;
 import com.huskydreaming.settlements.inventories.providers.*;
@@ -90,7 +87,7 @@ public class InventoryServiceImpl implements InventoryService {
                 new AdminDefaultsModule(plugin),
                 new AdminDisabledWorldsModule(plugin),
                 new AdminNotificationModule(plugin),
-                new AdminTrustingModule(plugin),
+                new AdminTeleportationModule(plugin),
                 new AdminTrustingModule(plugin)
         );
 

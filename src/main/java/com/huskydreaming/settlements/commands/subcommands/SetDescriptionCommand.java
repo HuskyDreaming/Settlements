@@ -14,11 +14,10 @@ import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
-import java.util.List;
 
 @CommandAnnotation(label = CommandLabel.SET_DESCRIPTION, arguments = " [description]")
 public class SetDescriptionCommand implements PlayerCommandProvider {
@@ -40,7 +39,7 @@ public class SetDescriptionCommand implements PlayerCommandProvider {
         if (strings.length <= 1) return;
 
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
@@ -49,7 +48,7 @@ public class SetDescriptionCommand implements PlayerCommandProvider {
         Role role = roleService.getRole(member);
 
         if(!(role.hasPermission(RolePermission.EDIT_DESCRIPTION) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
@@ -61,16 +60,16 @@ public class SetDescriptionCommand implements PlayerCommandProvider {
         int maximumDescriptionLength = config.getSettlementDefault(SettlementDefaultType.MAX_DESCRIPTION_LENGTH);
 
         if (string.length() > maximumDescriptionLength) {
-            player.sendMessage(Locale.SETTLEMENT_DESCRIPTION_LONG.prefix(maximumDescriptionLength));
+            player.sendMessage(Message.DESCRIPTION_LONG.prefix(maximumDescriptionLength));
             return;
         }
 
         if (string.length() < minimumDescriptionLength) {
-            player.sendMessage(Locale.SETTLEMENT_DESCRIPTION_SHORT.prefix(minimumDescriptionLength));
+            player.sendMessage(Message.DESCRIPTION_SHORT.prefix(minimumDescriptionLength));
             return;
         }
 
         settlement.setDescription(string);
-        player.sendMessage(Locale.SETTLEMENT_DESCRIPTION.prefix(string));
+        player.sendMessage(Message.DESCRIPTION.prefix(string));
     }
 }

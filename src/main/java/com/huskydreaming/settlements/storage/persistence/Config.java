@@ -9,10 +9,10 @@ import org.bukkit.World;
 import java.util.*;
 
 public class Config {
-
     private boolean trusting;
     private boolean teleportation;
     private boolean homes;
+    private String localization;
     private String emptyPlaceholder;
     private NotificationType notificationType;
     private List<String> disabledWorlds;
@@ -34,6 +34,14 @@ public class Config {
 
     public void setDisabledWorlds(List<String> disabledWorlds) {
         this.disabledWorlds = disabledWorlds;
+    }
+
+    public String getLocalization() {
+        return localization;
+    }
+
+    public void setLocalization(String localization) {
+        this.localization = localization;
     }
 
     public String getEmptyPlaceholder() {

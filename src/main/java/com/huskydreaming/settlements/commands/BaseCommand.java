@@ -5,10 +5,9 @@ import com.huskydreaming.huskycore.commands.CommandAnnotation;
 import com.huskydreaming.huskycore.commands.abstraction.AbstractCommand;
 import com.huskydreaming.huskycore.interfaces.Parseable;
 import com.huskydreaming.settlements.commands.subcommands.HelpCommand;
-import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -29,12 +28,12 @@ public class BaseCommand extends AbstractCommand {
 
     @Override
     public Parseable getPermission() {
-        return Locale.NO_PERMISSIONS;
+        return Message.GENERAL_NO_PERMISSIONS;
     }
 
     @Override
     public Parseable getUsage() {
-        return Locale.UNKNOWN_SUBCOMMAND;
+        return Message.GENERAL_UNKNOWN_SUBCOMMAND;
     }
 
     @Override

@@ -12,10 +12,8 @@ import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.RoleService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import org.bukkit.entity.Player;
-
-import java.util.List;
 
 @CommandAnnotation(label = CommandLabel.SET_SPAWN)
 public class SetSpawnCommand implements PlayerCommandProvider {
@@ -35,7 +33,7 @@ public class SetSpawnCommand implements PlayerCommandProvider {
     @Override
     public void onCommand(Player player, String[] strings) {
         if (!memberService.hasSettlement(player)) {
-            player.sendMessage(Locale.SETTLEMENT_PLAYER_NULL.prefix());
+            player.sendMessage(Message.PLAYER_NULL.prefix());
             return;
         }
 
@@ -46,11 +44,11 @@ public class SetSpawnCommand implements PlayerCommandProvider {
         Role role = roleService.getRole(member);
 
         if(!(role.hasPermission(RolePermission.EDIT_SPAWN) || settlement.isOwner(player))) {
-            player.sendMessage(Locale.NO_PERMISSIONS.prefix());
+            player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
         settlement.setLocation(player.getLocation());
-        player.sendMessage(Locale.SPAWN_SET.prefix());
+        player.sendMessage(Message.SPAWN_SET.prefix());
     }
 }

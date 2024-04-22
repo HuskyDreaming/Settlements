@@ -6,7 +6,7 @@
 
     <groupId>com.huskydreaming</groupId>
     <artifactId>Settlements</artifactId>
-    <version>0.8.3-ALPHA</version>
+    <version>0.8.4-ALPHA</version>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>

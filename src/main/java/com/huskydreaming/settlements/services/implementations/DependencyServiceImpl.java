@@ -4,7 +4,7 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.settlements.dependencies.SettlementPlaceholderExpansion;
 import com.huskydreaming.settlements.enumeration.types.DependencyType;
 import com.huskydreaming.settlements.services.interfaces.DependencyService;
-import com.huskydreaming.settlements.storage.types.Locale;
+import com.huskydreaming.settlements.storage.types.Message;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -28,12 +28,12 @@ public class DependencyServiceImpl implements DependencyService {
     @Override
     public boolean isDependency(Player player) {
         if (isTowny(player)) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_TOWNY.prefix());
+            player.sendMessage(Message.LAND_TOWNY.prefix());
             return true;
         }
 
         if (isWorldGuard(player)) {
-            player.sendMessage(Locale.SETTLEMENT_LAND_WORLDGUARD.prefix());
+            player.sendMessage(Message.LAND_WORLD_GUARD.prefix());
             return true;
         }
         return false;
