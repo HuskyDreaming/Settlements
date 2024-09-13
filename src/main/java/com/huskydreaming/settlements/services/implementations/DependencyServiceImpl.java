@@ -4,7 +4,7 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.settlements.dependencies.SettlementPlaceholderExpansion;
 import com.huskydreaming.settlements.enumeration.types.DependencyType;
 import com.huskydreaming.settlements.services.interfaces.DependencyService;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.object.Town;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
@@ -96,10 +96,10 @@ public class DependencyServiceImpl implements DependencyService {
         }
 
         if (!types.isEmpty()) {
-            plugin.getLogger().info("Dependencies Found: ");
+            plugin.getLogger().info("[Dependencies] Found " + types.size() + " dependencies: ");
             types.forEach(type -> plugin.getLogger().info("- " + type));
         } else {
-            plugin.getLogger().info("No dependencies found. Using basic version of the plugin.");
+            plugin.getLogger().info("[Dependencies] Using basic version of the plugin. No dependencies found!");
         }
 
         if (Bukkit.getPluginManager().isPluginEnabled(DependencyType.PLACEHOLDER_API.toString())) {

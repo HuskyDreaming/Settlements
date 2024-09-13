@@ -5,7 +5,7 @@ import com.huskydreaming.huskycore.inventories.InventoryModule;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.enumeration.types.ConfigType;
-import com.huskydreaming.settlements.storage.types.Menu;
+import com.huskydreaming.settlements.enumeration.locale.Menu;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

@@ -1,13 +1,13 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.CommandAnnotation;
-import com.huskydreaming.huskycore.commands.interfaces.Command;
-import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
+import com.huskydreaming.huskycore.annotations.CommandAnnotation;
+import com.huskydreaming.huskycore.interfaces.command.Command;
+import com.huskydreaming.huskycore.interfaces.command.providers.PlayerCommandProvider;
 import com.huskydreaming.huskycore.registries.CommandRegistry;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;

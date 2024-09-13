@@ -2,6 +2,7 @@ package com.huskydreaming.settlements.enumeration.types;
 
 public enum SettlementDefaultType {
     MAX_CLAIMS(15),
+    MAX_HOMES(3),
     MAX_MEMBERS(10),
     MAX_ROLES(5),
     MAX_NAME_LENGTH(12),

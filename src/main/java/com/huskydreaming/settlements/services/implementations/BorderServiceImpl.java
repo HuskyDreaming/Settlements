@@ -1,10 +1,11 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.data.ChunkData;
+import com.huskydreaming.settlements.database.entities.Claim;
+import com.huskydreaming.settlements.database.entities.Settlement;
+import com.huskydreaming.settlements.database.persistence.BorderData;
 import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.ClaimService;
-import com.huskydreaming.settlements.storage.transience.BorderData;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -22,7 +23,6 @@ public class BorderServiceImpl implements BorderService {
     public BorderServiceImpl(HuskyPlugin plugin) {
         claimService = plugin.provide(ClaimService.class);
     }
-
 
     @Override
     public void deserialize(HuskyPlugin plugin) {
@@ -43,8 +43,13 @@ public class BorderServiceImpl implements BorderService {
     }
 
     @Override
-    public void addPlayer(Player player, String name, Color color) {
-        borders.put(player, calculatePositions(name, color));
+    public void addPlayer(Player player, Settlement settlement, Color color) {
+        borders.put(player, calculatePositions(settlement.getId(), color));
+    }
+
+    @Override
+    public void addPlayer(Player player, long settlementId, Color color) {
+        borders.put(player, calculatePositions(settlementId, color));
     }
 
     @Override
@@ -53,15 +58,15 @@ public class BorderServiceImpl implements BorderService {
     }
 
     @Override
-    public BorderData calculatePositions(String name, Color color) {
+    public BorderData calculatePositions(long settlementId, Color color) {
         Set<Location> points = new HashSet<>();
-        for (ChunkData data : claimService.getClaims(name)) {
+        for (Claim claim : claimService.getClaims(settlementId)) {
 
-            Chunk chunk = data.toChunk();
+            Chunk chunk = claim.toChunk();
             World world = chunk.getWorld();
 
-            int minX = data.getX() << 4;
-            int minZ = data.getZ() << 4;
+            int minX = claim.getX() << 4;
+            int minZ = claim.getZ() << 4;
 
             int maxX = minX + 16;
             int maxZ = minZ + 16;

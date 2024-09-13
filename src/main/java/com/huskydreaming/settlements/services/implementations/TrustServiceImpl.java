@@ -1,91 +1,109 @@
 package com.huskydreaming.settlements.services.implementations;
 
-import com.google.gson.reflect.TypeToken;
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.storage.Json;
+import com.huskydreaming.settlements.SettlementPlugin;
+import com.huskydreaming.settlements.database.SqlType;
+import com.huskydreaming.settlements.database.dao.TrustDao;
+import com.huskydreaming.settlements.database.entities.Settlement;
+import com.huskydreaming.settlements.database.entities.Trust;
 import com.huskydreaming.settlements.services.interfaces.TrustService;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class TrustServiceImpl implements TrustService {
 
-    private Map<UUID, Set<String>> trusts;
+    private final TrustDao trustDao;
+    private final Map<Long, Trust> trusts;
+
+    public TrustServiceImpl(SettlementPlugin plugin) {
+        this.trusts = new ConcurrentHashMap<>();
+        this.trustDao = new TrustDao(plugin);
+    }
 
     @Override
     public void deserialize(HuskyPlugin plugin) {
-        Type type = new TypeToken<Map<UUID, Set<String>>>() {
-        }.getType();
-        trusts = Json.read(plugin, "data/trust", type);
-
-        if (trusts == null) trusts = new ConcurrentHashMap<>();
-
-        int trustSize = trusts.size();
-        if (trustSize > 0) {
-            plugin.getLogger().info("Registered " + trustSize + " trusted chunks(s).");
-        }
+        trustDao.bulkImport(SqlType.TRUST, trusts::putAll);
     }
 
     @Override
     public void serialize(HuskyPlugin plugin) {
-        Json.write(plugin, "data/trust", trusts);
+        trustDao.bulkUpdate(SqlType.TRUST, trusts.values());
     }
 
     @Override
-    public void clean(String settlement) {
-        List<UUID> uuids = trusts.entrySet().stream().filter(e -> e.getValue().contains(settlement))
+    public void clean(Settlement settlement) {
+        Set<Long> keys = trusts.entrySet().stream()
+                .filter(e -> e.getValue().getSettlementId() == settlement.getId())
                 .map(Map.Entry::getKey)
-                .toList();
+                .collect(Collectors.toSet());
 
-        for (UUID uuid : uuids) {
-            trusts.remove(uuid);
+        trustDao.bulkDelete(SqlType.TRUST, keys);
+        trusts.keySet().removeAll(keys);
+    }
+
+    @Override
+    public void trust(OfflinePlayer offlinePlayer, Settlement settlement) {
+        Trust trust = new Trust();
+        trust.setUniqueId(offlinePlayer.getUniqueId());
+        trust.setSettlementId(settlement.getId());
+
+        trustDao.insert(trust).queue(i -> {
+            trust.setId(i);
+            trusts.put(i, trust);
+        });
+    }
+
+    @Override
+    public void unTrust(OfflinePlayer offlinePlayer, Settlement settlement) {
+        unTrust(offlinePlayer, settlement.getRoleId());
+    }
+
+    @Override
+    public void unTrust(OfflinePlayer offlinePlayer, long settlementId) {
+        Predicate<Trust> trustPredicate = (t -> t.getSettlementId() == settlementId && t.getUniqueId().equals(offlinePlayer.getUniqueId()));
+        Trust trust = trusts.values().stream().filter(trustPredicate).findFirst().orElse(null);
+
+        if(trust != null) {
+            trustDao.delete(trust).queue();
+            trusts.remove(trust.getId());
         }
     }
 
     @Override
-    public void trust(OfflinePlayer offlinePlayer, String string) {
-        Set<String> settlements = trusts.get(offlinePlayer.getUniqueId());
-        if (settlements != null) {
-            settlements.add(string);
-            return;
-        }
-
-        settlements = new HashSet<>();
-        settlements.add(string);
-
-        trusts.put(offlinePlayer.getUniqueId(), settlements);
+    public Set<OfflinePlayer> getOfflinePlayers(Settlement settlement) {
+        return trusts.values().stream()
+                .filter(t -> t.getSettlementId() == settlement.getId())
+                .map(t -> Bukkit.getOfflinePlayer(t.getUniqueId()))
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public void unTrust(OfflinePlayer offlinePlayer, String string) {
-        Set<String> settlements = trusts.get(offlinePlayer.getUniqueId());
-
-        if (settlements == null) return;
-        settlements.remove(string);
-
-        if (!settlements.isEmpty()) return;
-        trusts.remove(offlinePlayer.getUniqueId());
+    public Set<OfflinePlayer> getOfflinePlayers(long settlementId) {
+        return trusts.values().stream()
+                .filter(t -> t.getSettlementId() == settlementId)
+                .map(t -> Bukkit.getOfflinePlayer(t.getUniqueId()))
+                .collect(Collectors.toSet());
     }
 
     @Override
-    public List<OfflinePlayer> getOfflinePlayers(String settlement) {
-        return trusts.entrySet().stream()
-                .filter(entry -> entry.getValue().contains(settlement))
-                .map(entry -> Bukkit.getOfflinePlayer(entry.getKey()))
-                .collect(Collectors.toList());
+    public boolean isTrusted(OfflinePlayer offlinePlayer, Settlement settlement) {
+        return trusts.values().stream().anyMatch(t -> settlement.getId() == settlement.getId() && t.getUniqueId().equals(offlinePlayer.getUniqueId()));
     }
 
     @Override
     public boolean hasTrusts(OfflinePlayer offlinePlayer) {
-        return trusts.containsKey(offlinePlayer.getUniqueId());
+        return trusts.values().stream().anyMatch(t -> t.getUniqueId().equals(offlinePlayer.getUniqueId()));
     }
 
     @Override
-    public Set<String> getSettlements(OfflinePlayer offlinePlayer) {
-        return Collections.unmodifiableSet(trusts.get(offlinePlayer.getUniqueId()));
+    public Set<Long> getSettlementIds(OfflinePlayer offlinePlayer) {
+        return trusts.values().stream().filter(t -> t.getUniqueId().equals(offlinePlayer.getUniqueId()))
+                .map(Trust::getSettlementId)
+                .collect(Collectors.toSet());
     }
 }

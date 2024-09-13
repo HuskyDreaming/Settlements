@@ -1,13 +1,13 @@
 package com.huskydreaming.settlements.commands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.CommandAnnotation;
-import com.huskydreaming.huskycore.commands.abstraction.AbstractCommand;
+import com.huskydreaming.huskycore.abstraction.AbstractCommand;
+import com.huskydreaming.huskycore.annotations.CommandAnnotation;
 import com.huskydreaming.huskycore.interfaces.Parseable;
 import com.huskydreaming.settlements.commands.subcommands.HelpCommand;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 

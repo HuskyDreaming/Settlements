@@ -1,12 +1,14 @@
-package com.huskydreaming.settlements.storage.persistence;
+package com.huskydreaming.settlements.database.persistence;
 
-import com.huskydreaming.settlements.enumeration.Flag;
+import com.huskydreaming.settlements.enumeration.FlagType;
+import com.huskydreaming.settlements.enumeration.PermissionType;
 import com.huskydreaming.settlements.enumeration.types.NotificationType;
-import com.huskydreaming.settlements.enumeration.RolePermission;
 import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import org.bukkit.World;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.List;
 
 public class Config {
     private boolean trusting;
@@ -16,8 +18,8 @@ public class Config {
     private String emptyPlaceholder;
     private NotificationType notificationType;
     private List<String> disabledWorlds;
-    private List<Flag> flags;
-    private Map<String, List<RolePermission>> defaultRoles;
+    private List<FlagType> flags;
+    private Map<String, List<PermissionType>> defaultRoles;
     private Map<SettlementDefaultType, Integer> settlementDefaults;
 
     public boolean containsDisableWorld(World world) {
@@ -52,11 +54,11 @@ public class Config {
         this.emptyPlaceholder = emptyPlaceholder;
     }
 
-    public Map<String, List<RolePermission>> getDefaultRoles() {
+    public Map<String, List<PermissionType>> getDefaultRoles() {
         return Collections.unmodifiableMap(defaultRoles);
     }
 
-    public void setDefaultRoles(Map<String, List<RolePermission>> defaultRoles) {
+    public void setDefaultRoles(Map<String, List<PermissionType>> defaultRoles) {
         this.defaultRoles = defaultRoles;
     }
 
@@ -72,11 +74,11 @@ public class Config {
         this.settlementDefaults = settlementDefaults;
     }
 
-    public List<Flag> getFlags() {
+    public List<FlagType> getFlags() {
         return Collections.unmodifiableList(flags);
     }
 
-    public void setFlags(List<Flag> flags) {
+    public void setFlags(List<FlagType> flags) {
         this.flags = flags;
     }
 
@@ -110,24 +112,5 @@ public class Config {
 
     public void setNotificationType(NotificationType notificationType) {
         this.notificationType = notificationType;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Config config)) return false;
-        return trusting == config.trusting &&
-                teleportation == config.teleportation &&
-                Objects.equals(disabledWorlds, config.disabledWorlds) &&
-                Objects.equals(flags, config.flags) &&
-                Objects.equals(emptyPlaceholder, config.emptyPlaceholder) &&
-                Objects.equals(defaultRoles, config.defaultRoles) &&
-                Objects.equals(settlementDefaults, config.settlementDefaults) &&
-                notificationType == config.notificationType;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(disabledWorlds, flags, emptyPlaceholder, defaultRoles, settlementDefaults, trusting, teleportation, notificationType);
     }
 }

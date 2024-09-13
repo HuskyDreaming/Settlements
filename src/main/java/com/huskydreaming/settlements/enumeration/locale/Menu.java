@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.storage.types;
+package com.huskydreaming.settlements.enumeration.locale;
 
 import com.google.common.base.Functions;
 import com.huskydreaming.huskycore.interfaces.Parseable;

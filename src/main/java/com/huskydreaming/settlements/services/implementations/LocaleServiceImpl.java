@@ -2,11 +2,11 @@ package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.storage.Yaml;
+import com.huskydreaming.settlements.database.persistence.Config;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
 import com.huskydreaming.settlements.services.interfaces.LocaleService;
-import com.huskydreaming.settlements.storage.persistence.Config;
-import com.huskydreaming.settlements.storage.types.Message;
-import com.huskydreaming.settlements.storage.types.Menu;
+import com.huskydreaming.settlements.enumeration.locale.Message;
+import com.huskydreaming.settlements.enumeration.locale.Menu;
 
 
 public class LocaleServiceImpl implements LocaleService {
@@ -14,19 +14,21 @@ public class LocaleServiceImpl implements LocaleService {
     private Yaml messages;
     private Yaml menus;
 
-    public LocaleServiceImpl(HuskyPlugin plugin) {
+    @Override
+    public void deserialize(HuskyPlugin plugin) {
         ConfigService configService = plugin.provide(ConfigService.class);
-        Config config = configService.setupLanguage(plugin);
 
+        Config config = configService.getConfig();
         loadMessages(plugin, config.getLocalization());
         loadMenus(plugin, config.getLocalization());
 
-        configService.setupConfig(plugin, config);
+        boolean newConfig = configService.setupLanguage(plugin);
+        if(newConfig) configService.setupConfig(plugin);
     }
 
     @Override
     public void loadMessages(HuskyPlugin plugin, String locale) {
-        messages = new Yaml("localisation/messages_en");
+        messages = new Yaml("localisation/messages_" + locale);
         messages.load(plugin);
         Message.setConfiguration(messages.getConfiguration());
 
@@ -38,7 +40,7 @@ public class LocaleServiceImpl implements LocaleService {
 
     @Override
     public void loadMenus(HuskyPlugin plugin, String language) {
-        menus = new Yaml("menus/menu_en");
+        menus = new Yaml("menus/menu_" + language);
         menus.load(plugin);
         Menu.setConfiguration(menus.getConfiguration());
 

@@ -4,7 +4,7 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Menu;
+import com.huskydreaming.settlements.enumeration.locale.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;

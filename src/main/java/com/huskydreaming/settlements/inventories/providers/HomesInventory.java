@@ -5,13 +5,14 @@ import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.inventories.InventoryPageProvider;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
 import com.huskydreaming.huskycore.utilities.Util;
+import com.huskydreaming.settlements.database.entities.Home;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.storage.persistence.Home;
-import com.huskydreaming.settlements.storage.types.Message;
-import com.huskydreaming.settlements.storage.types.Menu;
+import com.huskydreaming.settlements.enumeration.locale.Message;
+import com.huskydreaming.settlements.enumeration.locale.Menu;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -44,16 +45,16 @@ public class HomesInventory extends InventoryPageProvider<Home> {
             return null;
         }
 
-        Location location = home.location();
+        Location location = home.toLocation();
         double x = location.getX();
         double y = location.getY();
         double z = location.getZ();
 
         return ItemBuilder
                 .create()
-                .setDisplayName(Menu.SETTLEMENT_HOME_TITLE.parameterize(Util.capitalize(home.name())))
-                .setLore(Menu.SETTLEMENT_HOME_LORE.parameterizeList((int) x, (int) y, (int) z, home.name()))
-                .setMaterial(home.material())
+                .setDisplayName(Menu.SETTLEMENT_HOME_TITLE.parameterize(Util.capitalize(home.getName())))
+                .setLore(Menu.SETTLEMENT_HOME_LORE.parameterizeList((int) x, (int) y, (int) z, home.getName()))
+                .setMaterial(Material.WHITE_BED)
                 .build();
     }
 
@@ -62,8 +63,8 @@ public class HomesInventory extends InventoryPageProvider<Home> {
         if (event.getWhoClicked() instanceof Player player) {
             if (!memberService.hasSettlement(player)) return;
 
-            player.teleport(home.location());
-            player.sendMessage(Message.HOME_TELEPORT.prefix(Util.capitalize(home.name())));
+            player.teleport(home.toLocation());
+            player.sendMessage(Message.HOME_TELEPORT.prefix(Util.capitalize(home.getName())));
         }
     }
 }

@@ -1,75 +1,112 @@
 package com.huskydreaming.settlements.services.implementations;
 
-import com.google.gson.reflect.TypeToken;
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.storage.Json;
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.storage.persistence.Config;
-import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
-import com.huskydreaming.settlements.services.interfaces.ConfigService;
+import com.huskydreaming.settlements.database.SqlType;
+import com.huskydreaming.settlements.database.dao.SettlementDao;
+import com.huskydreaming.settlements.database.entities.Claim;
+import com.huskydreaming.settlements.database.entities.Member;
+import com.huskydreaming.settlements.database.entities.Settlement;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class SettlementServiceImpl implements SettlementService {
 
-    private final ConfigService configService;
-    private Map<String, Settlement> settlements = new ConcurrentHashMap<>();
+    private final SettlementDao settlementDao;
+    private final Map<Long, Settlement> settlements;
 
     public SettlementServiceImpl(SettlementPlugin plugin) {
-        configService = plugin.provide(ConfigService.class);
+        this.settlements = new ConcurrentHashMap<>();
+        this.settlementDao = new SettlementDao(plugin);
     }
 
     @Override
     public void serialize(HuskyPlugin plugin) {
-        Json.write(plugin, "data/settlements", settlements);
-        plugin.getLogger().info("Saved " + settlements.size() + " settlement(s).");
+        settlementDao.bulkUpdate(SqlType.SETTLEMENT, settlements.values());
     }
 
     @Override
     public void deserialize(HuskyPlugin plugin) {
-        Type hashmap = new TypeToken<Map<String, Settlement>>() {}.getType();
-        settlements = Json.read(plugin, "data/settlements", hashmap);
-        if (settlements == null) settlements = new ConcurrentHashMap<>();
-
-        int size = settlements.size();
-        if (size > 0) plugin.getLogger().info("Registered " + size + " settlement(s).");
+        settlementDao.bulkImport(SqlType.SETTLEMENT, settlements::putAll);
     }
 
     @Override
     public Settlement createSettlement(Player player, String name) {
-        Settlement settlement = Settlement.create(player);
-        Config config = configService.getConfig();
-
-        settlement.setMaxCitizens(config.getSettlementDefault(SettlementDefaultType.MAX_MEMBERS));
-        settlement.setMaxLand(config.getSettlementDefault(SettlementDefaultType.MAX_CLAIMS));
-        settlement.setMaxRoles(config.getSettlementDefault(SettlementDefaultType.MAX_ROLES));
-
-        settlements.put(name, settlement);
+        Location location = player.getLocation();
+        World world = location.getWorld();
+        if(world == null) return null;
+        Settlement settlement = new Settlement();
+        settlement.setName(name);
+        settlement.setDescription("A Peaceful Settlement");
+        settlement.setOwnerUUID(player.getUniqueId());
+        settlement.setWorldUID(world.getUID());
+        settlement.setX(location.getX());
+        settlement.setY(location.getY());
+        settlement.setZ(location.getZ());
+        settlement.setYaw(location.getYaw());
+        settlement.setPitch(location.getPitch());
         return settlement;
     }
 
     @Override
-    public void disbandSettlement(String name) {
-        settlements.remove(name);
+    public void addSettlement(Settlement settlement) {
+        settlements.put(settlement.getId(), settlement);
+    }
+
+    @Override
+    public void disbandSettlement(Settlement settlement) {
+        settlementDao.delete(settlement).queue();
+        settlements.remove(settlement.getId());
     }
 
     @Override
     public boolean isSettlement(String name) {
-        return settlements.containsKey(name.toLowerCase());
+        return settlements.values().stream().anyMatch(s -> s.getName().equalsIgnoreCase(name));
     }
 
     @Override
-    public Settlement getSettlement(String string) {
-        return settlements.get(string.toLowerCase());
+    public Settlement getSettlement(String name) {
+        return settlements.values().stream()
+                .filter(s -> s.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
-    public Map<String, Settlement> getSettlements() {
+    public Settlement getSettlement(Claim claim) {
+        return settlements.get(claim.getSettlementId());
+    }
+
+    @Override
+    public Settlement getSettlement(Member member) {
+        return settlements.get(member.getSettlementId());
+    }
+
+    @Override
+    public Settlement getSettlement(long id) {
+        return settlements.get(id);
+    }
+
+    @Override
+    public Map<Long, Settlement> getSettlements() {
         return Collections.unmodifiableMap(settlements);
+    }
+
+    @Override
+    public Set<Settlement> getSettlements(Set<Long> settlementIds) {
+        return settlements.values().stream()
+                .filter(settlement -> settlementIds.contains(settlement.getId()))
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public SettlementDao getDao() {
+        return settlementDao;
     }
 }

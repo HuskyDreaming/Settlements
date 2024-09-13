@@ -22,6 +22,7 @@ public class CommandLabel {
     public final static String SET_DESCRIPTION = "setdescription";
     public static final String SET_HOME = "sethome";
     public final static String SET_OWNER = "setowner";
+    public final static String SET_ROLE = "setrole";
     public final static String SET_SPAWN = "setspawn";
     public final static String SET_TAG = "settag";
     public final static String SETTLEMENTS = "settlements";

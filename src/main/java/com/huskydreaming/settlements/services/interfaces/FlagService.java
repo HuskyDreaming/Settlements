@@ -1,16 +1,19 @@
 package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.interfaces.Service;
-import com.huskydreaming.settlements.enumeration.Flag;
+import com.huskydreaming.settlements.database.entities.Claim;
+import com.huskydreaming.settlements.database.entities.Settlement;
+import com.huskydreaming.settlements.enumeration.FlagType;
 
 public interface FlagService extends Service {
-    void clean(String name);
 
-    void setup(String string);
+    void clean(Settlement settlement);
 
-    void addFlag(String string, Flag flag);
+    void addFlag(Settlement settlement, FlagType flagType, Runnable runnable);
 
-    void removeFlag(String string, Flag flag);
+    void removeFlag(Settlement settlement, FlagType flagType, Runnable runnable);
 
-    boolean hasFlag(String string, Flag flag);
+    boolean hasFlag(Settlement settlement, FlagType flagType);
+
+    boolean hasFlag(Claim claim, FlagType flagType);
 }

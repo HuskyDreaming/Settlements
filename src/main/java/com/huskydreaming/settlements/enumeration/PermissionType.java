@@ -2,9 +2,9 @@ package com.huskydreaming.settlements.enumeration;
 
 import com.huskydreaming.huskycore.interfaces.Permission;
 import com.huskydreaming.huskycore.utilities.Util;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 
-public enum RolePermission implements Permission {
+public enum PermissionType implements Permission {
     DEFAULT(""),
     // CLAIMS
     CLAIM_BREAK(Message.PERMISSIONS_CLAIM_BREAK.parse()),
@@ -33,7 +33,7 @@ public enum RolePermission implements Permission {
 
     private final String description;
 
-    RolePermission(String description) {
+    PermissionType(String description) {
         this.description = description;
     }
 
@@ -41,8 +41,7 @@ public enum RolePermission implements Permission {
         return description;
     }
 
-    @Override
-    public String toString() {
+    public String getName() {
         return Util.capitalize(name().toLowerCase().replace("_", " "));
     }
 }

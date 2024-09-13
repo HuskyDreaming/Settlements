@@ -1,6 +1,6 @@
 package com.huskydreaming.settlements.inventories.base;
 
-import com.huskydreaming.settlements.storage.types.Menu;
+import com.huskydreaming.settlements.enumeration.locale.Menu;
 
 public enum InventoryActionType {
     DISBAND(Menu.DISBAND_TITLE.parse()),

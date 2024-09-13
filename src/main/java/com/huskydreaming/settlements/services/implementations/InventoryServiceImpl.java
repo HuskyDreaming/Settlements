@@ -1,10 +1,11 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.data.ChunkData;
 import com.huskydreaming.huskycore.inventories.InventoryModule;
 import com.huskydreaming.huskycore.inventories.InventoryModuleProvider;
 import com.huskydreaming.huskycore.utilities.Util;
+import com.huskydreaming.settlements.database.entities.*;
+import com.huskydreaming.settlements.database.persistence.Config;
 import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
 import com.huskydreaming.settlements.inventories.base.InventoryAction;
@@ -13,20 +14,19 @@ import com.huskydreaming.settlements.inventories.modules.admin.*;
 import com.huskydreaming.settlements.inventories.modules.general.*;
 import com.huskydreaming.settlements.inventories.providers.SettlementInventory;
 import com.huskydreaming.settlements.inventories.providers.*;
-import com.huskydreaming.settlements.storage.persistence.*;
-import com.huskydreaming.settlements.enumeration.Flag;
-import com.huskydreaming.settlements.enumeration.RolePermission;
+import com.huskydreaming.settlements.enumeration.FlagType;
+import com.huskydreaming.settlements.enumeration.PermissionType;
 import com.huskydreaming.settlements.services.interfaces.*;
 import fr.minuskube.inv.InventoryManager;
 import fr.minuskube.inv.SmartInventory;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class InventoryServiceImpl implements InventoryService {
@@ -118,9 +118,9 @@ public class InventoryServiceImpl implements InventoryService {
     }
 
     @Override
-    public SmartInventory getRoleInventory(HuskyPlugin plugin, Player player, Role role) {
-        RolePermission[] rolePermissions = RolePermission.values();
-        RolePermission[] permissions = Arrays.copyOfRange(rolePermissions, 1, rolePermissions.length);
+    public SmartInventory getRoleInventory(HuskyPlugin plugin, Role role) {
+        PermissionType[] permissionTypes = PermissionType.values();
+        PermissionType[] permissions = Arrays.copyOfRange(permissionTypes, 1, permissionTypes.length);
         int rows = (int) Math.ceil((double) permissions.length / 9);
         RoleInventory roleInventory = new RoleInventory(plugin, rows, role, permissions);
         return SmartInventory.builder()
@@ -134,7 +134,8 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public SmartInventory getMainInventory(HuskyPlugin plugin, Player player) {
-        Member member = memberService.getCitizen(player);
+        Member member = memberService.getMember(player);
+        Settlement settlement = settlementService.getSettlement(member);
         Config config = configService.getConfig();
         SettlementInventory settlementInventory = new SettlementInventory(plugin);
 
@@ -145,8 +146,8 @@ public class InventoryServiceImpl implements InventoryService {
         modules.add(new InformationModule(plugin));
         modules.add(new FlagModule(plugin));
 
-        if(config.isHomes() && homeService.hasHomes(member.getSettlement())) {
-            if(!homeService.getHomes(member.getSettlement()).isEmpty()) {
+        if(config.isHomes() && homeService.hasHomes(settlement)) {
+            if(!homeService.getHomes(settlement).isEmpty()) {
                 modules.add(new HomeModule(plugin));
             }
         }
@@ -162,13 +163,13 @@ public class InventoryServiceImpl implements InventoryService {
                 .manager(manager)
                 .size(Math.min(settlementInventory.getRows() + 2, 5), 9)
                 .provider(settlementInventory)
-                .title("Editing: " + Util.capitalize(member.getSettlement()))
+                .title("Editing: " + Util.capitalize(settlement.getName()))
                 .build();
     }
 
     @Override
     public SmartInventory getSettlementsInventory(HuskyPlugin plugin) {
-        String[] settlements = settlementService.getSettlements().keySet().toArray(new String[0]);
+        Long[] settlements = settlementService.getSettlements().keySet().toArray(new Long[0]);
         int rows = (int) Math.ceil((double) settlements.length / 9);
         SettlementsInventory settlementsInventory = new SettlementsInventory(plugin, rows, settlements);
         return SmartInventory.builder()
@@ -194,8 +195,9 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public SmartInventory getRolesInventory(HuskyPlugin plugin, Player player) {
-        Member member = memberService.getCitizen(player);
-        List<Role> roles = roleService.getRoles(member.getSettlement());
+        Member member = memberService.getMember(player);
+        Settlement settlement = settlementService.getSettlement(member);
+        Set<Role> roles = roleService.getRoles(settlement);
 
         Role[] array = roles.toArray(new Role[0]);
         int rows = (int) Math.ceil((double) array.length / 9);
@@ -212,15 +214,16 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public SmartInventory getHomesInventory(HuskyPlugin plugin, Player player) {
-        Member member = memberService.getCitizen(player);
-        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Member member = memberService.getMember(player);
+        Settlement settlement = settlementService.getSettlement(member);
 
-        List<Home> homes = new ArrayList<>();;
-        if(homeService.hasHomes(member.getSettlement())) {
-            homes = new ArrayList<>(homeService.getHomes(member.getSettlement()));
+        Set<Home> homes = new HashSet<>();
+        if(homeService.hasHomes(settlement)) {
+            homes = homeService.getHomes(settlement);
+        } else {
+            homeService.setHome(settlement, player, "spawn");
         }
 
-        homes.add(0, Home.create("spawn", Material.ENDER_PEARL, settlement.getLocation()));
         Home[] finalHomes = homes.toArray(new Home[0]);
 
         int rows = (int) Math.ceil((double) finalHomes.length / 9);
@@ -238,9 +241,9 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public SmartInventory getFlagsInventory(HuskyPlugin plugin, Player player) {
-        Flag[] flags = Flag.values();
-        int rows = (int) Math.ceil((double) flags.length / 9);
-        FlagsInventory flagsInventory = new FlagsInventory(plugin, rows, flags);
+        FlagType[] flagTypes = FlagType.values();
+        int rows = (int) Math.ceil((double) flagTypes.length / 9);
+        FlagsInventory flagsInventory = new FlagsInventory(plugin, rows, flagTypes);
         return SmartInventory.builder()
                 .manager(manager)
                 .id("flagsInventory")
@@ -252,10 +255,10 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public SmartInventory getClaimsInventory(HuskyPlugin plugin, Player player) {
-        Member member = memberService.getCitizen(player);
-        ChunkData[] chunks = claimService.getClaims(member.getSettlement()).toArray(new ChunkData[0]);
-        int rows = (int) Math.ceil((double) chunks.length / 9);
-        ClaimsInventory claimsInventory = new ClaimsInventory(plugin, rows, chunks);
+        Member member = memberService.getMember(player);
+        Claim[] claims = claimService.getClaims(member.getSettlementId()).toArray(new Claim[0]);
+        int rows = (int) Math.ceil((double) claims.length / 9);
+        ClaimsInventory claimsInventory = new ClaimsInventory(plugin, rows, claims);
 
         return SmartInventory.builder()
                 .manager(manager)
@@ -284,15 +287,15 @@ public class InventoryServiceImpl implements InventoryService {
 
     @Override
     public SmartInventory getMembersInventory(HuskyPlugin plugin, Player player, MemberFilter memberFilter) {
-        Member member = memberService.getCitizen(player);
-        List<OfflinePlayer> trustedOfflinePlayers = new ArrayList<>();
+        Member member = memberService.getMember(player);
+        Set<OfflinePlayer> trustedOfflinePlayers = new HashSet<>();
         Config config = configService.getConfig();
 
-        if (config.isTrusting()) trustedOfflinePlayers = trustService.getOfflinePlayers(member.getSettlement());
-        List<OfflinePlayer> memberOfflinePlayers = memberService.getOfflinePlayers(member.getSettlement());
+        if (config.isTrusting()) trustedOfflinePlayers = trustService.getOfflinePlayers(member.getSettlementId());
+        Set<OfflinePlayer> memberOfflinePlayers = memberService.getOfflinePlayers(member.getSettlementId());
 
-        List<OfflinePlayer> offlinePlayers = switch (memberFilter) {
-            case ALL -> Stream.concat(trustedOfflinePlayers.stream(), memberOfflinePlayers.stream()).toList();
+        Set<OfflinePlayer> offlinePlayers = switch (memberFilter) {
+            case ALL -> Stream.concat(trustedOfflinePlayers.stream(), memberOfflinePlayers.stream()).collect(Collectors.toSet());
             case MEMBER -> memberOfflinePlayers;
             case TRUSTED -> trustedOfflinePlayers;
         };

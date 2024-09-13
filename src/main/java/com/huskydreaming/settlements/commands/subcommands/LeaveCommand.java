@@ -1,20 +1,21 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.huskycore.commands.CommandAnnotation;
-import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
+import com.huskydreaming.huskycore.annotations.CommandAnnotation;
+import com.huskydreaming.huskycore.interfaces.command.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.storage.persistence.Member;
-import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.database.entities.Member;
+import com.huskydreaming.settlements.database.entities.Settlement;
 import com.huskydreaming.settlements.services.interfaces.BorderService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Set;
 
 @CommandAnnotation(label = CommandLabel.LEAVE)
 public class LeaveCommand implements PlayerCommandProvider {
@@ -36,8 +37,8 @@ public class LeaveCommand implements PlayerCommandProvider {
             return;
         }
 
-        Member member = memberService.getCitizen(player);
-        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Member member = memberService.getMember(player);
+        Settlement settlement = settlementService.getSettlement(member);
         if (settlement.isOwner(player)) {
             player.sendMessage(Message.LEAVE_OWNER.prefix());
             return;
@@ -45,10 +46,10 @@ public class LeaveCommand implements PlayerCommandProvider {
 
         memberService.remove(player);
         borderService.removePlayer(player);
-        borderService.addPlayer(player, member.getSettlement(), Color.RED);
+        borderService.addPlayer(player, settlement, Color.RED);
         player.sendMessage(Message.LEAVE.prefix());
 
-        List<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(member.getSettlement());
+        Set<OfflinePlayer> offlinePlayers = memberService.getOfflinePlayers(settlement);
         for (OfflinePlayer offlinePlayer : offlinePlayers) {
             if (!offlinePlayer.isOnline()) return;
             Player onlinePlayer = offlinePlayer.getPlayer();
@@ -61,8 +62,9 @@ public class LeaveCommand implements PlayerCommandProvider {
     @Override
     public List<String> onTabComplete(Player player, String[] strings) {
         if (strings.length == 1 && memberService.hasSettlement(player)) {
-            Member member = memberService.getCitizen(player);
-            return List.of(member.getSettlement());
+            Member member = memberService.getMember(player);
+            Settlement settlement = settlementService.getSettlement(member.getSettlementId());
+            return List.of(settlement.getName());
         }
         return List.of();
     }

@@ -1,12 +1,12 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.CommandAnnotation;
-import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
+import com.huskydreaming.huskycore.annotations.CommandAnnotation;
+import com.huskydreaming.huskycore.interfaces.command.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.database.entities.*;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.OfflinePlayer;
@@ -22,6 +22,7 @@ public class AcceptCommand implements PlayerCommandProvider {
     private final ClaimService claimService;
     private final MemberService memberService;
     private final InvitationService invitationService;
+    private final RoleService roleService;
     private final SettlementService settlementService;
     private final TrustService trustService;
 
@@ -30,6 +31,7 @@ public class AcceptCommand implements PlayerCommandProvider {
         claimService = plugin.provide(ClaimService.class);
         memberService = plugin.provide(MemberService.class);
         invitationService = plugin.provide(InvitationService.class);
+        roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
         trustService = plugin.provide(TrustService.class);
     }
@@ -38,18 +40,18 @@ public class AcceptCommand implements PlayerCommandProvider {
     public void onCommand(Player player, String[] strings) {
         if (strings.length != 2) return;
         String string = strings[1];
-        if (invitationService.hasNoInvitation(player, string)) {
-            player.sendMessage(Message.INVITATION_NULL.prefix(string));
-            return;
-        }
-
         Settlement settlement = settlementService.getSettlement(string);
         if (settlement == null) {
             player.sendMessage(Message.NULL.prefix(string));
             return;
         }
 
-        for(OfflinePlayer offlinePlayer : memberService.getOfflinePlayers(string)) {
+        if (invitationService.hasNoInvitation(player, settlement)) {
+            player.sendMessage(Message.INVITATION_NULL.prefix(string));
+            return;
+        }
+
+        for(OfflinePlayer offlinePlayer : memberService.getOfflinePlayers(settlement)) {
             if (!offlinePlayer.isOnline()) return;
             Player onlinePlayer = offlinePlayer.getPlayer();
 
@@ -57,25 +59,31 @@ public class AcceptCommand implements PlayerCommandProvider {
             onlinePlayer.sendMessage(Message.JOIN_PLAYER.prefix(player.getName()));
         }
 
-        borderService.removePlayer(player);
-        invitationService.removeInvitation(player, string);
-        trustService.unTrust(player, string);
+        Role role = roleService.getRole(settlement.getRoleId());
+        if(role == null) {
+            player.sendMessage(Message.ROLE_DEFAULT.prefix(settlement.getName()));
+            return;
+        }
 
-        memberService.add(player, string, settlement.getDefaultRole());
+        borderService.removePlayer(player);
+        invitationService.removeInvitation(player, settlement);
+        trustService.unTrust(player, settlement);
+        memberService.addMember(player, role, settlement);
         player.sendMessage(Message.JOIN.prefix(string));
 
         Chunk chunk = player.getLocation().getChunk();
-        if (!claimService.isClaim(chunk)) return;
+        Claim claim = claimService.getClaim(settlement, chunk);
+        if(claim == null) return;
 
-        String claim = claimService.getClaim(player.getLocation().getChunk());
-        borderService.addPlayer(player, claim, claim.equalsIgnoreCase(string) ? Color.AQUA : Color.RED);
+        borderService.addPlayer(player, settlement, Color.GREEN);
     }
 
     @Override
     public List<String> onTabComplete(Player player, String[] strings) {
         if (strings.length == 2) {
-            Set<String> invitations = invitationService.getInvitations(player);
-            if(invitations != null) return invitations.stream().toList();
+            Set<Long> invitations = invitationService.getInvitations(player);
+            Set<Settlement> settlements = settlementService.getSettlements(invitations);
+            if(invitations != null) return settlements.stream().map(Settlement::getName).toList();
         }
         return List.of();
     }

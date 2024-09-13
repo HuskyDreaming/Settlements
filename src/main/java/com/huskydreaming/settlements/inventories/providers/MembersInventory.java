@@ -4,26 +4,25 @@ import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.inventories.InventoryPageProvider;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
-import com.huskydreaming.settlements.enumeration.RolePermission;
+import com.huskydreaming.settlements.database.entities.Member;
+import com.huskydreaming.settlements.database.entities.Role;
+import com.huskydreaming.settlements.database.entities.Settlement;
+import com.huskydreaming.settlements.enumeration.PermissionType;
 import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.inventories.actions.UnTrustInventoryAction;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.persistence.Member;
-import com.huskydreaming.settlements.storage.persistence.Role;
-import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.storage.types.Menu;
+import com.huskydreaming.settlements.enumeration.locale.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import java.time.ZoneId;
 import java.time.format.TextStyle;
-import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import java.util.List;
@@ -34,6 +33,7 @@ public class MembersInventory extends InventoryPageProvider<OfflinePlayer> {
     private final ConfigService configService;
     private final InventoryService inventoryService;
     private final MemberService memberService;
+    private final PermissionService permissionService;
     private final RoleService roleService;
     private final SettlementService settlementService;
     private final TrustService trustService;
@@ -47,6 +47,7 @@ public class MembersInventory extends InventoryPageProvider<OfflinePlayer> {
         configService = plugin.provide(ConfigService.class);
         inventoryService = plugin.provide(InventoryService.class);
         memberService = plugin.provide(MemberService.class);
+        permissionService = plugin.provide(PermissionService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
         trustService = plugin.provide(TrustService.class);
@@ -58,8 +59,8 @@ public class MembersInventory extends InventoryPageProvider<OfflinePlayer> {
 
         contents.set(0, 0, InventoryItem.back(player, inventoryService.getMainInventory(plugin, player)));
 
-        Member member = memberService.getCitizen(player);
-        List<OfflinePlayer> offlinePlayers = trustService.getOfflinePlayers(member.getSettlement());
+        Member member = memberService.getMember(player);
+        Set<OfflinePlayer> offlinePlayers = trustService.getOfflinePlayers(member.getSettlementId());
         if (!configService.getConfig().isTrusting() || offlinePlayers.isEmpty()) return;
 
         ChatColor chatColor = switch (memberFilter) {
@@ -88,20 +89,21 @@ public class MembersInventory extends InventoryPageProvider<OfflinePlayer> {
             return null;
         }
 
-        Member member = memberService.getCitizen(player);
+        Member member = memberService.getMember(player);
         Role role = roleService.getRole(member);
-        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Settlement settlement = settlementService.getSettlement(member);
 
+        Set<PermissionType> permissions = permissionService.getPermissions(role);
         if (memberService.hasSettlement(offlinePlayer)) {
-            Member offlineMember = memberService.getCitizen(offlinePlayer);
-            Member onlineMember = memberService.getCitizen(player);
-            if (onlineMember.getSettlement().equalsIgnoreCase(offlineMember.getSettlement())) {
-                boolean editable = role.hasPermission(RolePermission.EDIT_MEMBERS) || settlement.isOwner(player);
+            Member offlineMember = memberService.getMember(offlinePlayer);
+            Member onlineMember = memberService.getMember(player);
+            if (onlineMember.getSettlementId() == offlineMember.getSettlementId()) {
+                boolean editable = permissions.contains(PermissionType.EDIT_MEMBERS) || settlement.isOwner(player);
                 return memberItem(offlinePlayer, offlineMember, editable, index);
             }
         }
 
-        boolean permission = role.hasPermission(RolePermission.MEMBER_TRUST) || settlement.isOwner(player);
+        boolean permission = permissions.contains(PermissionType.MEMBER_TRUST) || settlement.isOwner(player);
         return trustedItem(offlinePlayer, permission, index);
     }
 
@@ -125,7 +127,8 @@ public class MembersInventory extends InventoryPageProvider<OfflinePlayer> {
         String zone = ZoneId.systemDefault().getDisplayName(TextStyle.SHORT, Locale.getDefault());
         String lastOnline = (offlinePlayer.isOnline() ? "Now" : member.getLastOnline()) + " (" + zone + ")";
 
-        List<String> lore = Menu.MEMBERS_LORE.parameterizeList(member.getRole(), status, lastOnline);
+        Role role = roleService.getRole(member.getRoleId());
+        List<String> lore = Menu.MEMBERS_LORE.parameterizeList(role.getName(), status, lastOnline);
         if (editable) {
             lore.add("");
             lore.add(Menu.MEMBERS_LORE_EDIT.parse());
@@ -142,21 +145,22 @@ public class MembersInventory extends InventoryPageProvider<OfflinePlayer> {
         if (event.getWhoClicked() instanceof Player player) {
             if (!memberService.hasSettlement(player)) return;
 
-            Member onlineMember = memberService.getCitizen(player);
+            Member onlineMember = memberService.getMember(player);
             Role role = roleService.getRole(onlineMember);
-            Settlement settlement = settlementService.getSettlement(onlineMember.getSettlement());
+            Settlement settlement = settlementService.getSettlement(onlineMember);
 
-            if (!(role.hasPermission(RolePermission.EDIT_MEMBERS) || settlement.isOwner(player))) return;
+            Set<PermissionType> permissions = permissionService.getPermissions(role);
+            if (!(permissions.contains(PermissionType.EDIT_MEMBERS) || settlement.isOwner(player))) return;
 
             if (memberService.hasSettlement(offlinePlayer)) {
-                Member offlineMember = memberService.getCitizen(offlinePlayer);
-                if (offlineMember.getSettlement().equalsIgnoreCase(onlineMember.getSettlement())) {
+                Member offlineMember = memberService.getMember(offlinePlayer);
+                if (offlineMember.getSettlementId() == onlineMember.getSettlementId()) {
                     inventoryService.getMemberInventory(plugin, offlinePlayer).open(player);
                     return;
                 }
             }
 
-            inventoryService.addAction(player, new UnTrustInventoryAction(plugin, onlineMember.getSettlement(), offlinePlayer));
+            inventoryService.addAction(player, new UnTrustInventoryAction(plugin, settlement, offlinePlayer));
             inventoryService.getConfirmationInventory(plugin, player).open(player);
         }
     }

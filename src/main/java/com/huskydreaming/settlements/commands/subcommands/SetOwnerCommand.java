@@ -1,15 +1,15 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.CommandAnnotation;
-import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
+import com.huskydreaming.huskycore.annotations.CommandAnnotation;
+import com.huskydreaming.huskycore.interfaces.command.providers.PlayerCommandProvider;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.storage.persistence.Member;
-import com.huskydreaming.settlements.storage.persistence.Settlement;
+import com.huskydreaming.settlements.database.entities.Member;
+import com.huskydreaming.settlements.database.entities.Settlement;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
@@ -36,8 +36,8 @@ public class SetOwnerCommand implements PlayerCommandProvider {
             return;
         }
 
-        Member member = memberService.getCitizen(player);
-        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Member member = memberService.getMember(player);
+        Settlement settlement = settlementService.getSettlement(member);
         if (!settlement.isOwner(player)) {
             player.sendMessage(Message.OWNER_NOT.prefix());
             return;
@@ -54,23 +54,23 @@ public class SetOwnerCommand implements PlayerCommandProvider {
             return;
         }
 
-        Member offlineMember = memberService.getCitizen(offlinePlayer);
-        if (!offlineMember.getSettlement().equalsIgnoreCase(member.getSettlement())) {
+        Member offlineMember = memberService.getMember(offlinePlayer);
+        if (offlineMember.getSettlementId() != member.getSettlementId()) {
             player.sendMessage(Message.NOT_CITIZEN.prefix());
             return;
         }
 
-        settlement.setOwner(offlinePlayer);
+        settlement.setOwnerUUID(offlinePlayer.getUniqueId());
         player.sendMessage(Message.OWNER_TRANSFERRED.prefix(offlinePlayer.getName()));
     }
 
     @Override
     public List<String> onTabComplete(Player player, String[] strings) {
         if(strings.length == 2 && memberService.hasSettlement(player)) {
-            Member member = memberService.getCitizen(player);
-            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            Member member = memberService.getMember(player);
+            Settlement settlement = settlementService.getSettlement(member.getSettlementId());
             if(settlement.isOwner(player)) {
-                return memberService.getOfflinePlayers(member.getSettlement()).stream().map(OfflinePlayer::getName).toList();
+                return memberService.getOfflinePlayers(settlement).stream().map(OfflinePlayer::getName).toList();
             }
         }
         return List.of();

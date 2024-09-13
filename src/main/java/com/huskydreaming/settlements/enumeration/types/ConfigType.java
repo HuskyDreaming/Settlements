@@ -1,6 +1,6 @@
 package com.huskydreaming.settlements.enumeration.types;
 
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 
 public enum ConfigType {
     DISABLED_WORLDS(Message.CONFIG_DISABLED_WORLDS.parse()),

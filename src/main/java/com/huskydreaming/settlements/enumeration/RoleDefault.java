@@ -2,30 +2,30 @@ package com.huskydreaming.settlements.enumeration;
 
 import java.util.List;
 public enum RoleDefault {
-    CITIZEN(RolePermission.SPAWN_TELEPORT,
-            RolePermission.CLAIM_BREAK,
-            RolePermission.CLAIM_PLACE),
-    VETERAN(RolePermission.SPAWN_TELEPORT,
-            RolePermission.MEMBER_INVITE,
-            RolePermission.CLAIM_BREAK,
-            RolePermission.CLAIM_PLACE,
-            RolePermission.CLAIM_INTERACT),
-    ROYAL(RolePermission.SPAWN_TELEPORT,
-            RolePermission.MEMBER_INVITE,
-            RolePermission.MEMBER_KICK,
-            RolePermission.MEMBER_KICK_EXEMPT,
-            RolePermission.CLAIM_BREAK,
-            RolePermission.CLAIM_PLACE,
-            RolePermission.CLAIM_INTERACT);
+    CITIZEN(PermissionType.SPAWN_TELEPORT,
+            PermissionType.CLAIM_BREAK,
+            PermissionType.CLAIM_PLACE),
+    VETERAN(PermissionType.SPAWN_TELEPORT,
+            PermissionType.MEMBER_INVITE,
+            PermissionType.CLAIM_BREAK,
+            PermissionType.CLAIM_PLACE,
+            PermissionType.CLAIM_INTERACT),
+    ROYAL(PermissionType.SPAWN_TELEPORT,
+            PermissionType.MEMBER_INVITE,
+            PermissionType.MEMBER_KICK,
+            PermissionType.MEMBER_KICK_EXEMPT,
+            PermissionType.CLAIM_BREAK,
+            PermissionType.CLAIM_PLACE,
+            PermissionType.CLAIM_INTERACT);
 
-    private final List<RolePermission> rolePermissions;
+    private final List<PermissionType> permissionTypes;
 
-    RoleDefault(RolePermission... rolePermissions) {
-        this.rolePermissions = List.of(rolePermissions);
+    RoleDefault(PermissionType... permissionTypes) {
+        this.permissionTypes = List.of(permissionTypes);
     }
 
-    public List<RolePermission> getRolePermissions() {
-        return rolePermissions;
+    public List<PermissionType> getRolePermissions() {
+        return permissionTypes;
     }
 
     @Override

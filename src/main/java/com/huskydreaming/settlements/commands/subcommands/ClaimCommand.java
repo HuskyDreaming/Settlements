@@ -1,18 +1,13 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.CommandAnnotation;
-import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
-import com.huskydreaming.huskycore.data.ChunkData;
+import com.huskydreaming.huskycore.annotations.CommandAnnotation;
+import com.huskydreaming.huskycore.interfaces.command.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
-import com.huskydreaming.settlements.storage.persistence.Config;
-import com.huskydreaming.settlements.storage.persistence.Member;
-import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.storage.persistence.Role;
-import com.huskydreaming.settlements.enumeration.RolePermission;
+import com.huskydreaming.settlements.database.entities.*;
+import com.huskydreaming.settlements.enumeration.PermissionType;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
@@ -25,7 +20,9 @@ public class ClaimCommand implements PlayerCommandProvider {
     private final BorderService borderService;
     private final ClaimService claimService;
     private final ConfigService configService;
+    private final ContainerService containerService;
     private final DependencyService dependencyService;
+    private final PermissionService permissionService;
     private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
@@ -34,7 +31,9 @@ public class ClaimCommand implements PlayerCommandProvider {
         borderService = plugin.provide(BorderService.class);
         claimService = plugin.provide(ClaimService.class);
         configService = plugin.provide(ConfigService.class);
+        containerService = plugin.provide(ContainerService.class);
         dependencyService = plugin.provide(DependencyService.class);
+        permissionService = plugin.provide(PermissionService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
@@ -47,6 +46,7 @@ public class ClaimCommand implements PlayerCommandProvider {
             return;
         }
 
+
         if (configService.isDisabledWorld(player)) return;
         if (dependencyService.isDependency(player)) return;
 
@@ -56,28 +56,31 @@ public class ClaimCommand implements PlayerCommandProvider {
             return;
         }
 
-        Member member = memberService.getCitizen(player);
-        Settlement settlement = settlementService.getSettlement(member.getSettlement());
-        Role role = roleService.getRole(member);
 
-        if(!(role.hasPermission(RolePermission.CLAIM_LAND) || settlement.isOwner(player))) {
+        Member member = memberService.getMember(player);
+        Settlement settlement = settlementService.getSettlement(member);
+        Role role = roleService.getRole(member);
+        Set<PermissionType> permissions = permissionService.getPermissions(role);
+
+        if(!(permissions.contains(PermissionType.CLAIM_LAND) || settlement.isOwner(player))) {
             player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
-        Set<ChunkData> chunks = claimService.getClaims(member.getSettlement());
-        Config config = configService.getConfig();
-        if (chunks.size() >= config.getSettlementDefault(SettlementDefaultType.MAX_CLAIMS)) {
-            player.sendMessage(Message.LAND_CLAIMED_MAX.prefix(settlement.getMaxLand()));
+        Set<Claim> claims = claimService.getClaims(settlement);
+        Container container = containerService.getContainer(settlement);
+        int maxClaims = container.getMaxClaims();
+        if (claims.size() >= maxClaims) {
+            player.sendMessage(Message.LAND_CLAIMED_MAX.prefix(maxClaims));
             return;
         }
 
-        if (claimService.isAdjacentToOtherClaim(member.getSettlement(), chunk)) {
+        if (claimService.isAdjacentToOtherClaim(settlement, chunk)) {
             player.sendMessage(Message.LAND_ADJACENT_OTHER.prefix());
             return;
         }
 
-        if (!claimService.isAdjacent(member.getSettlement(), chunk)) {
+        if (!claimService.isAdjacent(settlement, chunk)) {
             player.sendMessage(Message.LAND_ADJACENT.prefix());
             return;
         }
@@ -85,8 +88,9 @@ public class ClaimCommand implements PlayerCommandProvider {
         String x = String.valueOf(chunk.getX());
         String z = String.valueOf(chunk.getZ());
 
-        player.sendMessage(Message.LAND_CLAIM.prefix(x, z));
-        claimService.setClaim(chunk, member.getSettlement());
-        borderService.addPlayer(player, member.getSettlement(), Color.AQUA);
+        claimService.addClaim(settlement, chunk, () -> {
+            borderService.addPlayer(player, settlement, Color.AQUA);
+            player.sendMessage(Message.LAND_CLAIM.prefix(x, z));
+        });
     }
 }

@@ -2,17 +2,18 @@ package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.interfaces.Service;
-import com.huskydreaming.settlements.storage.persistence.Config;
-import com.huskydreaming.settlements.enumeration.types.NotificationType;
+import com.huskydreaming.settlements.database.persistence.Config;
 import org.bukkit.entity.Player;
 
 public interface ConfigService extends Service {
 
     boolean isDisabledWorld(Player player);
 
+    void setup(HuskyPlugin plugin);
+
     Config getConfig();
 
-    Config setupLanguage(HuskyPlugin plugin);
+    boolean setupLanguage(HuskyPlugin plugin);
 
-    void setupConfig(HuskyPlugin plugin, Config config);
+    void setupConfig(HuskyPlugin plugin);
 }

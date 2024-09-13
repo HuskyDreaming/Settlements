@@ -1,11 +1,10 @@
 package com.huskydreaming.settlements.listeners;
 
 import com.huskydreaming.settlements.SettlementPlugin;
-import com.huskydreaming.settlements.services.interfaces.TrustService;
-import com.huskydreaming.settlements.storage.persistence.Member;
-import com.huskydreaming.settlements.services.interfaces.BorderService;
-import com.huskydreaming.settlements.services.interfaces.ClaimService;
-import com.huskydreaming.settlements.services.interfaces.MemberService;
+import com.huskydreaming.settlements.database.entities.Claim;
+import com.huskydreaming.settlements.database.entities.Member;
+import com.huskydreaming.settlements.database.entities.Settlement;
+import com.huskydreaming.settlements.services.interfaces.*;
 import org.bukkit.Color;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -23,19 +22,21 @@ public class MemberListener implements Listener {
     private final BorderService borderService;
     private final ClaimService claimService;
     private final MemberService memberService;
+    private final SettlementService settlementService;
     private final TrustService trustService;
 
     public MemberListener(SettlementPlugin plugin) {
         borderService = plugin.provide(BorderService.class);
         claimService = plugin.provide(ClaimService.class);
         memberService = plugin.provide(MemberService.class);
+        settlementService = plugin.provide(SettlementService.class);
         trustService = plugin.provide(TrustService.class);
     }
 
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        Member member = memberService.getCitizen(player);
+        Member member = memberService.getMember(player);
         if (member != null) {
             DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             Date today = Calendar.getInstance().getTime();
@@ -44,14 +45,15 @@ public class MemberListener implements Listener {
             member.setLastOnline(lastOnline);
 
             if (claimService.isClaim(player.getLocation().getChunk())) {
-                String claim = claimService.getClaim(event.getPlayer().getLocation().getChunk());
+                Claim claim = claimService.getClaim(event.getPlayer().getLocation().getChunk());
+                Settlement settlement = settlementService.getSettlement(member);
 
-                if(claim.equalsIgnoreCase(member.getSettlement())){
-                    borderService.addPlayer(player, claim, Color.AQUA);
-                } else if(trustService.getOfflinePlayers(claim).contains(player)) {
-                    borderService.addPlayer(player, claim, Color.YELLOW);
+                if(claim.getSettlementId() == (member.getSettlementId())){
+                    borderService.addPlayer(player, settlement, Color.AQUA);
+                } else if(trustService.getOfflinePlayers(settlement).contains(player)) {
+                    borderService.addPlayer(player, settlement, Color.YELLOW);
                 } else {
-                    borderService.addPlayer(player, claim, Color.RED);
+                    borderService.addPlayer(player, settlement, Color.RED);
                 }
             }
         }
@@ -60,7 +62,7 @@ public class MemberListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        Member member = memberService.getCitizen(player);
+        Member member = memberService.getMember(player);
         if (member != null) {
             DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
             Date today = Calendar.getInstance().getTime();

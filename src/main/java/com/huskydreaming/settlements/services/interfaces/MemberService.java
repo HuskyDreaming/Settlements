@@ -1,32 +1,49 @@
 package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.interfaces.Service;
-import com.huskydreaming.settlements.storage.persistence.Member;
-import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.database.dao.MemberDao;
+import com.huskydreaming.settlements.database.entities.Member;
+import com.huskydreaming.settlements.database.entities.Role;
+import com.huskydreaming.settlements.database.entities.Settlement;
 import org.bukkit.OfflinePlayer;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 
 public interface MemberService extends Service {
 
     boolean hasSettlement(OfflinePlayer offlinePlayer);
 
-    void add(OfflinePlayer offlinePlayer, String name, String defaultRole);
+    void addMember(Member member);
+
+    Member createMember(OfflinePlayer offlinePlayer);
+
+    void addMember(OfflinePlayer offlinePlayer, Role role, Settlement settlement);
 
     void remove(OfflinePlayer offlinePlayer);
 
-    void clean(String settlementName);
+    void clean(Settlement settlement);
+
+    void promote(Role role, Member member, List<Role> roles, Runnable runnable);
+
+    void demote(Role role, Member member, List<Role> roles, Runnable runnable);
 
     int getCount();
 
-    Member getCitizen(OfflinePlayer offlinePlayer);
+    Member getMember(OfflinePlayer offlinePlayer);
 
-    List<Member> getMembers(String settlementName);
+    Set<Member> getMembers(Settlement settlement);
 
-    LinkedHashMap<String, Long> getTop(int limit);
+    Set<Member> getMembers(long settlementId);
 
-    List<OfflinePlayer> getOfflinePlayers(String settlementName);
+    LinkedHashMap<Long, Long> getTop(int limit);
 
-    void sync(String settlementName, String defaultRole, Role role);
+    Set<OfflinePlayer> getOfflinePlayers(Settlement settlement);
+
+    Set<OfflinePlayer> getOfflinePlayers(long settlementId);
+
+    void sync(Settlement settlement, Role role);
+
+    MemberDao getDao();
 }

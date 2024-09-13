@@ -1,6 +1,7 @@
 package com.huskydreaming.settlements.inventories.actions;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.settlements.database.entities.Settlement;
 import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.inventories.base.InventoryAction;
 import com.huskydreaming.settlements.inventories.base.InventoryActionType;
@@ -11,15 +12,15 @@ import org.bukkit.entity.Player;
 
 public class UnTrustInventoryAction implements InventoryAction {
 
-    private final String settlement;
+    private final long settlementId;
     private final OfflinePlayer offlinePlayer;
     private final HuskyPlugin plugin;
     private final InventoryService inventoryService;
     private final TrustService trustService;
 
-    public UnTrustInventoryAction(HuskyPlugin plugin, String settlement, OfflinePlayer offlinePlayer) {
+    public UnTrustInventoryAction(HuskyPlugin plugin, Settlement settlement, OfflinePlayer offlinePlayer) {
         this.plugin = plugin;
-        this.settlement = settlement;
+        this.settlementId = settlement.getId();
         this.offlinePlayer = offlinePlayer;
         this.inventoryService = plugin.provide(InventoryService.class);
         this.trustService = plugin.provide(TrustService.class);
@@ -32,7 +33,7 @@ public class UnTrustInventoryAction implements InventoryAction {
 
     @Override
     public void onAccept(Player player) {
-        trustService.unTrust(offlinePlayer, settlement);
+        trustService.unTrust(offlinePlayer, settlementId);
         inventoryService.getMembersInventory(plugin, player, MemberFilter.ALL).open(player);
     }
 

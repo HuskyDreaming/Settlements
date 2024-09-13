@@ -1,16 +1,20 @@
 package com.huskydreaming.settlements.services.implementations;
 
+import com.google.common.reflect.TypeToken;
 import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.registries.CommandRegistry;
 import com.huskydreaming.huskycore.storage.Json;
+import com.huskydreaming.settlements.commands.subcommands.*;
+import com.huskydreaming.settlements.database.persistence.Config;
 import com.huskydreaming.settlements.enumeration.*;
 import com.huskydreaming.settlements.enumeration.types.NotificationType;
 import com.huskydreaming.settlements.enumeration.types.SettlementDefaultType;
-import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.services.interfaces.ConfigService;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -20,7 +24,13 @@ public class ConfigServiceImpl implements ConfigService {
 
     @Override
     public void serialize(HuskyPlugin plugin) {
-        Json.write(plugin, "config", config);
+        if(config != null) Json.write(plugin, "config", config);
+    }
+
+    @Override
+    public void deserialize(HuskyPlugin plugin) {
+        config = new Config();
+        config.setLocalization("en");
     }
 
     @Override
@@ -34,23 +44,44 @@ public class ConfigServiceImpl implements ConfigService {
     }
 
     @Override
+    public void setup(HuskyPlugin plugin) {
+        CommandRegistry commandRegistry = plugin.getCommandRegistry();
+        if(config.isTeleportation()) {
+            commandRegistry.add(new SpawnCommand(plugin));
+            commandRegistry.add(new SetSpawnCommand(plugin));
+        }
+
+        if(config.isTrusting()) {
+            commandRegistry.add(new TrustCommand(plugin));
+            commandRegistry.add(new UnTrustCommand(plugin));
+        }
+
+        if(config.isHomes()) {
+            commandRegistry.add(new DeleteHomeCommand(plugin));
+            commandRegistry.add(new HomeCommand(plugin));
+            commandRegistry.add(new SetHomeCommand(plugin));
+        }
+    }
+
+    @Override
     public Config getConfig() {
         return config;
     }
 
     @Override
-    public Config setupLanguage(HuskyPlugin plugin) {
-        config = Json.read(plugin, "config", Config.class);
-        if (config != null) return config;
-
-        config = new Config();
-        config.setLocalization("en");
-        return config;
+    public boolean setupLanguage(HuskyPlugin plugin) {
+        Type type = new TypeToken<Config>(){}.getType();
+        config = Json.read(plugin, "config", type);
+        if (config == null) {
+            config = new Config();
+            return true;
+        }
+        return false;
     }
 
     @Override
-    public void setupConfig(HuskyPlugin plugin, Config config) {
-        config.setFlags(List.of(Flag.ANIMAL_SPAWNING, Flag.MONSTER_SPAWNING));
+    public void setupConfig(HuskyPlugin plugin) {
+        config.setFlags(List.of(FlagType.ANIMAL_SPAWNING, FlagType.MONSTER_SPAWNING));
         config.setNotificationType(NotificationType.TITLE);
         config.setDisabledWorlds(List.of("world_nether", "world_the_end"));
         config.setEmptyPlaceholder("-");
@@ -64,7 +95,7 @@ public class ConfigServiceImpl implements ConfigService {
         }
         config.setSettlementDefaults(settlementsDefaults);
 
-        Map<String, List<RolePermission>> roleDefaults = new HashMap<>();
+        Map<String, List<PermissionType>> roleDefaults = new HashMap<>();
         for (RoleDefault roleDefault : RoleDefault.values()) {
             roleDefaults.put(roleDefault.toString(), roleDefault.getRolePermissions());
         }

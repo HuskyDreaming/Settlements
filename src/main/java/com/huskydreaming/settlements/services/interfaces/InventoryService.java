@@ -2,10 +2,10 @@ package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.interfaces.Service;
+import com.huskydreaming.settlements.database.entities.Role;
 import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.inventories.base.InventoryAction;
 import com.huskydreaming.settlements.inventories.base.InventoryActionType;
-import com.huskydreaming.settlements.storage.persistence.Role;
 import fr.minuskube.inv.SmartInventory;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -24,7 +24,7 @@ public interface InventoryService extends Service {
 
     SmartInventory getWorldsInventory(HuskyPlugin plugin);
 
-    SmartInventory getRoleInventory(HuskyPlugin plugin, Player player, Role role);
+    SmartInventory getRoleInventory(HuskyPlugin plugin, Role role);
 
     SmartInventory getMainInventory(HuskyPlugin plugin, Player player);
 

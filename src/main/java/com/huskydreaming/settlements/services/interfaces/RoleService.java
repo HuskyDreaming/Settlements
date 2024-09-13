@@ -1,39 +1,42 @@
 package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.interfaces.Service;
-import com.huskydreaming.settlements.storage.persistence.Member;
-import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.storage.persistence.Role;
+import com.huskydreaming.settlements.database.dao.RoleDao;
+import com.huskydreaming.settlements.database.entities.Member;
+import com.huskydreaming.settlements.database.entities.Role;
+import com.huskydreaming.settlements.database.entities.Settlement;
 
 import java.util.List;
+import java.util.Set;
 
 public interface RoleService extends Service {
 
-    Role getOtherRole(String settlementName, String name);
+    Role getRole(Settlement settlement, String roleName);
 
-    void remove(String settlementName, Role role);
+    Role getOtherRole(Settlement settlement, String roleName);
 
-    void add(String settlementName, String name);
+    boolean hasRole(Settlement settlement, String name);
 
-    boolean promote(String settlementName, Role role, Member member);
+    void clean(Settlement settlement);
+    Role createDefaultRole();
 
-    boolean demote(String settlementName, Role role, Member member);
+    void addRole(Role role);
 
-    boolean hasRole(String settlementName, String name);
+    void addRole(Settlement settlement, String roleName, int weight);
 
-    int getIndex(String settlementName, Member member);
+    void removeRole(Settlement settlement, String roleName);
 
-    void clean(String settlementName);
+    Set<Role> getRoles(Settlement settlement);
 
-    void setup(String settlementName, Settlement settlement);
+    List<Role> getRoleList(Settlement settlement);
 
-    List<Role> getRoles(String settlementName);
+    Role getRole(long id);
 
     Role getRole(Member member);
 
-    Role getRole(String settlement, String name);
+    int getIndex(Settlement settlement, Role role);
 
-    int getIndex(String settlement, String name);
+    Role sync(Member member, Settlement settlement);
 
-    Role sync(Member member, String defaultRole);
+    RoleDao getDao();
 }

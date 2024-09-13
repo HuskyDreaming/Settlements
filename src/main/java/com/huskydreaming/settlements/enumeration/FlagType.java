@@ -1,9 +1,9 @@
 package com.huskydreaming.settlements.enumeration;
 
 import com.huskydreaming.huskycore.utilities.Util;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 
-public enum Flag {
+public enum FlagType {
     ANIMAL_KILLING(Message.FLAGS_ANIMAL_KILLING.parse()),
     ANIMAL_SPAWNING(Message.FLAGS_ANIMAL_SPAWNING.parse()),
     MONSTER_SPAWNING(Message.FLAGS_MONSTER_SPAWNING.parse()),
@@ -17,7 +17,7 @@ public enum Flag {
 
     private final String description;
 
-    Flag(String description) {
+    FlagType(String description) {
         this.description = description;
     }
 

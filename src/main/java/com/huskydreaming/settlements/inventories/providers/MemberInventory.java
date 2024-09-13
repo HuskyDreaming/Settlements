@@ -3,28 +3,33 @@ package com.huskydreaming.settlements.inventories.providers;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.inventories.InventoryItem;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
+import com.huskydreaming.settlements.database.entities.Member;
+import com.huskydreaming.settlements.database.entities.Role;
+import com.huskydreaming.settlements.database.entities.Settlement;
+import com.huskydreaming.settlements.database.persistence.Config;
 import com.huskydreaming.settlements.enumeration.filters.MemberFilter;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.persistence.Config;
-import com.huskydreaming.settlements.storage.persistence.Member;
-import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.storage.persistence.Role;
-import com.huskydreaming.settlements.enumeration.RolePermission;
-import com.huskydreaming.settlements.storage.types.Message;
-import com.huskydreaming.settlements.storage.types.Menu;
+import com.huskydreaming.settlements.enumeration.PermissionType;
+import com.huskydreaming.settlements.enumeration.locale.Message;
+import com.huskydreaming.settlements.enumeration.locale.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import fr.minuskube.inv.content.InventoryProvider;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
+
+import java.util.Set;
+import java.util.List;
 
 public class MemberInventory implements InventoryProvider {
 
     private final HuskyPlugin plugin;
     private final ConfigService configService;
     private final InventoryService inventoryService;
+    private final PermissionService permissionService;
     private final MemberService memberService;
     private final RoleService roleService;
     private final SettlementService settlementService;
@@ -35,6 +40,7 @@ public class MemberInventory implements InventoryProvider {
 
         configService = plugin.provide(ConfigService.class);
         inventoryService = plugin.provide(InventoryService.class);
+        permissionService = plugin.provide(PermissionService.class);
         memberService = plugin.provide(MemberService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
@@ -47,8 +53,8 @@ public class MemberInventory implements InventoryProvider {
     public void init(Player player, InventoryContents contents) {
         if(!memberService.hasSettlement(player)) return;
 
-        Member member = memberService.getCitizen(player);
-        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Member member = memberService.getMember(player);
+        Settlement settlement = settlementService.getSettlement(member);
 
         contents.fillBorders(InventoryItem.border());
         contents.set(0, 0, InventoryItem.back(player, inventoryService.getMembersInventory(plugin, player, MemberFilter.ALL)));
@@ -68,9 +74,10 @@ public class MemberInventory implements InventoryProvider {
     }
 
     private ClickableItem setOwner(Settlement settlement, InventoryContents contents) {
+        OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(settlement.getOwnerUUID());
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_SET_OWNER_TITLE.parse())
-                .setLore(Menu.MEMBER_SET_OWNER_LORE.parameterizeList(settlement.getOwnerName()))
+                .setLore(Menu.MEMBER_SET_OWNER_LORE.parameterizeList(offlinePlayer.getName()))
                 .setMaterial(Material.EMERALD)
                 .build(), e -> setOwnerClick(e, contents));
     }
@@ -80,8 +87,8 @@ public class MemberInventory implements InventoryProvider {
             if (!memberService.hasSettlement(player)) return;
             if (!memberService.hasSettlement(offlinePlayer)) return;
 
-            Member member = memberService.getCitizen(offlinePlayer);
-            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            Member member = memberService.getMember(offlinePlayer);
+            Settlement settlement = settlementService.getSettlement(member);
             if (settlement.isOwner(player)) {
 
                 if (offlinePlayer.getUniqueId().equals(player.getUniqueId())) {
@@ -117,11 +124,13 @@ public class MemberInventory implements InventoryProvider {
     }
 
     private ClickableItem roleItem(InventoryContents contents) {
-        Member member = memberService.getCitizen(offlinePlayer);
-        int index = roleService.getIndex(member.getSettlement(), member);
+        Member member = memberService.getMember(offlinePlayer);
+        Settlement settlement = settlementService.getSettlement(member);
+        Role role = roleService.getRole(member);
+        long index = roleService.getIndex(settlement, role) + 1;
         return ClickableItem.of(ItemBuilder.create()
                 .setDisplayName(Menu.MEMBER_SET_ROLE_TITLE.parse())
-                .setLore(Menu.MEMBER_SET_ROLE_LORE.parameterizeList(index, member.getRole()))
+                .setLore(Menu.MEMBER_SET_ROLE_LORE.parameterizeList(index, role.getName()))
                 .setMaterial(Material.WRITABLE_BOOK)
                 .build(), e -> roleItemClick(e, contents));
     }
@@ -131,18 +140,14 @@ public class MemberInventory implements InventoryProvider {
             if (!memberService.hasSettlement(player)) return;
             if (!memberService.hasSettlement(offlinePlayer)) return;
 
-            Member member = memberService.getCitizen(offlinePlayer);
-            Settlement settlement = settlementService.getSettlement(member.getSettlement());
-            Role role = roleService.sync(member, settlement.getDefaultRole());
-
+            Member member = memberService.getMember(offlinePlayer);
+            Settlement settlement = settlementService.getSettlement(member);
+            Role role = roleService.sync(member, settlement);
+            List<Role> roleList = roleService.getRoleList(settlement);
             if (event.isRightClick()) {
-                if (roleService.demote(member.getSettlement(), role, member)) {
-                    contents.inventory().open(player);
-                }
+                memberService.demote(role, member, roleList, () -> contents.inventory().open(player));
             } else if (event.isLeftClick()) {
-                if (roleService.promote(member.getSettlement(), role, member)) {
-                    contents.inventory().open(player);
-                }
+                memberService.promote(role, member, roleList, ()-> contents.inventory().open(player));
             }
         }
     }
@@ -160,16 +165,17 @@ public class MemberInventory implements InventoryProvider {
             if (!memberService.hasSettlement(player)) return;
             if (!memberService.hasSettlement(offlinePlayer)) return;
 
-            Member member = memberService.getCitizen(offlinePlayer);
+            Member member = memberService.getMember(offlinePlayer);
             Role role = roleService.getRole(member);
-            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            Settlement settlement = settlementService.getSettlement(member);
 
-            if (settlement.isOwner(offlinePlayer) || role.hasPermission(RolePermission.MEMBER_KICK_EXEMPT)) {
+            Set<PermissionType> permissions = permissionService.getPermissions(role);
+            if (settlement.isOwner(offlinePlayer) || permissions.contains(PermissionType.MEMBER_KICK_EXEMPT)) {
                 player.sendMessage(Message.KICK_EXEMPT.prefix());
             } else {
                 player.sendMessage(Message.KICK_PLAYER.prefix(offlinePlayer.getName()));
                 Player target = offlinePlayer.getPlayer();
-                if (target != null) target.sendMessage(Message.KICK.prefix(member.getSettlement()));
+                if (target != null) target.sendMessage(Message.KICK.prefix(settlement.getName()));
                 memberService.remove(offlinePlayer);
             }
             contents.inventory().close(player);

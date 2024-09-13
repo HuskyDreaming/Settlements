@@ -1,13 +1,14 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.CommandAnnotation;
-import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
-import com.huskydreaming.huskycore.data.ChunkData;
+import com.huskydreaming.huskycore.annotations.CommandAnnotation;
+import com.huskydreaming.huskycore.interfaces.command.providers.PlayerCommandProvider;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.commands.CommandLabel;
+import com.huskydreaming.settlements.database.entities.Claim;
+import com.huskydreaming.settlements.database.entities.Settlement;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
 import org.bukkit.entity.Player;
@@ -74,25 +75,23 @@ public class AdminCommand implements PlayerCommandProvider {
 
     private void sendClaim(Player player, String string) {
         Chunk chunk = player.getLocation().getChunk();
-        if (settlementService.isSettlement(string)) {
-
-            boolean isAdjacent = false;
-            for (ChunkData data : claimService.getClaims(string)) {
-                if (Util.areAdjacentChunks(chunk, data.toChunk())) isAdjacent = true;
-            }
-
-            if (isAdjacent) {
-                String x = String.valueOf(chunk.getX());
-                String z = String.valueOf(chunk.getZ());
-
-                player.sendMessage(Message.LAND_CLAIM.prefix(x, z));
-                claimService.setClaim(chunk, string);
-            } else {
-                player.sendMessage(Message.LAND_ADJACENT.prefix());
-            }
-
-        } else {
+        boolean isAdjacent = false;
+        Settlement settlement = settlementService.getSettlement(string);
+        if(settlement == null) {
             player.sendMessage(Message.NULL.prefix(string));
+            return;
+        }
+        for (Claim claim : claimService.getClaims(settlement)) {
+            if (Util.areAdjacentChunks(chunk, claim.toChunk())) isAdjacent = true;
+        }
+
+        if (isAdjacent) {
+            String x = String.valueOf(chunk.getX());
+            String z = String.valueOf(chunk.getZ());
+
+            claimService.addClaim(settlement, chunk, () -> player.sendMessage(Message.LAND_CLAIM.prefix(x, z)));
+        } else {
+            player.sendMessage(Message.LAND_ADJACENT.prefix());
         }
     }
 
@@ -104,12 +103,11 @@ public class AdminCommand implements PlayerCommandProvider {
             return;
         }
 
-        String claim = claimService.getClaim(chunk);
-        if (claimService.getClaims(claim).size() == 1) {
+        Claim claim = claimService.getClaim(chunk);
+        if (claimService.getClaims(claim.getSettlementId()).size() == 1) {
             player.sendMessage(Message.LAND_UN_CLAIM_ONE.prefix());
         } else {
-            claimService.removeClaim(chunk);
-            player.sendMessage(Message.LAND_UN_CLAIM.prefix());
+            claimService.removeClaim(claim, () -> player.sendMessage(Message.LAND_UN_CLAIM.prefix()));
         }
     }
 
@@ -118,13 +116,18 @@ public class AdminCommand implements PlayerCommandProvider {
             player.sendMessage(Message.NULL.prefix(string));
             return;
         }
+        Settlement settlement = settlementService.getSettlement(string);
+        if(settlement == null) {
+            player.sendMessage(Message.NULL.prefix(string));
+            return;
+        }
 
-        claimService.clean(string);
-        memberService.clean(string);
-        flagService.clean(string);
-        roleService.clean(string);
-        trustService.clean(string);
-        settlementService.disbandSettlement(string);
+        claimService.clean(settlement);
+        memberService.clean(settlement);
+        flagService.clean(settlement);
+        roleService.clean(settlement);
+        trustService.clean(settlement);
+        settlementService.disbandSettlement(settlement);
 
         player.sendMessage(Message.DISBAND_YES.prefix());
     }

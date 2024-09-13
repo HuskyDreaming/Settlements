@@ -3,13 +3,13 @@ package com.huskydreaming.settlements.inventories.providers;
 import com.huskydreaming.huskycore.HuskyPlugin;
 import com.huskydreaming.huskycore.inventories.InventoryModuleProvider;
 import com.huskydreaming.huskycore.utilities.ItemBuilder;
+import com.huskydreaming.settlements.database.entities.Member;
+import com.huskydreaming.settlements.database.entities.Settlement;
 import com.huskydreaming.settlements.inventories.actions.DisbandInventoryAction;
-import com.huskydreaming.settlements.storage.persistence.Member;
 import com.huskydreaming.settlements.services.interfaces.InventoryService;
 import com.huskydreaming.settlements.services.interfaces.MemberService;
 import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.storage.types.Menu;
+import com.huskydreaming.settlements.enumeration.locale.Menu;
 import fr.minuskube.inv.ClickableItem;
 import fr.minuskube.inv.content.InventoryContents;
 import org.bukkit.Material;
@@ -37,8 +37,8 @@ public class SettlementInventory extends InventoryModuleProvider {
 
         if (!memberService.hasSettlement(player)) return;
 
-        Member member = memberService.getCitizen(player);
-        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Member member = memberService.getMember(player);
+        Settlement settlement = settlementService.getSettlement(member);
 
         if (!settlement.isOwner(player)) return;
 
@@ -57,12 +57,12 @@ public class SettlementInventory extends InventoryModuleProvider {
         if (event.getWhoClicked() instanceof Player player) {
             if (!memberService.hasSettlement(player)) return;
 
-            Member member = memberService.getCitizen(player);
-            Settlement settlement = settlementService.getSettlement(member.getSettlement());
+            Member member = memberService.getMember(player);
+            Settlement settlement = settlementService.getSettlement(member);
 
             if (!settlement.isOwner(player)) return;
 
-            inventoryService.addAction(player, new DisbandInventoryAction(plugin, member.getSettlement()));
+            inventoryService.addAction(player, new DisbandInventoryAction(plugin, settlement));
             inventoryService.getConfirmationInventory(plugin, player).open(player);
         }
     }

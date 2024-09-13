@@ -1,15 +1,18 @@
 package com.huskydreaming.settlements;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.implementations.DatabaseMigrationServiceImpl;
+import com.huskydreaming.huskycore.implementations.DatabaseServiceImpl;
+import com.huskydreaming.huskycore.interfaces.database.base.DatabaseMigrationService;
+import com.huskydreaming.huskycore.interfaces.database.base.DatabaseService;
 import com.huskydreaming.settlements.commands.BaseCommand;
 import com.huskydreaming.settlements.commands.subcommands.*;
+import com.huskydreaming.settlements.database.migrations._1_InitialMigration;
 import com.huskydreaming.settlements.listeners.FlagListener;
 import com.huskydreaming.settlements.listeners.LandListener;
 import com.huskydreaming.settlements.listeners.MemberListener;
-import com.huskydreaming.settlements.storage.persistence.Config;
 import com.huskydreaming.settlements.services.implementations.*;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.sk89q.worldguard.protection.flags.Flag;
 
 public class SettlementPlugin extends HuskyPlugin {
 
@@ -19,7 +22,11 @@ public class SettlementPlugin extends HuskyPlugin {
 
         registerServices();
         registerCommands();
-        registerListeners(new LandListener(this), new MemberListener(this), new FlagListener(this));
+        registerListeners(
+                new LandListener(this),
+                new MemberListener(this),
+                new FlagListener(this)
+        );
     }
 
     @Override
@@ -28,26 +35,36 @@ public class SettlementPlugin extends HuskyPlugin {
     }
 
     private void registerServices() {
+        // Setup database
+        DatabaseService databaseService = new DatabaseServiceImpl(this);
+        DatabaseMigrationService databaseMigrationService = new DatabaseMigrationServiceImpl();
+        databaseMigrationService.setConnector(databaseService.getDatabaseConnector());
+        databaseMigrationService.loadMigrations(new _1_InitialMigration());
+
         serviceRegistry.register(ConfigService.class, new ConfigServiceImpl());
-        serviceRegistry.register(LocaleService.class, new LocaleServiceImpl(this));
+        serviceRegistry.register(LocaleService.class, new LocaleServiceImpl());
+        serviceRegistry.register(DatabaseService.class, databaseService);
+        serviceRegistry.register(DatabaseMigrationService.class, databaseMigrationService);
         serviceRegistry.register(DependencyService.class, new DependencyServiceImpl());
-        serviceRegistry.register(HomeService.class, new HomeServiceImpl());
-        serviceRegistry.register(MemberService.class, new MemberServiceImpl());
         serviceRegistry.register(SettlementService.class, new SettlementServiceImpl(this));
+        serviceRegistry.register(ClaimService.class, new ClaimServiceImpl(this));
+        serviceRegistry.register(ContainerService.class, new ContainerServiceImpl(this));
         serviceRegistry.register(FlagService.class, new FlagServiceImpl(this));
+        serviceRegistry.register(HomeService.class, new HomeServiceImpl(this));
+        serviceRegistry.register(RoleService.class, new RoleServiceImpl(this));
+        serviceRegistry.register(MemberService.class, new MemberServiceImpl(this));
+        serviceRegistry.register(PermissionService.class, new PermissionServiceImpl(this));
         serviceRegistry.register(NotificationService.class, new NotificationServiceImpl(this));
         serviceRegistry.register(InvitationService.class, new InvitationServiceImpl());
-        serviceRegistry.register(RoleService.class, new RoleServiceImpl(this));
-        serviceRegistry.register(TrustService.class, new TrustServiceImpl());
-        serviceRegistry.register(ClaimService.class, new ClaimServiceImpl());
+        serviceRegistry.register(TrustService.class, new TrustServiceImpl(this));
         serviceRegistry.register(BorderService.class, new BorderServiceImpl(this));
         serviceRegistry.register(InventoryService.class, new InventoryServiceImpl(this));
-
         serviceRegistry.deserialize(this);
     }
 
     private void registerCommands() {
         commandRegistry.setCommandExecutor(new BaseCommand(this));
+        serviceRegistry.provide(ConfigService.class).setup(this);
         commandRegistry.add(new AcceptCommand(this));
         commandRegistry.add(new AdminCommand(this));
         commandRegistry.add(new AutoClaimCommand(this));
@@ -65,27 +82,8 @@ public class SettlementPlugin extends HuskyPlugin {
         commandRegistry.add(new ReloadCommand(this));
         commandRegistry.add(new SetDescriptionCommand(this));
         commandRegistry.add(new SetOwnerCommand(this));
+        commandRegistry.add(new SetRoleCommand(this));
         commandRegistry.add(new SetTagCommand(this));
-
-        ConfigService configService = serviceRegistry.provide(ConfigService.class);
-        Config config = configService.getConfig();
-
-        if(config.isTeleportation()) {
-            commandRegistry.add(new SpawnCommand(this));
-            commandRegistry.add(new SetSpawnCommand(this));
-        }
-
-        if(config.isTrusting()) {
-            commandRegistry.add(new TrustCommand(this));
-            commandRegistry.add(new UnTrustCommand(this));
-        }
-
-        if(config.isHomes()) {
-            commandRegistry.add(new DeleteHomeCommand(this));
-            commandRegistry.add(new HomeCommand(this));
-            commandRegistry.add(new SetHomeCommand(this));
-        }
-
         commandRegistry.add(new UnClaimCommand(this));
         commandRegistry.deserialize(this);
     }

@@ -1,70 +1,122 @@
 package com.huskydreaming.settlements.services.implementations;
 
-import com.google.common.reflect.TypeToken;
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.storage.Json;
+import com.huskydreaming.settlements.SettlementPlugin;
+import com.huskydreaming.settlements.database.SqlType;
+import com.huskydreaming.settlements.database.dao.HomeDao;
+import com.huskydreaming.settlements.database.entities.Home;
+import com.huskydreaming.settlements.database.entities.Settlement;
 import com.huskydreaming.settlements.services.interfaces.HomeService;
-import com.huskydreaming.settlements.storage.persistence.Home;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class HomeServiceImpl implements HomeService {
 
-    private Map<String, List<Home>> homes;
+    private final HomeDao homeDao;
+    private final Map<Long, Home> homes;
+
+    public HomeServiceImpl(SettlementPlugin plugin) {
+        homeDao = new HomeDao(plugin);
+        homes = new ConcurrentHashMap<>();
+    }
 
     @Override
     public void deserialize(HuskyPlugin plugin) {
-        Type type = new TypeToken<Map<String, List<Home>>>() {
-        }.getType();
-        homes = Json.read(plugin, "data/homes", type);
-        if (homes == null) homes = new ConcurrentHashMap<>();
+        homeDao.bulkImport(SqlType.HOME, homes::putAll);
     }
 
     @Override
     public void serialize(HuskyPlugin plugin) {
-        Json.write(plugin, "data/homes", homes);
+        homeDao.bulkUpdate(SqlType.HOME, homes.values());
     }
 
     @Override
-    public void setHome(String settlement, String name, Player player) {
-        homes.computeIfAbsent(settlement, s -> new ArrayList<>())
-                .add(Home.create(name, player.getLocation()));
+    public void clean(Settlement settlement) {
+        Set<Long> homeIds = homes.entrySet().stream()
+                .filter(h -> h.getValue().getSettlementId() == settlement.getId())
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toSet());
+
+        homeDao.bulkDelete(SqlType.HOME, homeIds);
+        homes.keySet().removeAll(homeIds);
     }
 
     @Override
-    public void deleteHome(String settlement, String name) {
-        homes.get(settlement).removeIf(home -> home.name().equalsIgnoreCase(name));
+    public void addHome(Home home) {
+        homes.put(home.getId(), home);
     }
 
     @Override
-    public boolean hasHome(String settlement, String name) {
-        return homes.containsKey(settlement) && homes.get(settlement).stream()
-                .anyMatch(home -> home.name().equalsIgnoreCase(name));
+    public Home createHome(Player player, String name) {
+        Location location = player.getLocation();
+        World world = location.getWorld();
+        if(world == null) return null;
+
+        Home home = new Home();
+        home.setName(name);
+        home.setWorldUID(world.getUID());
+        home.setX(location.getX());
+        home.setY(location.getY());
+        home.setZ(location.getZ());
+        home.setYaw(location.getYaw());
+        home.setPitch(location.getPitch());
+        return home;
     }
 
     @Override
-    public boolean hasHomes(String settlement) {
-        return homes.containsKey(settlement);
+    public void setHome(Settlement settlement, Player player, String name) {
+        Home home = createHome(player, name);
+        home.setSettlementId(settlement.getId());
+        homeDao.insert(home).queue(i -> {
+            home.setId(i);
+            homes.put(i, home);
+        });
     }
 
     @Override
-    public Home getHome(String settlement, String name) {
-        return homes.get(settlement).stream()
-                .filter(home -> home.name().equalsIgnoreCase(name))
+    public void deleteHome(Settlement settlement, String name) {
+        Home home = homes.values().stream()
+                .filter(v -> v.getSettlementId() == settlement.getId() && v.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
+
+        if(home != null) {
+            homeDao.delete(home).queue();
+            homes.remove(home.getId());
+        }
+    }
+
+    @Override
+    public boolean hasHome(Settlement settlement, String name) {
+        return homes.values().stream().anyMatch(h -> h.getSettlementId() == settlement.getId() && h.getName().equalsIgnoreCase(name));
+    }
+
+    @Override
+    public boolean hasHomes(Settlement settlement) {
+        return homes.values().stream().anyMatch(h -> h.getSettlementId() == settlement.getId());
+    }
+
+    @Override
+    public Home getHome(Settlement settlement, String name) {
+        return homes.values().stream()
+                .filter(h -> h.getSettlementId() == settlement.getId() && h.getName().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
     }
 
+    @Override
+    public Set<Home> getHomes(Settlement settlement) {
+        return homes.values().stream().filter(h -> h.getSettlementId() == settlement.getId()).collect(Collectors.toSet());
+    }
 
     @Override
-    public List<Home> getHomes(String settlement) {
-        if (!homes.containsKey(settlement)) return new ArrayList<>();
-        return Collections.unmodifiableList(homes.get(settlement));
+    public HomeDao getDao() {
+        return homeDao;
     }
 }

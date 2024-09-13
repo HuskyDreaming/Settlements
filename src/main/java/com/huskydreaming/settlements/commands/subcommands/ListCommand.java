@@ -1,11 +1,11 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
-import com.huskydreaming.huskycore.commands.CommandAnnotation;
-import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
+import com.huskydreaming.huskycore.annotations.CommandAnnotation;
+import com.huskydreaming.huskycore.interfaces.command.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.commands.CommandLabel;
 import com.huskydreaming.settlements.services.interfaces.*;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 import org.bukkit.entity.Player;
 
 @CommandAnnotation(label = CommandLabel.LIST)
@@ -32,6 +32,5 @@ public class ListCommand implements PlayerCommandProvider {
         }
 
         inventoryService.getSettlementsInventory(plugin).open(player);
-
     }
 }

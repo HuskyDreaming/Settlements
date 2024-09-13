@@ -1,22 +1,32 @@
 package com.huskydreaming.settlements.services.interfaces;
 
 import com.huskydreaming.huskycore.interfaces.Service;
-import com.huskydreaming.settlements.storage.persistence.Home;
+import com.huskydreaming.settlements.database.dao.HomeDao;
+import com.huskydreaming.settlements.database.entities.Home;
+import com.huskydreaming.settlements.database.entities.Settlement;
 import org.bukkit.entity.Player;
 
-import java.util.List;
+import java.util.Set;
 
 public interface HomeService extends Service {
 
-    void setHome(String settlement, String name, Player player);
+    void clean(Settlement settlement);
 
-    void deleteHome(String settlement, String name);
+    void addHome(Home home);
 
-    boolean hasHome(String settlement, String name);
+    Home createHome(Player player, String name);
 
-    boolean hasHomes(String settlement);
+    void setHome(Settlement settlement, Player player, String name);
 
-    Home getHome(String settlement, String name);
+    void deleteHome(Settlement settlement, String name);
 
-    List<Home> getHomes(String settlement);
+    boolean hasHome(Settlement settlement, String name);
+
+    boolean hasHomes(Settlement settlement);
+
+    Home getHome(Settlement settlement, String name);
+
+    Set<Home> getHomes(Settlement settlement);
+
+    HomeDao getDao();
 }

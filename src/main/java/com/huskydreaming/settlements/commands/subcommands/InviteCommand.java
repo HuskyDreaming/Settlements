@@ -1,35 +1,35 @@
 package com.huskydreaming.settlements.commands.subcommands;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
-import com.huskydreaming.huskycore.commands.CommandAnnotation;
-import com.huskydreaming.huskycore.commands.providers.PlayerCommandProvider;
+import com.huskydreaming.huskycore.annotations.CommandAnnotation;
+import com.huskydreaming.huskycore.interfaces.command.providers.PlayerCommandProvider;
 import com.huskydreaming.settlements.commands.CommandLabel;
-import com.huskydreaming.settlements.storage.persistence.Member;
-import com.huskydreaming.settlements.storage.persistence.Settlement;
-import com.huskydreaming.settlements.storage.persistence.Role;
-import com.huskydreaming.settlements.enumeration.RolePermission;
-import com.huskydreaming.settlements.services.interfaces.MemberService;
-import com.huskydreaming.settlements.services.interfaces.InvitationService;
-import com.huskydreaming.settlements.services.interfaces.RoleService;
-import com.huskydreaming.settlements.services.interfaces.SettlementService;
-import com.huskydreaming.settlements.storage.types.Message;
+import com.huskydreaming.settlements.database.entities.*;
+import com.huskydreaming.settlements.enumeration.PermissionType;
+import com.huskydreaming.settlements.services.interfaces.*;
+import com.huskydreaming.settlements.enumeration.locale.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @CommandAnnotation(label = CommandLabel.INVITE, arguments = " [Player]")
 public class InviteCommand implements PlayerCommandProvider {
 
+    private final ContainerService containerService;
     private final MemberService memberService;
     private final InvitationService invitationService;
+    private final PermissionService permissionService;
     private final RoleService roleService;
     private final SettlementService settlementService;
 
     public InviteCommand(HuskyPlugin plugin) {
+        containerService = plugin.provide(ContainerService.class);
         memberService = plugin.provide(MemberService.class);
         invitationService = plugin.provide(InvitationService.class);
+        permissionService = plugin.provide(PermissionService.class);
         roleService = plugin.provide(RoleService.class);
         settlementService = plugin.provide(SettlementService.class);
     }
@@ -59,18 +59,26 @@ public class InviteCommand implements PlayerCommandProvider {
             return;
         }
 
-        Member member = memberService.getCitizen(player);
-        Settlement settlement = settlementService.getSettlement(member.getSettlement());
+        Member member = memberService.getMember(player);
+        Settlement settlement = settlementService.getSettlement(member);
         Role role = roleService.getRole(member);
 
-
-        if(!(role.hasPermission(RolePermission.MEMBER_INVITE) || settlement.isOwner(player))) {
+        Set<PermissionType> permissions = permissionService.getPermissions(role);
+        if(!(permissions.contains(PermissionType.MEMBER_INVITE) || settlement.isOwner(player))) {
             player.sendMessage(Message.GENERAL_NO_PERMISSIONS.prefix());
             return;
         }
 
-        target.sendMessage(Message.INVITATION_RECEIVED.prefix(member.getSettlement()));
-        invitationService.sendInvitation(target, member.getSettlement());
+        Set<Member> members = memberService.getMembers(settlement);
+        Container container = containerService.getContainer(settlement);
+        int maxMembers = container.getMaxMembers();
+        if (members.size() >= maxMembers) {
+            player.sendMessage(Message.MEMBER_MAX.prefix(maxMembers));
+            return;
+        }
+
+        target.sendMessage(Message.INVITATION_RECEIVED.prefix(member.getSettlementId()));
+        invitationService.sendInvitation(target, settlement);
         player.sendMessage(Message.INVITATION_SENT.prefix(target.getName()));
     }
 

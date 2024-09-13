@@ -1,4 +1,4 @@
-package com.huskydreaming.settlements.storage.types;
+package com.huskydreaming.settlements.enumeration.locale;
 
 import com.google.common.base.Functions;
 import com.huskydreaming.huskycore.interfaces.Parseable;
@@ -99,6 +99,8 @@ public enum Message implements Parseable {
 
     // HOMES
     HOME_DELETE("You have deleted &b{0} &7home."),
+    HOME_EXISTS("The &b{0} &7home already exists."),
+    HOME_MAX("Your settlement can't have more than &b{0}&7 home(s)."),
     HOME_NULL("The home &b{0} &7does not seem to exist."),
     HOME_SET("You have created &b{0} &7home."),
     HOME_TELEPORT("You have been teleported to &b{0}&7."),
@@ -143,6 +145,7 @@ public enum Message implements Parseable {
 
     // Member
     MEMBER_ALREADY("The player &b{0} &7is already part of your settlement."),
+    MEMBER_MAX("Your settlement can't have more than &b{0}&7 member(s)."),
 
     // Owner
     OWNER("You have become the owner of your settlement."),
@@ -183,8 +186,10 @@ public enum Message implements Parseable {
 
     // ROLES
     ROLE_CREATE("Successfully created the &b{0} &7role."),
+    ROLE_DEFAULT("You are not able to join &b{0}&7 because they do not have a default role setup."),
     ROLE_DELETE("Successfully deleted the &b{0} &7role."),
     ROLE_EXISTS("The settlement already has the &b{0} &7role."),
+    ROLE_MAX("Your settlement can't have more than &b{0}&7 role(s)."),
     ROLE_NULL("The &b{0} &7role does not seem to exist."),
     ROLE_ONE("The settlement must have at least one role available."),
     ROLE_SET("You have set the role of &b{0} &7to &b{1}&7."),
