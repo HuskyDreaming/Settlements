@@ -22,4 +22,4 @@ Spigot: https://www.spigotmc.org/resources/settlements.115101/
 
 There is a discord server available if you need quick and reliable support: https://discord.gg/AymHuvNMbs
 
-Are you willing to test the settlement plugin? Join the testing server: 51.161.91.201:25610
+Are you willing to test the settlement plugin? Join the testing server: 51.79.35.16:25566
