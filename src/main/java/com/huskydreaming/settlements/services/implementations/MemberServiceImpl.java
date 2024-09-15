@@ -1,6 +1,8 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.implementations.RepositoryImpl;
+import com.huskydreaming.huskycore.interfaces.Repository;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.database.SqlType;
 import com.huskydreaming.settlements.database.dao.MemberDao;
@@ -14,38 +16,37 @@ import org.bukkit.OfflinePlayer;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class MemberServiceImpl implements MemberService {
 
     private final MemberDao memberDao;
-    private final Map<Long, Member> members;
+    private final Repository<Member> memberRepository;
 
     public MemberServiceImpl(SettlementPlugin plugin) {
         memberDao = new MemberDao(plugin);
-        members = new ConcurrentHashMap<>();
+        memberRepository = new RepositoryImpl<>();
     }
 
     @Override
     public void deserialize(HuskyPlugin plugin) {
-        memberDao.bulkImport(SqlType.MEMBER, members::putAll);
+        memberDao.bulkImport(SqlType.MEMBER, memberRepository::bulkAdd);
     }
 
     @Override
     public void serialize(HuskyPlugin plugin) {
-        memberDao.bulkUpdate(SqlType.MEMBER, members.values());
+        memberDao.bulkUpdate(SqlType.MEMBER, memberRepository.values());
     }
 
     @Override
     public boolean hasSettlement(OfflinePlayer offlinePlayer) {
-        return members.values().stream().anyMatch(m -> m.getUniqueId().equals(offlinePlayer.getUniqueId()));
+        return memberRepository.values().stream().anyMatch(m -> m.getUniqueId().equals(offlinePlayer.getUniqueId()));
     }
 
     @Override
     public void addMember(Member member) {
-        members.put(member.getId(), member);
+        memberRepository.add(member);
     }
 
     @Override
@@ -77,30 +78,28 @@ public class MemberServiceImpl implements MemberService {
 
         memberDao.insert(member).queue(i -> {
             member.setId(i);
-            members.put(i, member);
+            memberRepository.add(member);
         });
     }
 
     @Override
     public void remove(OfflinePlayer offlinePlayer) {
         Predicate<Member> memberPredicate = (m -> m.getUniqueId().equals(offlinePlayer.getUniqueId()));
-        Member member = members.values().stream().filter(memberPredicate).findFirst().orElse(null);
+        memberRepository.values().stream().filter(memberPredicate).findFirst().ifPresent(member -> memberDao.delete(member).queue(success -> {
+            if (success) memberRepository.remove(member);
+        }));
 
-        if(member != null) {
-            memberDao.delete(member).queue();
-            members.remove(member.getId());
-        }
     }
 
     @Override
     public void clean(Settlement settlement) {
-        Set<Long> memberIds = members.entrySet().stream()
+        Set<Long> memberIds = memberRepository.entries().stream()
                 .filter(e -> e.getValue().getSettlementId() == settlement.getId())
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
 
         memberDao.bulkDelete(SqlType.MEMBER, memberIds);
-        members.keySet().removeAll(memberIds);
+        memberRepository.keys().removeAll(memberIds);
     }
 
     @Override
@@ -131,12 +130,12 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public int getCount() {
-        return members.size();
+        return memberRepository.size();
     }
 
     @Override
     public Member getMember(OfflinePlayer offlinePlayer) {
-        return members.values().stream()
+        return memberRepository.values().stream()
                 .filter(m -> m.getUniqueId().equals(offlinePlayer.getUniqueId()))
                 .findFirst()
                 .orElse(null);
@@ -144,21 +143,21 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Set<Member> getMembers(Settlement settlement) {
-        return members.values().stream()
+        return memberRepository.values().stream()
                 .filter(m -> m.getSettlementId() == settlement.getId())
                 .collect(Collectors.toSet());
     }
 
     @Override
     public Set<Member> getMembers(long settlementId) {
-        return members.values().stream()
+        return memberRepository.values().stream()
                 .filter(m -> m.getSettlementId() == settlementId)
                 .collect(Collectors.toSet());
     }
 
     @Override
     public LinkedHashMap<Long, Long> getTop(int limit) {
-        return members.values().stream()
+        return memberRepository.values().stream()
                 .collect(Collectors.groupingBy(Member::getSettlementId, Collectors.counting()))
                 .entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
@@ -168,7 +167,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Set<OfflinePlayer> getOfflinePlayers(Settlement settlement) {
-        return members.values().stream()
+        return memberRepository.values().stream()
                 .filter(m -> m.getSettlementId() == settlement.getId())
                 .map(e -> Bukkit.getOfflinePlayer(e.getUniqueId()))
                 .collect(Collectors.toSet());
@@ -176,7 +175,7 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     public Set<OfflinePlayer> getOfflinePlayers(long settlementId) {
-        return members.values().stream()
+        return memberRepository.values().stream()
                 .filter(m -> m.getSettlementId() == settlementId)
                 .map(e -> Bukkit.getOfflinePlayer(e.getUniqueId()))
                 .collect(Collectors.toSet());

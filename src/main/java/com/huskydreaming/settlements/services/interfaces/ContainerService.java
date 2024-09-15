@@ -16,6 +16,4 @@ public interface ContainerService extends Service {
     Container getContainer(Settlement settlement);
 
     ContainerDao getDao();
-
-    void clean(Settlement settlement);
 }

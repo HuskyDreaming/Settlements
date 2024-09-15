@@ -63,7 +63,7 @@ public class TrustCommand implements PlayerCommandProvider {
         String string = strings[1];
         OfflinePlayer offlinePlayer = Util.getOfflinePlayer(string);
         if (offlinePlayer == null) {
-            player.sendMessage(Message.PLAYER_NULL.prefix(string));
+            player.sendMessage(Message.PLAYER_NEVER_PLAYED.prefix(string));
             return;
         }
 

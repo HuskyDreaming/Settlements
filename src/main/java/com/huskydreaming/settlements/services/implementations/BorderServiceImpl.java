@@ -35,7 +35,7 @@ public class BorderServiceImpl implements BorderService {
                     Particle.DustOptions dustOptions = new Particle.DustOptions(borderData.color(), 1.0f);
 
                     for (Location location : borderData.locations()) {
-                        player.spawnParticle(Particle.REDSTONE, location, 1, dustOptions);
+                        player.spawnParticle(Particle.DUST, location, 1, dustOptions);
                     }
                 }
             }

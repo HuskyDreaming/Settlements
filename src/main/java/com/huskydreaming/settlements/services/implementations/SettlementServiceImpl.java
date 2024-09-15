@@ -1,6 +1,8 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.implementations.RepositoryImpl;
+import com.huskydreaming.huskycore.interfaces.Repository;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.database.SqlType;
 import com.huskydreaming.settlements.database.dao.SettlementDao;
@@ -13,27 +15,26 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class SettlementServiceImpl implements SettlementService {
 
     private final SettlementDao settlementDao;
-    private final Map<Long, Settlement> settlements;
+    private final Repository<Settlement> settlementRepository;
 
     public SettlementServiceImpl(SettlementPlugin plugin) {
-        this.settlements = new ConcurrentHashMap<>();
+        this.settlementRepository = new RepositoryImpl<>();
         this.settlementDao = new SettlementDao(plugin);
     }
 
     @Override
     public void serialize(HuskyPlugin plugin) {
-        settlementDao.bulkUpdate(SqlType.SETTLEMENT, settlements.values());
+        settlementDao.bulkUpdate(SqlType.SETTLEMENT, settlementRepository.values());
     }
 
     @Override
     public void deserialize(HuskyPlugin plugin) {
-        settlementDao.bulkImport(SqlType.SETTLEMENT, settlements::putAll);
+        settlementDao.bulkImport(SqlType.SETTLEMENT, settlementRepository::bulkAdd);
     }
 
     @Override
@@ -56,23 +57,24 @@ public class SettlementServiceImpl implements SettlementService {
 
     @Override
     public void addSettlement(Settlement settlement) {
-        settlements.put(settlement.getId(), settlement);
+        settlementRepository.add(settlement);
     }
 
     @Override
     public void disbandSettlement(Settlement settlement) {
-        settlementDao.delete(settlement).queue();
-        settlements.remove(settlement.getId());
+        settlementDao.delete(settlement).queue(success -> {
+            if(success)settlementRepository.remove(settlement);
+        });
     }
 
     @Override
     public boolean isSettlement(String name) {
-        return settlements.values().stream().anyMatch(s -> s.getName().equalsIgnoreCase(name));
+        return settlementRepository.values().stream().anyMatch(s -> s.getName().equalsIgnoreCase(name));
     }
 
     @Override
     public Settlement getSettlement(String name) {
-        return settlements.values().stream()
+        return settlementRepository.values().stream()
                 .filter(s -> s.getName().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
@@ -80,27 +82,27 @@ public class SettlementServiceImpl implements SettlementService {
 
     @Override
     public Settlement getSettlement(Claim claim) {
-        return settlements.get(claim.getSettlementId());
+        return settlementRepository.get(claim.getSettlementId());
     }
 
     @Override
     public Settlement getSettlement(Member member) {
-        return settlements.get(member.getSettlementId());
+        return settlementRepository.get(member.getSettlementId());
     }
 
     @Override
     public Settlement getSettlement(long id) {
-        return settlements.get(id);
+        return settlementRepository.get(id);
     }
 
     @Override
     public Map<Long, Settlement> getSettlements() {
-        return Collections.unmodifiableMap(settlements);
+        return settlementRepository.all();
     }
 
     @Override
     public Set<Settlement> getSettlements(Set<Long> settlementIds) {
-        return settlements.values().stream()
+        return settlementRepository.values().stream()
                 .filter(settlement -> settlementIds.contains(settlement.getId()))
                 .collect(Collectors.toSet());
     }

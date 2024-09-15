@@ -11,13 +11,15 @@ import java.util.function.Consumer;
 
 public interface PermissionService extends Service {
 
+    void clean(Set<Role> roles);
+
     Permission createPermission(PermissionType permissionType);
 
     void addPermission(Permission permission);
 
     void addPermission(Role role, PermissionType permissionType, Consumer<Long> consumer);
 
-    void removePermission(Permission permission, Consumer<Long> consumer);
+    void removePermission(Permission permission, Consumer<Boolean> consumer);
 
     Permission getPermissions(Role role, PermissionType permissionType);
 

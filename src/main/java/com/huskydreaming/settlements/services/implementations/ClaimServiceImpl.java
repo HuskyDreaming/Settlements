@@ -1,6 +1,8 @@
 package com.huskydreaming.settlements.services.implementations;
 
 import com.huskydreaming.huskycore.HuskyPlugin;
+import com.huskydreaming.huskycore.implementations.RepositoryImpl;
+import com.huskydreaming.huskycore.interfaces.Repository;
 import com.huskydreaming.huskycore.utilities.Util;
 import com.huskydreaming.settlements.SettlementPlugin;
 import com.huskydreaming.settlements.database.SqlType;
@@ -13,28 +15,27 @@ import org.bukkit.World;
 import org.bukkit.block.BlockFace;
 
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class ClaimServiceImpl implements ClaimService {
 
     private final ClaimDao claimDao;
-    private final Map<Long, Claim> claims;
+    private final Repository<Claim> claimRepository;
 
     public ClaimServiceImpl(SettlementPlugin plugin) {
         this.claimDao = new ClaimDao(plugin);
-        this.claims = new ConcurrentHashMap<>();
+        this.claimRepository = new RepositoryImpl<>();
     }
 
     @Override
     public void deserialize(HuskyPlugin plugin) {
-        claimDao.bulkImport(SqlType.CLAIM, claims::putAll);
+        claimDao.bulkImport(SqlType.CLAIM, claimRepository::bulkAdd);
     }
 
     @Override
     public void serialize(HuskyPlugin plugin) {
-        claimDao.bulkUpdate(SqlType.CLAIM, claims.values());
+        claimDao.bulkUpdate(SqlType.CLAIM, claimRepository.values());
     }
 
     @Override
@@ -49,7 +50,7 @@ public class ClaimServiceImpl implements ClaimService {
 
     @Override
     public void addClaim(Claim claim) {
-        claims.put(claim.getId(), claim);
+        claimRepository.add(claim);
     }
 
     @Override
@@ -62,7 +63,7 @@ public class ClaimServiceImpl implements ClaimService {
 
         claimDao.insert(claim).queue(i -> {
             claim.setId(i);
-            claims.put(i, claim);
+            claimRepository.add(claim);
             runnable.run();
         });
     }
@@ -71,25 +72,25 @@ public class ClaimServiceImpl implements ClaimService {
     @Override
     public void removeClaim(Claim claim, Runnable runnable) {
         claimDao.delete(claim).queue(i -> {
-            claims.remove(claim.getId());
+            claimRepository.remove(claim);
             runnable.run();
         });
     }
 
     @Override
     public void clean(Settlement settlement) {
-        Set<Long> claimIds = claims.entrySet().stream()
+        Set<Long> claimIds = claimRepository.entries().stream()
                 .filter(e -> e.getValue().getSettlementId() == settlement.getId())
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toSet());
 
         claimDao.bulkDelete(SqlType.CLAIM, claimIds);
-        claims.keySet().removeAll(claimIds);
+        claimRepository.keys().removeAll(claimIds);
     }
 
     @Override
     public boolean isClaim(Chunk chunk) {
-        return claims.values().stream().anyMatch(c ->
+        return claimRepository.values().stream().anyMatch(c ->
                 c.getWorldUID() == chunk.getWorld().getUID() &&
                 c.getX() == chunk.getX() &&
                 c.getZ() == chunk.getZ());
@@ -103,7 +104,7 @@ public class ClaimServiceImpl implements ClaimService {
                 c.getX() == chunk.getX() &&
                 c.getZ() == chunk.getZ());
 
-        return claims.values().stream().filter(claimPredicate).findFirst().orElse(null);
+        return claimRepository.values().stream().filter(claimPredicate).findFirst().orElse(null);
     }
 
     @Override
@@ -113,31 +114,31 @@ public class ClaimServiceImpl implements ClaimService {
                 c.getX() == chunk.getX() &&
                 c.getZ() == chunk.getZ());
 
-        return claims.values().stream().filter(claimPredicate).findFirst().orElse(null);
+        return claimRepository.values().stream().filter(claimPredicate).findFirst().orElse(null);
     }
 
     @Override
     public Set<Claim> getClaims(long settlementId) {
-        return claims.values().stream()
+        return claimRepository.values().stream()
                 .filter(c -> c.getSettlementId() == settlementId)
                 .collect(Collectors.toSet());
     }
 
     @Override
     public Set<Claim> getClaims(Settlement settlement) {
-        return claims.values().stream()
+        return claimRepository.values().stream()
                 .filter(c -> c.getSettlementId() == settlement.getId())
                 .collect(Collectors.toSet());
     }
 
     @Override
     public int getCount() {
-        return claims.size();
+        return claimRepository.size();
     }
 
     @Override
     public LinkedHashMap<Long, Long> getTop(int limit) {
-        return claims.values().stream()
+        return claimRepository.values().stream()
                 .collect(Collectors.groupingBy(Claim::getSettlementId, Collectors.counting()))
                 .entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))

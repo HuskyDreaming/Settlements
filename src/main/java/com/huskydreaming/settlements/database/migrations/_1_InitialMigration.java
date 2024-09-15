@@ -36,7 +36,7 @@ public class _1_InitialMigration implements DatabaseMigration {
                     "CREATE TABLE " + table + "_claim (" +
                     "id INTEGER PRIMARY KEY /*!40101 AUTO_INCREMENT */," +
                     "settlement_id INTEGER NOT NULL," +
-                    "world_uid INTEGER NOT NULL," +
+                    "world_uid TEXT NOT NULL," +
                     "x INTEGER NOT NULL," +
                     "z INTEGER NOT NULL)");
         } catch (SQLException e) {
@@ -75,7 +75,7 @@ public class _1_InitialMigration implements DatabaseMigration {
                     "id INTEGER PRIMARY KEY /*!40101 AUTO_INCREMENT */," +
                     "name TEXT NOT NULL," +
                     "settlement_id INTEGER NOT NULL," +
-                    "world_uid INTEGER NOT NULL," +
+                    "world_uid TEXT NOT NULL," +
                     "x DOUBLE NOT NULL," +
                     "y DOUBLE NOT NULL," +
                     "z DOUBLE NOT NULL," +
@@ -103,10 +103,10 @@ public class _1_InitialMigration implements DatabaseMigration {
                     "CREATE TABLE " + table + "_member (" +
                     "id INTEGER PRIMARY KEY /*!40101 AUTO_INCREMENT */," +
                     "player_uuid TEXT NOT NULL," +
-                    "settlement_id INTEGER NOT NULL DEFAULT NULL," +
-                    "role_id INTEGER NOT NULL DEFAULT NULL," +
-                    "last_online TEXT NOT NULL DEFAULT NULL," +
-                    "auto_claim TINYINT NOT NULL DEFAULT NULL)");
+                    "settlement_id INTEGER NOT NULL," +
+                    "role_id INTEGER NOT NULL," +
+                    "last_online TEXT NOT NULL," +
+                    "auto_claim TINYINT NOT NULL)");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
